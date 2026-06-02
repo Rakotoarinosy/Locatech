@@ -8,3 +8,6 @@ class Client(models.Model):
     adresse = models.CharField(max_length=200)
     cni = models.ImageField(upload_to='cnis/', null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+        return f"{self.nom} ({self.mail})"
