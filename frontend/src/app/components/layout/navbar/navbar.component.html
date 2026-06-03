@@ -1,0 +1,82 @@
+<!-- NAV BAR -->
+<nav class="navbar navbar-expand-lg fixed-top custom-navbar">
+  <div class="container">
+    <a class="navbar-brand d-flex align-items-center" href="#">
+      <span class="logo-dot me-2"></span>
+      <span class="fw-bold tracking-tight text-dark">Loca<span class="text-primary">Tech</span></span>
+    </a>
+    <button class="navbar-toggler" type="button" (click)="toggleNavbar()">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav" [class.show]="isNavbarOpen">
+        <ul class="navbar-nav ms-auto align-items-center">
+            <li class="nav-item">
+                <a
+                class="nav-link"
+                [routerLink]="['/']"
+                fragment="produits"
+                (click)="closeNavbar()"
+                >
+                Matériels
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a
+                class="nav-link"
+                [routerLink]="['/']"
+                fragment="features"
+                (click)="closeNavbar()"
+                >
+                Fonctionnalités
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a
+                class="nav-link"
+                [routerLink]="['/']"
+                fragment="analytics"
+                (click)="closeNavbar()"
+                >
+                Statistiques
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a
+                class="nav-link"
+                [routerLink]="['/']"
+                fragment="vision"
+                (click)="closeNavbar()"
+                >
+                Notre Vision
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a
+                class="nav-link"
+                [routerLink]="['/']"
+                fragment="contact"
+                (click)="closeNavbar()"
+                >
+                Contact
+                </a>
+            </li>
+
+            <li class="nav-item ms-lg-3">
+                <a
+                [routerLink]="['/']"
+                fragment="contact"
+                class="btn btn-sm btn-primary btn-glow px-4 py-2 rounded-pill"
+                (click)="closeNavbar()"
+                >
+                Démonstration
+                </a>
+            </li>
+
+            </ul>
+    </div>
+  </div>
+</nav>

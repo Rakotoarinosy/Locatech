@@ -1,0 +1,233 @@
+// --- DESIGN SYSTEM & VARIABLES ---
+$primary: #2563eb;      // Modern Blue
+$primary-light: #60a5fa;
+$cyan: #06b6d4;         // Cyan accent
+$violet: #7c3aed;       // Violet accent
+$dark: #0f172a;         // Slate 900
+$secondary: #475569;    // Slate 600
+$light-bg: #f8fafc;     // Slate 50
+$gray-400: #94a3b8;
+$gray-500: #64748b;
+
+// --- FONTS & TYPO ---
+.tracking-tight { letter-spacing: -0.025em; }
+.tracking-wider { letter-spacing: 0.05em; }
+.fw-extrabold { font-weight: 800; }
+.font-xs { font-size: 0.75rem; }
+.font-sm { font-size: 0.875rem; }
+.font-lg { font-size: 1.125rem; }
+.max-w-600 { max-width: 600px; }
+
+// --- GENERAL STYLES ---
+.section-padding {
+  padding: 100px 0;
+  @media (max-width: 768px) { padding: 60px 0; }
+}
+
+.section-title {
+  font-size: 2.25rem;
+  font-weight: 800;
+  color: $dark;
+  letter-spacing: -0.025em;
+  margin-bottom: 1rem;
+  
+  @media (max-width: 768px) { font-size: 1.75rem; }
+}
+
+.gradient-text {
+  background: linear-gradient(135deg, $primary 0%, $cyan 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.text-cyan { color: $cyan !important; }
+.text-violet { color: $violet !important; }
+.text-primary-light { color: $primary-light !important; }
+.text-gray-400 { color: $gray-400 !important; }
+.text-gray-500 { color: $gray-500 !important; }
+.bg-violet-subtle { background-color: rgba($violet, 0.1) !important; }
+
+
+// --- HERO SECTION ---
+.hero-section {
+  min-height: 100vh;
+  padding-top: 140px;
+  padding-bottom: 80px;
+  background-color: $light-bg;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: -10%;
+    right: -5%;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba($primary, 0.04) 0%, rgba(255,255,255,0) 70%);
+    z-index: 0;
+  }
+}
+
+.hero-mockup-wrapper {
+  position: relative;
+  
+  .hero-blur-gradient {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 110%;
+    height: 110%;
+    background: radial-gradient(circle, rgba($cyan, 0.15) 0%, rgba($violet, 0.05) 50%, transparent 100%);
+    filter: blur(40px);
+    z-index: -1;
+  }
+
+  .mockup-card {
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 30px 60px -15px rgba($dark, 0.15) !important;
+    border: 1px solid rgba(255, 255, 255, 0.7);
+  }
+}
+
+// --- BUTTONS & INPUTS ---
+.btn-primary {
+  background-color: $primary;
+  border-color: $primary;
+  font-weight: 500;
+  
+  &:hover {
+    background-color: darkene($primary, 5%);
+    border-color: darkene($primary, 5%);
+  }
+}
+
+.btn-glow {
+  box-shadow: 0 8px 20px -6px rgba($primary, 0.4);
+}
+
+.custom-input {
+  background-color: $light-bg;
+  border: 1px solid rgba($dark, 0.08);
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  color: $dark;
+  transition: all 0.2s ease;
+  
+  &:focus {
+    background-color: #fff;
+    border-color: $primary;
+    box-shadow: 0 0 0 4px rgba($primary, 0.1);
+  }
+}
+
+// --- PRODUCT CARDS ---
+.product-card {
+  border-radius: 20px;
+  overflow: hidden;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease;
+  background: #fff;
+  
+  &:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 20px 40px -10px rgba($dark, 0.08) !important;
+  }
+  
+  .product-img-wrapper {
+    overflow: hidden;
+    img {
+      transition: transform 0.5s ease;
+    }
+  }
+  
+  &:hover .product-img-wrapper img {
+    transform: scale(1.05);
+  }
+}
+
+// --- FEATURE CARDS ---
+.feature-card {
+  background-color: #fff;
+  border-radius: 20px;
+  border: 1px solid rgba($dark, 0.04) !important;
+  box-shadow: 0 4px 20px rgba($dark, 0.01);
+  
+  .icon-box {
+    width: 48px;
+    height: 48px;
+  }
+  
+  &:hover {
+    box-shadow: 0 15px 35px -10px rgba($dark, 0.05) !important;
+    border-color: rgba($primary, 0.1) !important;
+  }
+}
+
+// --- ANALYTICS DASHBOARD (DARK) ---
+.bg-blur {
+  background: rgba(30, 41, 59, 0.7);
+  backdrop-filter: blur(16px);
+}
+
+.border-secondary-subtle {
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+.bg-dark-subtle {
+  background-color: rgba(15, 23, 42, 0.6) !important;
+}
+
+// --- TESTIMONIALS ---
+.testimonial-card {
+  border-radius: 20px;
+  border: 1px solid rgba($dark, 0.02) !important;
+}
+
+// --- FOOTER HOVERS ---
+.hover-white:hover { color: #fff !important; }
+.hover-cyan:hover { color: $cyan !important; }
+
+// --- LIGHT ANIMATIONS ---
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.delay-1 { animation-delay: 0.15s; }
+.delay-2 { animation-delay: 0.3s; }
+// Éviter que les lignes de contact ou de produits ne s'étirent à l'infini
+.section-padding {
+  padding: 80px 0;
+  overflow: hidden; // Empêche les débordements bizarres à droite
+}
+
+// S'assurer que les icônes de contact et leurs textes restent alignés proprement
+#contact {
+  .d-flex.align-items-center {
+    align-items: center !important; // Force l'alignement vertical au centre
+  }
+}
+
+// Corriger la Navbar qui peut casser le flux d'affichage s'il manque un conteneur
+.custom-navbar {
+  left: 0;
+  right: 0;
+  width: 100%;
+}
+
+section {
+  scroll-margin-top: 100px;
+}

@@ -1,0 +1,147 @@
+// .sidebar {
+//   width: 250px;
+//   height: 100vh;
+//   position: fixed;
+//   top: 0;
+//   left: 0;
+//   background: white;
+//   border-right: 1px solid #eaeaea;
+//   z-index: 1000;
+// }
+.sidebar {
+  position: fixed;
+
+  top: 0;
+  left: 0;
+
+  width: 250px;
+  height: 100vh;
+
+  background: white;
+  border-right: 1px solid #eaeaea;
+
+  z-index: 1001;
+}
+
+.sidebar-logo {
+  padding: 18px 20px 14px;
+  border-bottom: 0.5px solid #e0e0e0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  .logo-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: #185FA5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    mat-icon { color: white; font-size: 20px; }
+  }
+
+  .logo-text {
+    font-size: 15px;
+    font-weight: 500;
+    color: #1a1a1a;
+  }
+
+  .logo-sub {
+    font-size: 11px;
+    color: #888;
+  }
+}
+
+.nav {
+  flex: 1;
+  padding: 12px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.nav-section {
+  font-size: 11px;
+  color: #aaa;
+  padding: 10px 10px 4px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13.5px;
+  color: #555;
+  text-decoration: none;
+  transition: background 0.15s;
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+
+  .badge {
+    margin-left: auto;
+    background: #185FA5;
+    color: white;
+    font-size: 11px;
+    padding: 1px 7px;
+    border-radius: 999px;
+  }
+
+  &:hover {
+    background: #f5f5f5;
+    color: #1a1a1a;
+  }
+
+  &.active {
+    background: #E6F1FB;
+    color: #185FA5;
+    font-weight: 500;
+  }
+}
+
+.sidebar-footer {
+  padding: 12px 10px;
+  border-top: 0.5px solid #e0e0e0;
+}
+
+.user-block {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 8px;
+
+  .avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #E6F1FB;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 500;
+    color: #185FA5;
+    flex-shrink: 0;
+  }
+
+  .user-name {
+    font-size: 13px;
+    font-weight: 500;
+    color: #1a1a1a;
+  }
+
+  .user-role {
+    font-size: 11px;
+    color: #888;
+  }
+}

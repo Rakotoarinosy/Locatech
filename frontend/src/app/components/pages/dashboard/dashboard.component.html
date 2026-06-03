@@ -1,1 +1,140 @@
-<p>dashboard works!</p>
+<div class="dashboard">
+
+  <!-- Header -->
+  <div class="page-header">
+    <div>
+      <h4 class="page-title">Analytique</h4>
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item">LocaTech</li>
+        <li class="breadcrumb-item active">Tableau de bord</li>
+      </ol>
+    </div>
+    <div class="header-actions">
+      <button class="btn-outline-primary-sm">
+        <mat-icon>calendar_today</mat-icon>
+        Aujourd'hui : {{ today | date:'d MMM' }}
+      </button>
+      <button class="btn-outline-primary-sm">
+        <mat-icon>download</mat-icon>
+      </button>
+    </div>
+  </div>
+
+  <!-- Stat Cards -->
+  <div class="stats-grid">
+    <div class="stat-card" *ngFor="let stat of stats">
+      <div class="stat-top">
+        <div>
+          <p class="stat-label">{{ stat.label }}</p>
+          <h3 class="stat-value">{{ stat.value }}</h3>
+          <p class="stat-trend" [class.up]="stat.trendUp" [class.down]="!stat.trendUp">
+            <mat-icon>{{ stat.trendUp ? 'trending_up' : 'warning' }}</mat-icon>
+            {{ stat.trend }}
+          </p>
+        </div>
+        <div class="stat-icon" [ngClass]="stat.colorClass">
+          <mat-icon>{{ stat.icon }}</mat-icon>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Row 2 : Réservations + Activités -->
+  <div class="row-2">
+
+    <!-- Réservations récentes -->
+    <div class="card">
+      <div class="card-header">
+        <h4 class="card-title">Réservations récentes</h4>
+        <a routerLink="/reservations" class="card-action">Voir tout</a>
+      </div>
+      <div class="card-body">
+        <div class="reservation-item" *ngFor="let r of reservationsRecentes">
+          <div class="avatar" [ngClass]="'avatar-' + r.color">{{ r.initiales }}</div>
+          <div class="reservation-info">
+            <p class="res-name">{{ r.nom }}</p>
+            <p class="res-detail">{{ r.materiel }} · {{ r.duree }}</p>
+          </div>
+          <span class="status-pill" [ngClass]="'s-' + r.statut">{{ r.statusLabel }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Activités récentes -->
+    <div class="card">
+      <div class="card-header">
+        <h4 class="card-title">Activité récente</h4>
+        <span class="card-action">Tout afficher</span>
+      </div>
+      <div class="card-body activity-body">
+        <div class="activity-item" *ngFor="let a of activitesRecentes">
+          <div class="activity-icon" [ngClass]="'act-' + a.color">
+            <mat-icon>{{ a.icon }}</mat-icon>
+          </div>
+          <div class="activity-text">
+            <p>{{ a.text }}</p>
+            <small>{{ a.time }}</small>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Row 3 : Top matériels + Résumé revenus -->
+  <div class="row-3">
+
+    <!-- Top matériels -->
+    <div class="card">
+      <div class="card-header">
+        <h4 class="card-title">Top matériels loués</h4>
+        <span class="card-action">Ce mois</span>
+      </div>
+      <div class="card-body">
+        <div class="bar-item" *ngFor="let m of topMateriels">
+          <span class="bar-label">{{ m.nom }}</span>
+          <div class="bar-track">
+            <div class="bar-fill" [style.width.%]="m.pct"></div>
+          </div>
+          <span class="bar-val">{{ m.count }}×</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Résumé rapide -->
+    <div class="card summary-card">
+      <div class="card-header">
+        <h4 class="card-title">Résumé financier</h4>
+        <span class="card-action">Juin 2026</span>
+      </div>
+      <div class="card-body">
+        <div class="summary-row">
+          <span class="summary-label">Total facturé</span>
+          <span class="summary-value">6 200 Ariary</span>
+        </div>
+        <div class="summary-row">
+          <span class="summary-label">Acomptes reçus</span>
+          <span class="summary-value text-green">1 380 Ariary</span>
+        </div>
+        <div class="summary-row">
+          <span class="summary-label">Pénalités de retard</span>
+          <span class="summary-value text-red">120 Ariary</span>
+        </div>
+        <div class="summary-row total">
+          <span class="summary-label">Revenus nets</span>
+          <span class="summary-value">4 820 Ariary</span>
+        </div>
+        <div class="progress-wrap">
+          <div class="progress-label">
+            <span>Objectif mensuel</span><span>78%</span>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill" style="width: 78%"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>

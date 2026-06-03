@@ -1,0 +1,271 @@
+<app-navbar></app-navbar>
+
+<!-- HERO SECTION -->
+<section class="hero-section d-flex align-items-center">
+  <div class="container">
+    <div class="row align-items-center g-5">
+      <div class="col-lg-6 text-center text-lg-start">
+        <div class="badge-promo mb-3 animate-fade-in">
+          <span class="badge rounded-pill bg-light text-primary border border-primary-subtle px-3 py-2 fw-medium">
+            ✨ Propulsé par l'IA à Madagascar
+          </span>
+        </div>
+        <h1 class="display-4 fw-extrabold text-dark tracking-tight mb-4 animate-fade-in-up">
+          Simplifiez la location de vos matériels avec <span class="gradient-text">LocaTech</span>
+        </h1>
+        <p class="lead text-secondary mb-5 animate-fade-in-up delay-1">
+          La plateforme intelligente tout-en-un pour gérer, réserver et optimiser vos parcs de matériels à Madagascar. Destinée aux professionnels, entreprises et organisateurs d'événements.
+        </p>
+        <div class="d-flex flex-column flex-sm-row justify-content-center justify-content-lg-start gap-3 animate-fade-in-up delay-2">
+          <a href="#produits" class="btn btn-primary btn-lg rounded-pill px-4 py-3 btn-glow">Voir les matériels</a>
+          <a href="#contact" class="btn btn-outline-secondary btn-lg rounded-pill px-4 py-3 bg-white">Demander un devis</a>
+        </div>
+      </div>
+      <div class="col-lg-6 animate-fade-in-up delay-1">
+        <div class="hero-mockup-wrapper">
+          <div class="hero-blur-gradient"></div>
+          <div class="card mockup-card border-0 shadow-lg">
+            <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=800&q=80" alt="LocaTech Dashboard Preview" class="img-fluid rounded-4">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION PRODUITS -->
+<section id="produits" class="section-padding bg-light-subtle">
+  <div class="container">
+    <div class="text-center max-w-600 mx-auto mb-5">
+      <h2 class="section-title">Nos Catégories de Matériels</h2>
+      <p class="text-secondary">Explorez une sélection de matériels premiums disponibles instantanément à la gestion et réservation.</p>
+    </div>
+    
+    <div class="row g-4">
+      <div class="col-12 col-md-6 col-lg-3" *ngFor="let p of products">
+        <div class="card product-card border-0 h-100 shadow-sm">
+          <div class="product-img-wrapper position-relative">
+            <img [src]="p.image" class="card-img-top object-fit-cover" [alt]="p.name" style="height: 200px;">
+            <span class="badge bg-white text-dark position-absolute top-0 start-0 m-3 shadow-sm rounded-pill font-sm fw-semibold">{{ p.category }}</span>
+          </div>
+          <div class="card-body d-flex flex-column p-4">
+            <h5 class="card-title text-dark fw-bold mb-2">{{ p.name }}</h5>
+            <div class="mt-auto pt-3 border-top border-light d-flex align-items-center justify-content-between">
+              <div>
+                <span class="text-muted font-sm d-block">Tarif journalier</span>
+                <span class="fw-bold text-primary font-lg">{{ p.price | number:'1.0-0' }} Ar</span>
+              </div>
+              <button class="btn btn-sm btn-outline-primary rounded-pill px-3">Réserver</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION FONCTIONNALITÉS -->
+<section id="features" class="section-padding">
+  <div class="container">
+    <div class="text-center max-w-600 mx-auto mb-5">
+      <h2 class="section-title">Une suite d'outils puissante</h2>
+      <p class="text-secondary">Tout ce dont vous avez besoin pour digitaliser vos flux de location, sans complexité.</p>
+    </div>
+    
+    <div class="row g-4">
+      <div class="col-12 col-md-6 col-lg-4" *ngFor="let f of features">
+        <div class="card feature-card border-0 p-4 h-100 transition-all">
+          <div class="icon-box rounded-3 mb-4 d-flex align-items-center justify-content-center bg-primary-subtle text-primary">
+            <i class="bi" [ngClass]="f.icon" style="font-size: 1.5rem;"></i>
+          </div>
+          <h4 class="fw-bold text-dark mb-3">{{ f.title }}</h4>
+          <p class="text-secondary font-sm mb-0">{{ f.description }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION ANALYTICS -->
+<section id="analytics" class="section-padding bg-dark text-white position-relative overflow-hidden">
+  <div class="hero-blur-gradient opacity-25"></div>
+  <div class="container position-relative z-1">
+    <div class="row align-items-center g-5">
+      <div class="col-lg-5">
+        <span class="text-cyan fw-bold text-uppercase tracking-wider font-sm d-block mb-2">Dashboard en temps réel</span>
+        <h2 class="display-6 fw-bold tracking-tight mb-4 text-white">Pilotez votre activité du bout des doigts</h2>
+        <p class="text-gray-400 mb-4">Ne perdez plus de temps sur des fichiers Excel obsolètes. LocaTech vous fournit des graphiques clairs pour optimiser la rentabilité de votre parc.</p>
+        <div class="row g-3">
+          <div class="col-6">
+            <h3 class="fw-bold text-cyan mb-0">99.8%</h3>
+            <p class="text-gray-500 font-sm">Disponibilité garantie</p>
+          </div>
+          <div class="col-6">
+            <h3 class="fw-bold text-primary-light mb-0">+45%</h3>
+            <p class="text-gray-500 font-sm">De croissance moyenne</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-7">
+        <!-- Mockup Analytics -->
+        <div class="analytics-dashboard p-4 rounded-4 bg-blur border border-secondary-subtle shadow">
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <h5 class="mb-0 fw-bold font-sm text-white">Aperçu Général — Ce mois</h5>
+            <span class="badge bg-secondary rounded-pill font-xs">Live</span>
+          </div>
+          <div class="row g-3">
+            <div class="col-12 col-sm-6">
+              <div class="stat-box p-3 rounded-3 bg-dark-subtle border border-secondary-subtle">
+                <span class="text-gray-400 font-xs d-block">Revenus Mensuels</span>
+                <span class="fs-4 fw-bold text-success">+ 18,450,000 Ar</span>
+              </div>
+            </div>
+            <div class="col-12 col-sm-6">
+              <div class="stat-box p-3 rounded-3 bg-dark-subtle border border-secondary-subtle">
+                <span class="text-gray-400 font-xs d-block">Réservations Actives</span>
+                <span class="fs-4 fw-bold text-cyan">142 Actives</span>
+              </div>
+            </div>
+            <div class="col-12">
+              <div class="stat-box p-3 rounded-3 bg-dark-subtle border border-secondary-subtle">
+                <span class="text-gray-400 font-xs d-block mb-2">Top Matériels Loués</span>
+                <div class="d-flex justify-content-between font-sm mb-1 text-white"><span>1. Sonorisation Line Array</span> <span class="fw-bold text-cyan">72%</span></div>
+                <div class="progress bg-secondary" style="height: 6px;"><div class="progress-bar bg-cyan" style="width: 72%"></div></div>
+                <div class="d-flex justify-content-between font-sm mb-1 mt-2 text-white"><span>2. Chaise Napoléon</span> <span class="fw-bold text-primary-light">58%</span></div>
+                <div class="progress bg-secondary" style="height: 6px;"><div class="progress-bar bg-primary-light" style="width: 58%"></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION VISION & MISSION -->
+<section id="vision" class="section-padding bg-light-subtle">
+  <div class="container">
+    <div class="row g-5 align-items-center">
+      <div class="col-md-6">
+        <span class="text-primary fw-bold text-uppercase tracking-wider font-sm d-block mb-2">Qui sommes-nous</span>
+        <h2 class="section-title text-start mb-4">Révolutionner la gestion logistique à Madagascar</h2>
+        <p class="text-secondary mb-4">LocaTech est né de la volonté d'accompagner la transformation digitale des acteurs économiques malgaches en apportant une technologie de pointe simple d'accès.</p>
+      </div>
+      <div class="col-md-6">
+        <div class="card border-0 shadow-sm p-4 mb-4 rounded-4 bg-white">
+          <div class="d-flex align-items-start gap-3">
+            <div class="icon-box rounded-3 bg-primary-subtle text-primary p-3"><i class="bi bi-eye fs-4"></i></div>
+            <div>
+              <h4 class="fw-bold text-dark mb-2">Notre Vision</h4>
+              <p class="text-secondary mb-0 font-sm">Devenir la référence digitale absolue dans la gestion intelligente de location de matériels à Madagascar, en connectant efficacement l'offre et la demande.</p>
+            </div>
+          </div>
+        </div>
+        <div class="card border-0 shadow-sm p-4 rounded-4 bg-white">
+          <div class="d-flex align-items-start gap-3">
+            <div class="icon-box rounded-3 bg-violet-subtle text-violet p-3"><i class="bi bi-rocket-takeoff fs-4"></i></div>
+            <div>
+              <h4 class="fw-bold text-dark mb-2">Notre Mission</h4>
+              <p class="text-secondary mb-0 font-sm">Faciliter et moderniser la gestion quotidienne de location grâce à une plateforme numérique robuste, intuitive, et hautement performante.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION TÉMOIGNAGES -->
+<section class="section-padding bg-white">
+  <div class="container">
+    <div class="text-center max-w-600 mx-auto mb-5">
+      <h2 class="section-title">Validé par les leaders de l'industrie</h2>
+      <p class="text-secondary">Découvrez comment nos partenaires transforment leur quotidien avec LocaTech.</p>
+    </div>
+    
+    <div class="row g-4">
+      <div class="col-12 col-md-4" *ngFor="let t of testimonials">
+        <div class="card testimonial-card border-0 p-4 shadow-sm bg-light-subtle h-100 d-flex flex-column justify-content-between">
+          <p class="text-dark font-sm fst-italic mb-4">“{{ t.quote }}”</p>
+          <div class="d-flex align-items-center gap-3">
+            <img [src]="t.avatar" [alt]="t.author" class="rounded-circle object-fit-cover" style="width: 48px; height: 48px;">
+            <div>
+              <h6 class="fw-bold text-dark mb-0 font-sm">{{ t.author }}</h6>
+              <span class="text-muted font-xs">{{ t.role }}, <strong class="text-primary">{{ t.company }}</strong></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION CONTACT -->
+<section id="contact" class="section-padding bg-light-subtle">
+  <div class="container">
+    <div class="row g-4 align-items-stretch"> <div class="col-12 col-lg-5 d-flex flex-column justify-content-between">
+        <div>
+          <h2 class="section-title text-start mb-3">Prêt à moderniser votre activité ?</h2>
+          <p class="text-secondary mb-4">Contactez notre équipe pour une démonstration personnalisée ou posez vos questions directement.</p>
+        </div>
+        
+        <div class="d-flex flex-column gap-3 mb-4 mb-lg-0">
+          <div class="d-flex align-items-center gap-3 bg-white p-3 rounded-3 shadow-sm">
+            <div class="text-primary fs-4"><i class="bi bi-telephone"></i></div>
+            <div>
+              <span class="text-muted font-xs d-block">Téléphone</span>
+              <a href="tel:+261328419170" class="text-dark fw-semibold text-decoration-none">+261 32 841 9170</a>
+            </div>
+          </div>
+          
+          <div class="d-flex align-items-center gap-3 bg-white p-3 rounded-3 shadow-sm">
+            <div class="text-primary fs-4"><i class="bi bi-envelope"></i></div>
+            <div>
+              <span class="text-muted font-xs d-block">Email</span>
+              <a href="mailto:contact&#64;locatech.mg" class="text-dark fw-semibold text-decoration-none">contact&#64;locatech.mg</a>
+            </div>
+          </div>
+          
+          <div class="d-flex align-items-center gap-3 bg-white p-3 rounded-3 shadow-sm">
+            <div class="text-success fs-4"><i class="bi bi-whatsapp"></i></div>
+            <div>
+              <span class="text-muted font-xs d-block">WhatsApp</span>
+              <a href="https://wa.me/261328419170" class="text-dark fw-semibold text-decoration-none">Discuter sur WhatsApp</a>
+            </div>
+          </div>
+          
+          <div class="d-flex align-items-center gap-3 bg-white p-3 rounded-3 shadow-sm">
+            <div class="text-primary fs-4"><i class="bi bi-geo-alt"></i></div>
+            <div>
+              <span class="text-muted font-xs d-block">Adresse</span>
+              <span class="text-dark fw-semibold font-sm">Immeuble Cyber, Ankorondrano, Antananarivo</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-12 col-lg-7">
+        <div class="card border-0 p-4 shadow-sm bg-white rounded-4 h-100">
+          <form (ngSubmit)="onSubmitContact()">
+            <div class="mb-3">
+              <label class="form-label font-sm fw-medium text-dark">Nom complet</label>
+              <input type="text" [(ngModel)]="contactForm.name" name="name" class="form-control custom-input" placeholder="Ex: Jean Ralambo" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label font-sm fw-medium text-dark">Adresse email</label>
+              <input type="email" [(ngModel)]="contactForm.email" name="email" class="form-control custom-input" placeholder="jean&#64;entreprise.mg" required>
+            </div>
+            <div class="mb-4">
+              <label class="form-label font-sm fw-medium text-dark">Votre message</label>
+              <textarea [(ngModel)]="contactForm.message" name="message" class="form-control custom-input" rows="4" placeholder="Décrivez votre besoin..." required></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary w-100 rounded-pill py-3 btn-glow">Envoyer la demande</button>
+          </form>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+<app-footer></app-footer>

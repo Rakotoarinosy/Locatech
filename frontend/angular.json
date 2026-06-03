@@ -30,20 +30,27 @@
               "src/assets"
             ],
             "styles": [
+              "@angular/material/prebuilt-themes/indigo-pink.css",
               "src/styles.scss",
-              "src/assets/css/sb-admin-2.min.css",
-              "src/assets/vendor/fontawesome-free/css/all.min.css",
-              "src/assets/vendor/datatables/dataTables.bootstrap4.min.css"
+              "src/assets/css/icons.min.css",
+              "src/assets/css/bootstrap.min.css",
+              "src/assets/css/metisMenu.min.css",
+              "src/assets/css/app.min.css",
+              "src/assets/plugins/daterangepicker/daterangepicker.css"
             ],
             "scripts": [
               "node_modules/jquery/dist/jquery.min.js",
-              "src/assets/vendor/bootstrap/js/bootstrap.bundle.min.js",
-              "src/assets/vendor/jquery-easing/jquery.easing.min.js",
-              "src/assets/js/sb-admin-2.min.js",
-              "src/assets/vendor/chart.js/Chart.min.js",
-              "src/assets/vendor/datatables/jquery.dataTables.min.js",
-              "src/assets/vendor/datatables/dataTables.bootstrap4.min.js",
-              "src/assets/js/demo/datatables-demo.js"
+              "src/assets/js/demo/datatables-demo.js",
+              "src/assets/js/jquery.min.js",
+              "src/assets/js/bootstrap.bundle.min.js",
+              "src/assets/js/metismenu.min.js",
+              "src/assets/js/waves.js",
+              "src/assets/js/feather.min.js",
+              "src/assets/js/simplebar.min.js",
+              "src/assets/js/moment.js",
+              "src/assets/plugins/daterangepicker/daterangepicker.js",
+              "src/assets/plugins/apex-charts/apexcharts.min.js",
+              "src/assets/js/app.js"
             ],
             "server": "src/main.server.ts",
             "prerender": true,
@@ -107,6 +114,7 @@
               "src/assets"
             ],
             "styles": [
+              "@angular/material/prebuilt-themes/indigo-pink.css",
               "src/styles.scss"
             ],
             "scripts": []

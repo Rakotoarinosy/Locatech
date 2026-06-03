@@ -1,50 +1,88 @@
 import { Routes } from '@angular/router';
 
 export const routes: Routes = [
-    {
-      path: 'back-office',
-      loadComponent: () => import('./components/sidebar/sidebar.component').then(m => m.SidebarComponent),
-      children: [
-        {
-          path: 'list-payments',
-          loadComponent: () => import('./components/layout/layout.component').then(m => m.LayoutComponent),
-          children: [
-            {
-              path: '',
-              loadComponent: () => import('./components/pages/payments/payment-list/payment-list.component').then(m => m.PaymentListComponent),
-            },
-          ],
-        },
-        {
-            path: 'dashboard',
-            loadComponent: () => import('./components/pages/dashboard/dashboard.component').then(m => m.DashboardComponent),
-        },
-        {
-            path: 'logs',
-            loadComponent: () => import('./components/pages/logs/logs.component').then(m => m.LogsComponent),
-        },
-        {
-          path: 'api',
-          loadComponent: () => import('./components/pages/process-payment/process-payment.component').then(m => m.ProcessPaymentComponent),
-          children: [
-            {
-              path: 'process-payment',
-              loadComponent: () => import('./components/pages/process-payment/process-payment.component').then(m => m.ProcessPaymentComponent),
-            },
-          ],
-        },
-        { path: '', redirectTo: 'process-payment', pathMatch: 'full' },
-      ],
-    },
-    // Redirection par défaut
-    {
-      path: '',
-      redirectTo: 'back-office',
-      pathMatch: 'full',
-    },
-    // Route wildcard pour capturer les erreurs 404
-    {
-      path: '**',
-      redirectTo: 'back-office',
-    },
+
+  // LANDING PAGE
+  {
+    path: 'home',
+    loadComponent: () =>
+      import('./components/pages/landing-page/landing-page.component')
+        .then(m => m.LandingPageComponent),
+  },
+
+  // BACK OFFICE
+  {
+    path: 'back-office',
+
+    loadComponent: () =>
+      import('./components/layout/layout.component')
+        .then(m => m.LayoutComponent),
+
+    children: [
+
+      {
+        path: 'dashboard',
+        loadComponent: () =>
+          import('./components/pages/dashboard/dashboard.component')
+            .then(m => m.DashboardComponent),
+      },
+
+      {
+        path: 'clients',
+        loadComponent: () =>
+          import('./components/pages/clients/clients.component')
+            .then(m => m.ClientsComponent),
+      },
+
+      {
+        path: 'materiels',
+        loadComponent: () =>
+          import('./components/pages/materiels/materiels.component')
+            .then(m => m.MaterielsComponent),
+      },
+
+      {
+        path: 'reservations',
+        loadComponent: () =>
+          import('./components/pages/reservations/reservations.component')
+            .then(m => m.ReservationsComponent),
+      },
+
+      {
+        path: 'factures',
+        loadComponent: () =>
+          import('./components/pages/factures/factures.component')
+            .then(m => m.FacturesComponent),
+      },
+
+      {
+        path: 'analytics',
+        loadComponent: () =>
+          import('./components/pages/analytics/analytics.component')
+            .then(m => m.AnalyticsComponent),
+      },
+
+      // Redirect back-office
+      {
+        path: '',
+        redirectTo: 'dashboard',
+        pathMatch: 'full'
+      }
+
+    ]
+  },
+
+  // ROOT REDIRECT
+  {
+    path: '',
+    redirectTo: 'home',
+    pathMatch: 'full'
+  },
+
+  // 404
+  {
+    path: '**',
+    redirectTo: 'home'
+  }
+
 ];

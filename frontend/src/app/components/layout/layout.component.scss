@@ -1,0 +1,26 @@
+.layout-container {
+  display: flex;
+  min-height: 100vh;
+  background: #f5f7fb;
+}
+
+/* SIDEBAR SPACE */
+
+.main-wrapper {
+  flex: 1;
+  margin-left: 250px;
+  width: calc(100% - 250px);
+}
+
+/* CONTENT */
+
+.content-area {
+  padding: 90px 20px 20px;
+  min-height: 100vh;
+}
+
+/* GLOBAL */
+
+body {
+  overflow-x: hidden;
+}

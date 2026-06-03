@@ -2,3 +2,22 @@
 
 /* Importing Bootstrap SCSS file. */
 @import 'bootstrap/scss/bootstrap';
+@import 'bootstrap-icons/font/bootstrap-icons.css';
+/* src/styles.scss */
+html {
+  scroll-behavior: smooth;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  min-height: 100vh;
+  overflow-x: hidden; /* Empêche tout scroll horizontal parasite */
+}
+
+app-root {
+  display: block;
+  width: 100%;       /* Force l'application à prendre toute la largeur */
+  min-height: 100vh;
+}
