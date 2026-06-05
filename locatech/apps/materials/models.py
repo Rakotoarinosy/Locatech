@@ -6,7 +6,7 @@ class Materiel(models.Model):
         ('disponible', 'Disponible'),
         ('reserve', 'Réservé'),
         ('loue', 'Loué'),
-        ('maintenace', 'Maintenace'),
+        ('maintenance', 'Maintenance'),
         ('casse', 'Cassé'),
     ]
     nom = models.CharField(max_length=100)
