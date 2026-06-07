@@ -33,7 +33,6 @@
               "@angular/material/prebuilt-themes/indigo-pink.css",
               "src/styles.scss",
               "src/assets/css/icons.min.css",
-              "src/assets/css/bootstrap.min.css",
               "src/assets/css/metisMenu.min.css",
               "src/assets/css/app.min.css",
               "src/assets/plugins/daterangepicker/daterangepicker.css"
