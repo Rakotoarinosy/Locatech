@@ -1,22 +1,20 @@
-FROM node:18-alpine
+FROM node:20-alpine AS build
 
-# Définir le répertoire de travail
 WORKDIR /app
 
-# Copier package.json et package-lock.json avant d'installer les dépendances
 COPY package*.json ./
 
-# Installer les dépendances sans recréer package-lock.json
 RUN npm install
 
-# Installer Angular CLI globalement
-RUN npm install -g @angular/cli@17.3.3
-
-# Copier le reste du code source
 COPY . .
 
-# Exposer le port utilisé par Angular
-EXPOSE 4200
+RUN npx ng build --configuration=production
 
-# Lancer Angular en mode développement avec watch (live reload)
-CMD ["ng", "serve", "--host", "0.0.0.0", "--poll", "2000"]
+FROM nginx:alpine
+
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY --from=build /app/dist/frontend/browser /usr/share/nginx/html
+
+EXPOSE 80
+
+CMD ["nginx", "-g", "daemon off;"]
