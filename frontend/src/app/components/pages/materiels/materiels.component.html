@@ -1,1 +1,207 @@
-<p>materiels works!</p>
+<div class="container-fluid py-4">
+  
+<div class="custom-modal-backdrop" *ngIf="isModalOpen" (click)="closeModal()"></div>
+
+<div class="custom-modal" *ngIf="isModalOpen">
+  <div class="modal-header d-flex justify-content-between align-items-center p-3 border-bottom">
+    <h5 class="modal-title fw-bold text-dark">
+      {{ isEditMode ? 'Modifier le matériel' : 'Ajouter un nouveau matériel' }}
+    </h5>
+    <button type="button" class="btn-close shadow-none" (click)="closeModal()"></button>
+  </div>
+  
+  <form (ngSubmit)="onSubmit()">
+    <div class="modal-body p-4">
+      <div class="row g-3">
+        
+        <div class="col-12">
+          <label class="form-label text-muted fw-semibold small mb-1">Nom du matériel *</label>
+          <input type="text" class="form-control rounded-3" [(ngModel)]="formModel.nom" name="nom" required placeholder="Ex: Girafe élévatrice, Groupe électrogène...">
+        </div>
+
+        <div class="col-12 col-md-6">
+          <label class="form-label text-muted fw-semibold small mb-1">Catégorie *</label>
+          <input type="text" class="form-control rounded-3" [(ngModel)]="formModel.categorie" name="categorie" required placeholder="Ex: Sonorisation, Échafaudage...">
+        </div>
+
+        <div class="col-12 col-md-6">
+          <label class="form-label text-muted fw-semibold small mb-1">Statut initial</label>
+          <select class="form-select rounded-3" [(ngModel)]="formModel.statut" name="statut">
+            <option value="disponible">Disponible</option>
+            <option value="reserve">Réservé</option>
+            <option value="loue">Loué</option>
+            <option value="maintenance">Maintenance</option>
+            <option value="casse">Cassé</option>
+          </select>
+        </div>
+
+        <div class="col-12 col-md-6">
+          <label class="form-label text-muted fw-semibold small mb-1">Prix Journalier (Ar) *</label>
+          <input type="number" class="form-control rounded-3" [(ngModel)]="formModel.prix_journalier" name="prix_journalier" required min="0">
+        </div>
+
+        <div class="col-12 col-md-6">
+          <label class="form-label text-muted fw-semibold small mb-1">Quantité globale</label>
+          <input type="number" class="form-control rounded-3" [(ngModel)]="formModel.quantite" name="quantite" min="1">
+        </div>
+
+        <div class="col-12">
+          <label class="form-label text-muted fw-semibold small mb-1">Description / Notes techniques</label>
+          <textarea class="form-control rounded-3" rows="3" [(ngModel)]="formModel.description" name="description" placeholder="Spécifications, accessoires inclus..."></textarea>
+        </div>
+        <div class="col-12">
+            <label class="form-label text-muted fw-semibold small mb-1">Illustration du matériel</label>
+            <div class="d-flex align-items-center gap-3 border rounded-3 p-2 bg-light">
+                <div class="preview-box border rounded-2 bg-white d-flex align-items-center justify-content-center overflow-hidden" style="width: 60px; height: 60px; flex-shrink: 0;">
+                <img *ngIf="imagePreview" [src]="imagePreview" style="width: 100%; height: 100%; object-fit: cover;">
+                <i *ngIf="!imagePreview" class="bi bi-image text-muted" style="font-size: 1.5rem;"></i>
+                </div>
+                <div class="flex-grow-1">
+                <input type="file" id="photoInput" class="d-none" accept="image/*" (change)="onFileSelected($event)">
+                <label type="button" for="photoInput" class="btn btn-sm btn-outline-primary rounded-3 px-3">
+                    <i class="bi bi-upload me-2"></i>Choisir une image
+                </label>
+                <div class="text-muted small mt-1" style="font-size: 0.75rem;">Fichiers acceptés : PNG, JPG ou JPEG</div>
+                </div>
+            </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="modal-footer p-3 border-top d-flex justify-content-end gap-2">
+      <button type="button" class="btn btn-light rounded-3 px-4" (click)="closeModal()" [disabled]="submitting">
+        Annuler
+      </button>
+      <button type="submit" class="btn btn-primary rounded-3 px-4" [disabled]="submitting">
+        <span *ngIf="submitting" class="spinner-border spinner-border-sm me-2" role="status"></span>
+        {{ isEditMode ? 'Mettre à jour' : 'Enregistrer' }}
+      </button>
+    </div>
+  </form>
+</div>
+  <!-- Section Stats de l'API -->
+  <div class="row g-3 mb-4" *ngIf="stats">
+    <div class="col-6 col-md-3">
+      <div class="card p-3 border-0 shadow-sm rounded-4">
+        <small class="text-muted fw-bold uppercase">Total Matériels</small>
+        <h3 class="mb-0 mt-1 fw-bold text-dark">{{ stats.total }}</h3>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="card p-3 border-0 shadow-sm rounded-4">
+        <small class="text-success fw-bold uppercase">Disponibles</small>
+        <h3 class="mb-0 mt-1 fw-bold text-success">{{ stats.par_statut.disponible }}</h3>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="card p-3 border-0 shadow-sm rounded-4">
+        <small class="text-warning fw-bold uppercase">Réservés / Loués</small>
+        <h3 class="mb-0 mt-1 fw-bold text-warning">
+          {{ stats.par_statut.reserve + stats.par_statut.loue }}
+        </h3>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="card p-3 border-0 shadow-sm rounded-4">
+        <small class="text-danger fw-bold uppercase">Maintenance</small>
+        <h3 class="mb-0 mt-1 fw-bold text-danger">{{ stats.par_statut.maintenance }}</h3>
+      </div>
+    </div>
+  </div>
+
+  <!-- Barre d'actions et filtres -->
+  <div class="card border-0 shadow-sm rounded-4 p-3 mb-4">
+    <div class="row g-2 align-items-center">
+      <div class="col-12 col-md-4">
+        <div class="input-group">
+          <input 
+            type="text" 
+            class="form-control rounded-3" 
+            placeholder="Rechercher par nom ou catégorie..." 
+            [(ngModel)]="searchQuery"
+            (input)="onFiltersChange()" />
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <select class="form-select rounded-3" [(ngModel)]="selectedStatut" (change)="onFiltersChange()">
+          <option value="">Tous les statuts</option>
+          <option value="disponible">Disponible</option>
+          <option value="reserve">Réservé</option>
+          <option value="loue">Loué</option>
+          <option value="maintenance">Maintenance</option>
+          <option value="casse">Cassé</option>
+        </select>
+      </div>
+      <div class="col-6 col-md-3">
+        <input 
+          type="text" 
+          class="form-control rounded-3" 
+          placeholder="Filtrer par catégorie..." 
+          [(ngModel)]="selectedCategorie"
+          (input)="onFiltersChange()" />
+      </div>
+      <div class="col-12 col-md-2 text-md-end">
+        <button class="btn btn-primary w-100 rounded-3" (click)="openCreateModal()">
+            + Nouveau
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Liste des matériels sous forme de tableau ou grille -->
+  <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="bg-light">
+          <tr>
+            <th>Matériel</th>
+            <th>Catégorie</th>
+            <th>Prix Journalier</th>
+            <th>Quantité</th>
+            <th>Statut</th>
+            <th class="text-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let m of materiels">
+            <td>
+              <div class="d-flex align-items-center gap-3">
+                <img 
+                  [src]="m.photo ? m.photo : 'assets/images/default-item.png'" 
+                  alt="photo" 
+                  class="rounded-3 object-cover" 
+                  style="width: 45px; height: 45px; object-fit: cover; border: 1px solid #e2e8f0;">
+                <div>
+                  <span class="fw-bold text-dark d-block">{{ m.nom }}</span>
+                  <small class="text-muted text-truncate d-inline-block" style="max-width: 200px;">{{ m.description }}</small>
+                </div>
+              </div>
+            </td>
+            <td><span class="badge bg-secondary-subtle text-secondary rounded-pill px-3 py-2">{{ m.categorie }}</span></td>
+            <td class="fw-bold text-slate">{{ m.prix_journalier | number:'1.0-2' }} Ar</td>
+            <td>{{ m.quantite }}</td>
+            <td>
+              <span class="badge px-3 py-2 rounded-pill" [ngClass]="{
+                'bg-success-subtle text-success': m.statut === 'disponible',
+                'bg-primary-subtle text-primary': m.statut === 'reserve',
+                'bg-info-subtle text-info': m.statut === 'loue',
+                'bg-warning-subtle text-warning': m.statut === 'maintenance',
+                'bg-danger-subtle text-danger': m.statut === 'casse'
+              }">
+                {{ m.statut | titlecase }}
+              </span>
+            </td>
+            <td class="text-end">
+              <button class="btn btn-sm btn-light rounded-3 me-1" (click)="openEditModal(m)">Modifier</button>
+            </td>
+          </tr>
+          <tr *ngIf="materiels.length === 0 && !loading">
+            <td colspan="6" class="text-center py-5 text-muted">
+              Aucun matériel trouvé correspondant aux filtres.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
