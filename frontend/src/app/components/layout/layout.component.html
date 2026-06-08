@@ -1,14 +1,20 @@
 <div class="layout-container">
 
-  <app-sidebar></app-sidebar>
+  <app-sidebar
+    [isOpen]="sidebarOpen"
+    (closeSidebar)="closeSidebar()">
+  </app-sidebar>
 
-  <div class="main-wrapper">
-
-    <app-topbar></app-topbar>
+  <div class="main-wrapper" [class.sidebar-open]="sidebarOpen">
+    <app-topbar
+      [sidebarOpen]="sidebarOpen"
+      (toggleSidebar)="toggleSidebar()">
+    </app-topbar>
 
     <main class="content-area">
       <router-outlet></router-outlet>
     </main>
+
     <app-footer></app-footer>
   </div>
 

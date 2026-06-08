@@ -1,26 +1,49 @@
-// .sidebar {
-//   width: 250px;
-//   height: 100vh;
-//   position: fixed;
-//   top: 0;
-//   left: 0;
-//   background: white;
-//   border-right: 1px solid #eaeaea;
-//   z-index: 1000;
-// }
+// Overlay mobile
+.sidebar-overlay {
+  display: none;
+  
+  @media (max-width: 768px) {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.4);
+    backdrop-filter: blur(2px);
+    z-index: 1000;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+
+    &.visible {
+      opacity: 1;
+      pointer-events: all;
+    }
+  }
+}
+
+// Sidebar principale
 .sidebar {
   position: fixed;
-
   top: 0;
   left: 0;
-
   width: 250px;
   height: 100vh;
-
   background: white;
   border-right: 1px solid #eaeaea;
-
   z-index: 1001;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+
+  // Sur mobile : cachée par défaut
+  @media (max-width: 768px) {
+    transform: translateX(-100%);
+    box-shadow: none;
+
+    &.open {
+      transform: translateX(0);
+      box-shadow: 4px 0 24px rgba(15, 23, 42, 0.12);
+    }
+  }
 }
 
 .sidebar-logo {
@@ -29,6 +52,7 @@
   display: flex;
   align-items: center;
   gap: 10px;
+  flex-shrink: 0;
 
   .logo-icon {
     width: 36px;
@@ -41,16 +65,8 @@
     mat-icon { color: white; font-size: 20px; }
   }
 
-  .logo-text {
-    font-size: 15px;
-    font-weight: 500;
-    color: #1a1a1a;
-  }
-
-  .logo-sub {
-    font-size: 11px;
-    color: #888;
-  }
+  .logo-text { font-size: 15px; font-weight: 500; color: #1a1a1a; }
+  .logo-sub  { font-size: 11px; color: #888; }
 }
 
 .nav {
@@ -59,6 +75,7 @@
   display: flex;
   flex-direction: column;
   gap: 2px;
+  overflow-y: auto;
 }
 
 .nav-section {
@@ -81,11 +98,7 @@
   text-decoration: none;
   transition: background 0.15s;
 
-  mat-icon {
-    font-size: 18px;
-    width: 18px;
-    height: 18px;
-  }
+  mat-icon { font-size: 18px; width: 18px; height: 18px; }
 
   .badge {
     margin-left: auto;
@@ -96,21 +109,14 @@
     border-radius: 999px;
   }
 
-  &:hover {
-    background: #f5f5f5;
-    color: #1a1a1a;
-  }
-
-  &.active {
-    background: #E6F1FB;
-    color: #185FA5;
-    font-weight: 500;
-  }
+  &:hover { background: #f5f5f5; color: #1a1a1a; }
+  &.active { background: #E6F1FB; color: #185FA5; font-weight: 500; }
 }
 
 .sidebar-footer {
   padding: 12px 10px;
   border-top: 0.5px solid #e0e0e0;
+  flex-shrink: 0;
 }
 
 .user-block {
@@ -134,14 +140,6 @@
     flex-shrink: 0;
   }
 
-  .user-name {
-    font-size: 13px;
-    font-weight: 500;
-    color: #1a1a1a;
-  }
-
-  .user-role {
-    font-size: 11px;
-    color: #888;
-  }
+  .user-name { font-size: 13px; font-weight: 500; color: #1a1a1a; }
+  .user-role { font-size: 11px; color: #888; }
 }

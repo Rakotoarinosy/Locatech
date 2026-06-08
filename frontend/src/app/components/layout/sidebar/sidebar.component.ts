@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { RouterLink, RouterModule } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatBadgeModule } from '@angular/material/badge';
@@ -16,4 +16,10 @@ export class SidebarComponent {
   profile: any = "assets/img/undraw_profile.svg";
   image_eo : any = 'assets/img/EO.png';
 
+  @Input() isOpen = false;
+  @Output() closeSidebar = new EventEmitter<void>();
+
+  onOverlayClick() {
+    this.closeSidebar.emit();
+  }
 }

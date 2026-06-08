@@ -1,4 +1,11 @@
-<aside class="sidebar">
+<!-- Overlay mobile (fond sombre cliquable) -->
+<div 
+  class="sidebar-overlay" 
+  [class.visible]="isOpen"
+  (click)="onOverlayClick()">
+</div>
+
+<aside class="sidebar" [class.open]="isOpen">
   <div class="sidebar-logo">
     <div class="logo-icon">
       <mat-icon>warehouse</mat-icon>
@@ -11,27 +18,33 @@
 
   <nav class="nav">
     <span class="nav-section">Principal</span>
-    <a routerLink="/back-office/dashboard" routerLinkActive="active" class="nav-item">
+    <a routerLink="/back-office/dashboard" routerLinkActive="active" 
+       class="nav-item" (click)="onOverlayClick()">
       <mat-icon>dashboard</mat-icon> Dashboard
     </a>
-    <a routerLink="/back-office/materiels" routerLinkActive="active" class="nav-item">
+    <a routerLink="/back-office/materiels" routerLinkActive="active" 
+       class="nav-item" (click)="onOverlayClick()">
       <mat-icon>construction</mat-icon> Matériels
     </a>
-    <a routerLink="/back-office/clients" routerLinkActive="active" class="nav-item">
+    <a routerLink="/back-office/clients" routerLinkActive="active" 
+       class="nav-item" (click)="onOverlayClick()">
       <mat-icon>group</mat-icon> Clients
     </a>
-    <a routerLink="/back-office/reservations" routerLinkActive="active" class="nav-item">
+    <a routerLink="/back-office/reservations" routerLinkActive="active" 
+       class="nav-item" (click)="onOverlayClick()">
       <mat-icon>event</mat-icon> Réservations
       <span class="badge">3</span>
     </a>
 
     <span class="nav-section">Finances</span>
-    <a routerLink="/back-office/factures" routerLinkActive="active" class="nav-item">
+    <a routerLink="/back-office/factures" routerLinkActive="active" 
+       class="nav-item" (click)="onOverlayClick()">
       <mat-icon>receipt_long</mat-icon> Factures
     </a>
 
     <span class="nav-section">Config</span>
-    <a routerLink="/back-office/parametres" routerLinkActive="active" class="nav-item">
+    <a routerLink="/back-office/parametres" routerLinkActive="active" 
+       class="nav-item" (click)="onOverlayClick()">
       <mat-icon>settings</mat-icon> Paramètres
     </a>
   </nav>

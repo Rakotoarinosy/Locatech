@@ -1,194 +1,259 @@
+// Base de la Topbar (Desktop)
 .topbar {
-  position: fixed;
-  top: 0;
-  left: 250px; 
-  width: calc(100% - 250px); 
-  height: 70px;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
-  border-bottom: 1px solid #e8edf3;
-  z-index: 1000;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 30px; /* Plus d'espace sur les côtés */
-  box-sizing: border-box; /* Crucial pour que le padding ne dépasse pas */
+  height: 70px;
+  background: #ffffff;
+  padding: 0 24px;
+  border-bottom: 1px solid #e2e8f0;
+  transition: all 0.3s ease;
+
+  @media (max-width: 768px) {
+    left: 0 !important;
+    width: 100% !important;
+    padding: 0 16px !important;
+  }
 }
-.tb-actions {
+
+// Section gauche (Burger + Titre)
+.tb-left {
   display: flex;
   align-items: center;
-  gap: 20px;
-  flex-shrink: 0; /* Empêche cette partie de rétrécir */
+  gap: 12px;
+  min-width: 0; // Évite les débordements de texte sous Flexbox
 }
 
-
-/* LEFT */
-
-.tb-left {
-  min-width: 180px;
-
+.tb-title {
   h5 {
     margin: 0;
-    font-size: 20px;
+    font-size: 1.25rem;
     font-weight: 700;
-    color: #1f2937;
+    color: #1e293b;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    
+    @media (max-width: 576px) {
+      font-size: 1.1rem;
+    }
   }
-
-  span {
-    font-size: 12px;
-    color: #94a3b8;
-  }
-}
-
-/* SEARCH */
-
-.topbar-search {
-  flex: 1;
-  max-width: 450px;
-  margin: 0 20px;
-  position: relative;
-
-  i {
-    position: absolute;
-    left: 14px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: #94a3b8;
-    font-size: 14px;
-  }
-
-  input {
-    width: 100%;
-    height: 44px;
-
-    border: 1px solid #e5e7eb;
-    border-radius: 14px;
-
-    background: #f8fafc;
-
-    padding: 0 14px 0 42px;
-
-    outline: none;
-
-    transition: 0.2s;
-
-    &:focus {
-      border-color: #2563eb;
-      background: white;
+  .tb-subtitle {
+    font-size: 0.8rem;
+    color: #64748b;
+    @media (max-width: 576px) {
+      display: none; // Masque le sous-titre sur petit mobile pour gagner de la place
     }
   }
 }
 
-/* ACTIONS */
+// Bouton Burger Mobile
+.burger-btn {
+  display: none; 
+  
+  @media (max-width: 768px) {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    background: #f8fafc;
+    color: #475569;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: all 0.2s;
 
+    i { font-size: 1.25rem; }
+    &:hover { background: #f1f5f9; }
+  }
+}
+
+// Barre de recherche
+.topbar-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+  max-width: 320px;
+  width: 100%;
+  margin: 0 16px;
+
+  i {
+    position: absolute;
+    left: 14px;
+    color: #94a3b8;
+    font-size: 0.9rem;
+  }
+
+  input {
+    width: 100%;
+    height: 40px;
+    padding: 0 16px 0 40px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    font-size: 0.88rem;
+    outline: none;
+    transition: all 0.2s;
+
+    &:focus {
+      background: #fff;
+      border-color: #2563eb;
+    }
+  }
+
+  @media (max-width: 768px) {
+    max-width: 200px; // Réduction sur tablette
+  }
+
+  @media (max-width: 600px) {
+    display: none; // Masquage complet sur mobile pour libérer l'espace
+  }
+}
+
+// Section droite (Actions / Boutons + Profil)
 .tb-actions {
   display: flex;
   align-items: center;
   gap: 12px;
-
   flex-shrink: 0;
 }
 
-/* ICON BUTTONS */
-
+// Boutons d'icônes de notification/messages
 .tb-icon-btn {
-  width: 42px;
-  height: 42px;
-
-  border: none;
-  border-radius: 12px;
-
-  background: #f8fafc;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
   position: relative;
-
-  cursor: pointer;
-
-  transition: 0.2s;
-
-  i {
-    font-size: 18px;
-    color: #475569;
-  }
-
-  &:hover {
-    background: #eef2ff;
-  }
-}
-
-/* BADGE */
-
-.notif-badge {
-  position: absolute;
-
-  top: -4px;
-  right: -4px;
-
-  width: 20px;
-  height: 20px;
-
-  border-radius: 50%;
-
-  background: #ef4444;
-  color: white;
-
-  font-size: 11px;
-  font-weight: 600;
-
-  display: flex;
+  width: 38px;
+  height: 38px;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  i { font-size: 1.15rem; }
+  &:hover { background: #f1f5f9; color: #1e293b; }
+
+  .notif-badge {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    background: #ef4444;
+    color: #ffffff;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 2px 5px;
+    border-radius: 8px;
+    border: 2px solid #ffffff;
+    min-width: 18px;
+    text-align: center;
+  }
 }
 
-/* PROFILE */
-
+// Profil Utilisateur
 .tb-profile {
   display: flex;
   align-items: center;
   gap: 10px;
-
-  padding: 6px 10px;
-
-  border-radius: 14px;
-
   cursor: pointer;
-
-  transition: 0.2s;
+  padding: 4px;
+  border-radius: 8px;
+  transition: background 0.2s;
 
   &:hover {
     background: #f8fafc;
   }
 
-  img {
-    width: 42px;
-    height: 42px;
-
+  // CORRECTION MAJEURE : Taille forcée de l'image de l'avatar
+  .tb-avatar {
+    width: 38px;
+    height: 38px;
     border-radius: 50%;
-    object-fit: cover;
+    object-fit: cover; // Empêche l'image de s'écraser
+    border: 1px solid #e2e8f0;
+    flex-shrink: 0;
   }
 
-  i {
-    color: #64748b;
-    font-size: 12px;
+  .tb-profile-details {
+    display: flex;
+    align-items: center;
+    
+    // Cache tout le texte du profil et la flèche sur mobile
+    @media (max-width: 480px) {
+      display: none;
+    }
+  }
+
+  .tb-profile-info {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.2;
+
+    .name {
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: #1e293b;
+    }
+
+    small {
+      font-size: 0.75rem;
+      color: #64748b;
+    }
   }
 }
 
-.tb-profile-info {
-  display: flex;
-  flex-direction: column;
+// À rajouter / modifier dans ton fichier SCSS existant :
 
-  .name {
-    font-weight: 600;
-    font-size: 14px;
-    color: #0f172a;
+.dropdown {
+  position: relative;
+}
+
+.modern-dropdown-menu {
+  display: none;
+  position: absolute;
+  right: 0;
+  top: 100%;
+  z-index: 1000;
+  border-radius: 12px !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.1) !important;
+  padding: 6px !important;
+  margin-top: 8px !important;
+  min-width: 160px;
+  background: #ffffff;
+
+  &.show {
+    display: block; // Géré dynamiquement par Angular au clic
   }
 
-  small {
-    font-size: 11px;
-    color: #94a3b8;
+  // L'en-tête interne n'apparaît que si le texte de la topbar est masqué (sous 480px)
+  .mobile-profile-header {
+    display: none;
+    @media (max-width: 480px) {
+      display: block;
+    }
+  }
+
+  .dropdown-header {
+    padding: 8px 12px;
+  }
+
+  .dropdown-item {
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 0.88rem;
+    font-weight: 500;
+    color: #334155;
+    text-decoration: none;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background-color: #fef2f2; 
+      color: #ef4444;
+    }
   }
 }

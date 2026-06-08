@@ -4,22 +4,26 @@
   background: #f5f7fb;
 }
 
-/* SIDEBAR SPACE */
-
 .main-wrapper {
   flex: 1;
   margin-left: 250px;
   width: calc(100% - 250px);
-}
+  transition: margin-left 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 
-/* CONTENT */
+  @media (max-width: 768px) {
+    margin-left: 0;
+    width: 100%;
+  }
+}
 
 .content-area {
   padding: 90px 20px 20px;
   min-height: 100vh;
-}
 
-/* GLOBAL */
+  @media (max-width: 768px) {
+    padding: 80px 12px 12px;
+  }
+}
 
 body {
   overflow-x: hidden;
