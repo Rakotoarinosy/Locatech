@@ -5,7 +5,7 @@ from apps.materials.serializers import MaterielSerializer
 
 
 class ReservationSerializer(serializers.ModelSerializer):
-    client_detail = ClientSerializer(source='client', read_only=True)
+    client_detail   = ClientSerializer(source='client',   read_only=True)
     materiel_detail = MaterielSerializer(source='materiel', read_only=True)
 
     class Meta:
@@ -15,33 +15,95 @@ class ReservationSerializer(serializers.ModelSerializer):
 
     def validate(self, data):
         date_debut = data.get('date_debut')
-        date_fin = data.get('date_fin')
-        materiel = data.get('materiel')
+        date_fin   = data.get('date_fin')
+        materiel   = data.get('materiel')
+        quantite   = data.get('quantite', 1)
+
+        # 1. Dates cohérentes
         if date_debut and date_fin and date_debut >= date_fin:
             raise serializers.ValidationError(
                 "La date de fin doit être après la date de début."
             )
+
         if date_debut and date_fin and materiel:
-            qs = Reservation.objects.filter(
+
+            # 2. Quantité ne dépasse pas le stock total du matériel
+            if quantite > materiel.quantite:
+                raise serializers.ValidationError(
+                    f"Quantité demandée ({quantite}) supérieure au stock disponible ({materiel.quantite})."
+                )
+
+            # 3. Quantité déjà réservée sur la même période
+            reservations_chevauchantes = Reservation.objects.filter(
                 materiel=materiel,
                 statut__in=['en cours', 'confirmee'],
                 date_debut__lt=date_fin,
                 date_fin__gt=date_debut,
             )
             if self.instance:
-                qs = qs.exclude(pk=self.instance.pk)
-            if qs.exists():
-                raise serializers.ValidationError(
-                    "Ce matériel est déjà réservé sur cette période."
+                reservations_chevauchantes = reservations_chevauchantes.exclude(
+                    pk=self.instance.pk
                 )
+
+            # Somme des quantités déjà réservées sur cette période
+            from django.db.models import Sum
+            quantite_deja_reservee = reservations_chevauchantes.aggregate(
+                total=Sum('quantite')
+            )['total'] or 0
+
+            quantite_disponible = materiel.quantite - quantite_deja_reservee
+
+            if quantite > quantite_disponible:
+                raise serializers.ValidationError(
+                    f"Stock insuffisant sur cette période. "
+                    f"Disponible : {quantite_disponible} / {materiel.quantite}. "
+                    f"Déjà réservé : {quantite_deja_reservee}."
+                )
+
         return data
 
     def create(self, validated_data):
-        materiel = validated_data['materiel']
+        materiel   = validated_data['materiel']
         date_debut = validated_data['date_debut']
-        date_fin = validated_data['date_fin']
+        date_fin   = validated_data['date_fin']
+        quantite   = validated_data.get('quantite', 1)
+
         nb_jours = (date_fin - date_debut).days
-        validated_data['prix_total'] = materiel.prix_journalier * nb_jours
-        materiel.statut = 'reserve'
-        materiel.save()
+        validated_data['prix_total'] = materiel.prix_journalier * nb_jours * quantite
+
+        # Met le matériel en réservé seulement si tout le stock est pris
+        from django.db.models import Sum
+        deja_reserve = Reservation.objects.filter(
+            materiel=materiel,
+            statut__in=['en cours', 'confirmee'],
+            date_debut__lt=date_fin,
+            date_fin__gt=date_debut,
+        ).aggregate(total=Sum('quantite'))['total'] or 0
+
+        if (deja_reserve + quantite) >= materiel.quantite:
+            materiel.statut = 'reserve'
+            materiel.save()
+
         return super().create(validated_data)
+    
+    
+    def update(self, instance, validated_data):
+        materiel = validated_data.get('materiel', instance.materiel)
+        date_debut = validated_data.get('date_debut', instance.date_debut)
+        date_fin = validated_data.get('date_fin', instance.date_fin)
+        quantite = validated_data.get('quantite', instance.quantite)
+
+        nb_jours = (date_fin - date_debut).days
+
+        instance.prix_total = (
+            materiel.prix_journalier *
+            nb_jours *
+            quantite
+        )
+
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+
+        instance.save()
+
+        return instance

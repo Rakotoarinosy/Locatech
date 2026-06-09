@@ -1,1 +1,298 @@
-<p>reservations works!</p>
+<div class="reservations-container">
+
+  <!-- En-tête -->
+  <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+    <div>
+      <h3 class="fw-bold text-dark mb-1">Gestion des Réservations</h3>
+      <p class="text-muted font-sm mb-0">Suivez et gérez toutes les réservations de matériels.</p>
+    </div>
+    <button (click)="openCreate()" class="btn btn-primary rounded-pill px-4 py-2 d-flex align-items-center gap-2 shadow-sm">
+      <i class="bi bi-plus-lg"></i>
+      <span>Nouvelle réservation</span>
+    </button>
+  </div>
+
+  <!-- Stats -->
+  <div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+      <div class="card stat-mini border-0 p-3 shadow-sm bg-white rounded-3">
+        <span class="text-muted font-xs d-block mb-1">Total</span>
+        <div class="d-flex align-items-center justify-content-between">
+          <h4 class="fw-bold text-dark mb-0">{{ stats.total }}</h4>
+          <span class="badge bg-primary-subtle text-primary rounded-pill font-xs">réservations</span>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="card stat-mini border-0 p-3 shadow-sm bg-white rounded-3">
+        <span class="text-muted font-xs d-block mb-1">En cours</span>
+        <div class="d-flex align-items-center justify-content-between">
+          <h4 class="fw-bold text-dark mb-0">{{ stats.par_statut['en cours'] || 0 }}</h4>
+          <span class="badge bg-primary-subtle text-primary rounded-pill font-xs">actives</span>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="card stat-mini border-0 p-3 shadow-sm bg-white rounded-3">
+        <span class="text-muted font-xs d-block mb-1">Confirmées</span>
+        <div class="d-flex align-items-center justify-content-between">
+          <h4 class="fw-bold text-dark mb-0">{{ stats.par_statut['confirmee'] || 0 }}</h4>
+          <span class="badge bg-success-subtle text-success rounded-pill font-xs">OK</span>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="card stat-mini border-0 p-3 shadow-sm bg-white rounded-3">
+        <span class="text-muted font-xs d-block mb-1">Terminées</span>
+        <div class="d-flex align-items-center justify-content-between">
+          <h4 class="fw-bold text-dark mb-0">{{ stats.par_statut['terminee'] || 0 }}</h4>
+          <span class="badge bg-secondary-subtle text-secondary rounded-pill font-xs">clôturées</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filtres -->
+  <div class="card border-0 shadow-sm bg-white rounded-4 mb-4">
+    <div class="card-body p-3">
+      <div class="row g-3 align-items-center">
+        <div class="col-12 col-md-5">
+          <div class="input-group input-group-sm border rounded-3 px-2 bg-light align-items-center">
+            <i class="bi bi-search text-muted me-2"></i>
+            <input type="text" class="form-control border-0 bg-transparent py-2"
+                   placeholder="Rechercher client, matériel..."
+                   [(ngModel)]="searchTerm" (input)="onSearch()">
+          </div>
+        </div>
+        <div class="col-12 col-md-4">
+          <select class="form-select form-select-sm border rounded-3 py-2 bg-light text-muted"
+                  [(ngModel)]="selectedStatut" (change)="onFilterChange()">
+            <option value="">Tous les statuts</option>
+            <option *ngFor="let s of STATUTS" [value]="s.value">{{ s.label }}</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="card border-0 shadow-sm bg-white rounded-4 overflow-hidden">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0 custom-table">
+        <thead class="text-secondary font-xs text-uppercase fw-bold">
+          <tr>
+            <th class="ps-4 py-3">Client</th>
+            <th class="py-3">Matériel</th>
+            <th class="py-3">Période</th>
+            <th class="py-3">Durée</th>
+            <th class="py-3">Quantité commandée</th>
+            <th class="py-3">Prix total</th>
+            <th class="py-3">Statut</th>
+            <th class="py-3 text-end pe-4">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="font-sm">
+          <tr *ngFor="let r of reservations">
+            <td class="ps-4 py-3">
+              <div class="d-flex align-items-center gap-2">
+                <div class="avatar-initials bg-primary-subtle text-primary fw-bold rounded-circle d-flex align-items-center justify-content-center">
+                  {{ (r.client_detail?.nom || '?')[0].toUpperCase() }}
+                </div>
+                <span class="fw-semibold text-dark">{{ r.client_detail?.nom || '—' }}</span>
+              </div>
+            </td>
+            <td>
+              <div class="d-flex align-items-center gap-2">
+                <i class="bi bi-box-seam text-muted"></i>
+                <span>{{ r.materiel_detail?.nom || '—' }}</span>
+              </div>
+            </td>
+            <td>
+              <div class="d-flex flex-column">
+                <span class="text-dark fw-medium font-xs">
+                  <i class="bi bi-calendar-event me-1 text-muted"></i>
+                  {{ r.date_debut | date:'dd/MM/yy' }}
+                </span>
+                <span class="text-muted font-xs">
+                  <i class="bi bi-arrow-right me-1"></i>
+                  {{ r.date_fin | date:'dd/MM/yy' }}
+                </span>
+              </div>
+            </td>
+            <td>
+              <span class="fw-semibold text-dark">
+                {{ getDuree(r) }} j
+              </span>
+            </td>
+            <td>
+              <span class="fw-bold text-dark">{{ r.quantite || 0 }}</span>
+            </td>
+            <td>
+              <span class="fw-bold text-dark">{{ formatPrix(r.prix_total || 0) }}</span>
+            </td>
+            <td>
+              <span class="badge rounded-pill px-2 py-1 font-xs fw-medium"
+                    [ngClass]="'bg-' + getStatutCss(r.statut || '') + '-subtle text-' + getStatutCss(r.statut || '')">
+                {{ getStatutLabel(r.statut || '') }}
+              </span>
+            </td>
+            <td class="text-end pe-4">
+              <div class="d-inline-flex gap-2">
+                <button (click)="openEdit(r)" class="btn btn-sm btn-icon-action" title="Modifier">
+                  <i class="bi bi-pencil"></i>
+                </button>
+                <button (click)="onDelete(r.id!)" class="btn btn-sm btn-icon-action text-danger" title="Supprimer">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+          <tr *ngIf="reservations.length === 0">
+            <td colspan="7" class="text-center py-5 text-muted">
+              <i class="bi bi-calendar-x d-block mb-2" style="font-size:2rem"></i>
+              Aucune réservation enregistrée
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card-footer bg-white border-0 py-3 px-4 border-top">
+      <span class="text-muted font-xs">{{ reservations.length }} réservation(s) affichée(s)</span>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal fade show" [ngClass]="{'d-block modern-backdrop': showModal}" *ngIf="showModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modern-modal-dialog">
+      <div class="modal-content border-0 modern-modal-content">
+
+        <div class="modal-header border-bottom-0 pb-0 px-4 pt-4 d-flex align-items-center justify-content-between">
+          <div class="d-flex align-items-center gap-3">
+            <div class="modern-icon-accent" [ngClass]="isEditMode ? 'bg-warning-subtle' : 'bg-primary-subtle'">
+              <i [class]="isEditMode ? 'bi bi-pencil-square' : 'bi bi-calendar-plus'"></i>
+            </div>
+            <div>
+              <h5 class="fw-bold text-dark mb-1 font-md">{{ isEditMode ? 'Modifier la réservation' : 'Nouvelle réservation' }}</h5>
+              <p class="text-muted font-xs mb-0">Renseignez les détails de la location.</p>
+            </div>
+          </div>
+          <button type="button" class="btn-close-modern" (click)="closeModal()">
+            <i class="bi bi-x-lg"></i>
+          </button>
+        </div>
+
+        <div class="modal-body px-4 pb-4 pt-3">
+
+          <!-- Alerte erreur anti-surréservation -->
+          <div *ngIf="errorMessage" class="alert-conflict mb-3">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+            {{ errorMessage }}
+          </div>
+
+          <form #resaForm="ngForm" (ngSubmit)="saveReservation()">
+
+            <!-- Client -->
+            <div class="mb-3">
+              <label class="form-label-modern">Client</label>
+              <div class="modern-input-group">
+                <i class="bi bi-person modern-field-icon"></i>
+                <select class="form-select modern-input modern-select"
+                        [(ngModel)]="newReservation.client" name="client" required>
+                  <option [ngValue]="undefined">Sélectionner un client...</option>
+                  <option *ngFor="let c of clients" [value]="c.id">{{ c.nom }}</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Matériel -->
+            <div class="mb-3">
+              <label class="form-label-modern">Matériel</label>
+              <div class="modern-input-group">
+                <i class="bi bi-box-seam modern-field-icon"></i>
+                <select class="form-select modern-input modern-select"
+                        [(ngModel)]="newReservation.materiel" name="materiel" required
+                        (change)="onDatesOrMaterielChange()">
+                  <option [ngValue]="undefined">Sélectionner un matériel...</option>
+                  <option *ngFor="let m of materiels" [value]="m.id">
+                    {{ m.nom }} — {{ formatPrix(m.prix_journalier) }}/jour
+                  </option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Dates -->
+            <div class="row g-3 mb-3">
+              <div class="col-6">
+                <label class="form-label-modern">Date début</label>
+                <div class="modern-input-group">
+                  <i class="bi bi-calendar modern-field-icon"></i>
+                  <input type="date" class="form-control modern-input"
+                         [(ngModel)]="newReservation.date_debut" name="date_debut"
+                         [min]="today()" required
+                         (change)="onDatesOrMaterielChange()">
+                </div>
+              </div>
+              <div class="col-6">
+                <label class="form-label-modern">Date fin</label>
+                <div class="modern-input-group">
+                  <i class="bi bi-calendar-check modern-field-icon"></i>
+                  <input type="date" class="form-control modern-input"
+                         [(ngModel)]="newReservation.date_fin" name="date_fin"
+                         [min]="newReservation.date_debut || today()" required
+                         (change)="onDatesOrMaterielChange()">
+                </div>
+              </div>
+            </div>
+
+            <!-- Prix estimé (lecture seule) -->
+            <div *ngIf="prixEstime > 0" class="prix-estime mb-3">
+              <i class="bi bi-calculator me-2"></i>
+              <span>{{ nbJours }} jour(s) × tarif = </span>
+              <strong>{{ formatPrix(prixEstime) }}</strong>
+            </div>
+
+            <!-- Quantité + Statut -->
+            <div class="row g-3 mb-3">
+              <div class="col-6">
+                <label class="form-label-modern">Quantité</label>
+                <div class="modern-input-group">
+                  <i class="bi bi-hash modern-field-icon"></i>
+                  <input type="number" class="form-control modern-input"
+                         [(ngModel)]="newReservation.quantite" name="quantite" min="1" required 
+                         (input)="onDatesOrMaterielChange()">
+                </div>
+              </div>
+              <div class="col-6">
+                <label class="form-label-modern">Statut</label>
+                <div class="modern-input-group">
+                  <i class="bi bi-toggle-on modern-field-icon"></i>
+                  <select class="form-select modern-input modern-select"
+                          [(ngModel)]="newReservation.statut" name="statut">
+                    <option *ngFor="let s of STATUTS" [value]="s.value">{{ s.label }}</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <!-- Notes -->
+            <div class="mb-4">
+              <label class="form-label-modern">Notes (optionnel)</label>
+              <textarea class="form-control modern-textarea"
+                        [(ngModel)]="newReservation.notes" name="notes"
+                        rows="2" placeholder="Informations complémentaires..."></textarea>
+            </div>
+
+            <div class="modal-footer border-top-0 p-0 d-flex gap-2 justify-content-end">
+              <button type="button" class="btn modern-btn-secondary" (click)="closeModal()">Annuler</button>
+              <button type="submit" class="btn modern-btn-primary" [disabled]="!resaForm.form.valid">
+                {{ isEditMode ? 'Mettre à jour' : 'Enregistrer' }}
+              </button>
+            </div>
+
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>

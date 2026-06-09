@@ -1,4 +1,5 @@
 from datetime import date
+from django.db import models as django_models
 from rest_framework import viewsets, filters, status
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
@@ -16,15 +17,30 @@ class ReservationViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         queryset = super().get_queryset()
+        aujourd_hui = date.today()
+
+        # Auto-calcul retard_jours sur les réservations en cours dépassées
+        Reservation.objects.filter(
+            date_fin__lt=aujourd_hui,
+            statut__in=['en cours', 'confirmee']
+        ).update(
+            retard_jours=django_models.ExpressionWrapper(
+                django_models.Value(aujourd_hui) - django_models.F('date_fin'),
+                output_field=django_models.IntegerField()
+            )
+        )
+
         statut = self.request.query_params.get('statut')
         client_id = self.request.query_params.get('client')
         materiel_id = self.request.query_params.get('materiel')
+
         if statut:
             queryset = queryset.filter(statut=statut)
         if client_id:
             queryset = queryset.filter(client_id=client_id)
         if materiel_id:
             queryset = queryset.filter(materiel_id=materiel_id)
+
         return queryset
 
     @action(detail=True, methods=['patch'], url_path='statut')

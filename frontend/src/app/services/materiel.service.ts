@@ -8,6 +8,7 @@ import { Materiel, MaterielStats } from '../models/materiel.model';
   providedIn: 'root'
 })
 export class MaterielService {
+  
   private http = inject(HttpClient);
   private baseUrl = `${environment.apiUrl}/materiels/materiels/`;
 
