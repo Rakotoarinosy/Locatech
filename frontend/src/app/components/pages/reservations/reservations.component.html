@@ -138,6 +138,10 @@
             </td>
             <td class="text-end pe-4">
               <div class="d-inline-flex gap-2">
+                <button (click)="openDetails(r)"
+                  class="btn btn-sm btn-icon-action text-primary" title="Détails">
+                  <i class="bi bi-eye"></i>
+                </button>
                 <button (click)="openEdit(r)" class="btn btn-sm btn-icon-action" title="Modifier">
                   <i class="bi bi-pencil"></i>
                 </button>
@@ -253,25 +257,30 @@
 
             <!-- Quantité + Statut -->
             <div class="row g-3 mb-3">
-              <div class="col-6">
-                <label class="form-label-modern">Quantité</label>
+              <!-- Quantité -->
+              <div class="col-12">
+
+                <label class="form-label-modern">
+                  Quantité
+                </label>
+
                 <div class="modern-input-group">
                   <i class="bi bi-hash modern-field-icon"></i>
-                  <input type="number" class="form-control modern-input"
-                         [(ngModel)]="newReservation.quantite" name="quantite" min="1" required 
-                         (input)="onDatesOrMaterielChange()">
+
+                  <input
+                    type="number"
+                    class="form-control modern-input"
+                    [(ngModel)]="newReservation.quantite"
+                    name="quantite"
+                    min="1"
+                    required
+                    (input)="onDatesOrMaterielChange()">
                 </div>
+
               </div>
-              <div class="col-6">
-                <label class="form-label-modern">Statut</label>
-                <div class="modern-input-group">
-                  <i class="bi bi-toggle-on modern-field-icon"></i>
-                  <select class="form-select modern-input modern-select"
-                          [(ngModel)]="newReservation.statut" name="statut">
-                    <option *ngFor="let s of STATUTS" [value]="s.value">{{ s.label }}</option>
-                  </select>
-                </div>
-              </div>
+
+              <!-- Statut : seulement en création -->
+
             </div>
 
             <!-- Notes -->
@@ -293,6 +302,147 @@
         </div>
       </div>
     </div>
+  </div>
+
+  <!-- Modal Détails -->
+  <div
+    class="modal fade show"
+    *ngIf="showDetailsModal"
+    [ngClass]="{'d-block modern-backdrop': showDetailsModal}">
+
+    <div class="modal-dialog modal-dialog-centered">
+
+      <div class="modal-content border-0 rounded-4">
+
+        <div class="modal-header">
+
+          <h5 class="fw-bold text-light">
+            Détails de la réservation
+          </h5>
+
+          <button
+            type="button"
+            class="btn-close btn-close-white"
+            (click)="closeDetailsModal()">
+          </button>
+
+        </div>
+
+        <div class="modal-body">
+
+          <div class="mb-3">
+            <strong>Client</strong>
+            <p>{{ selectedReservation?.client_detail?.nom }}</p>
+          </div>
+
+          <div class="mb-3">
+            <strong>Matériel</strong>
+            <p>{{ selectedReservation?.materiel_detail?.nom }}</p>
+          </div>
+
+          <div class="mb-3">
+            <strong>Quantité</strong>
+            <p>{{ selectedReservation?.quantite }}</p>
+          </div>
+
+          <div class="mb-3">
+            <strong>Période</strong>
+            <p>
+              {{ selectedReservation?.date_debut | date:'dd/MM/yyyy' }}
+              →
+              {{ selectedReservation?.date_fin | date:'dd/MM/yyyy' }}
+            </p>
+          </div>
+
+          <div class="mb-3">
+            <strong>Prix total</strong>
+            <p>
+              {{ formatPrix(selectedReservation?.prix_total || 0) }}
+            </p>
+          </div>
+
+          <div class="mb-3">
+
+            <strong>Statut</strong>
+
+            <br>
+
+            <span
+              class="badge rounded-pill px-3 py-2"
+              [ngClass]="'bg-' + getStatutCss(selectedReservation?.statut || '') + '-subtle text-' + getStatutCss(selectedReservation?.statut || '')">
+
+              {{ getStatutLabel(selectedReservation?.statut || '') }}
+
+            </span>
+
+          </div>
+
+        </div>
+
+        <div class="modal-footer">
+
+          <!-- EN COURS -->
+          <ng-container *ngIf="selectedReservation?.statut === 'en cours'">
+
+            <button
+              class="btn btn-success"
+              (click)="changeStatut(selectedReservation!.id!, 'confirmee')">
+
+              Confirmer
+            </button>
+
+            <button
+              class="btn btn-danger"
+              (click)="changeStatut(selectedReservation!.id!, 'annulee')">
+
+              Annuler
+            </button>
+
+          </ng-container>
+
+          <!-- CONFIRMEE -->
+          <ng-container *ngIf="selectedReservation?.statut === 'confirmee'">
+
+            <button
+              class="btn btn-primary"
+              (click)="changeStatut(selectedReservation!.id!, 'terminee')">
+
+              Terminer
+            </button>
+
+            <button
+              class="btn btn-danger"
+              (click)="changeStatut(selectedReservation!.id!, 'annulee')">
+
+              Annuler
+            </button>
+
+          </ng-container>
+
+          <!-- TERMINEE -->
+          <ng-container *ngIf="selectedReservation?.statut === 'terminee'">
+
+            <span class="fw-bold text-success">
+              Réservation clôturée
+            </span>
+
+          </ng-container>
+
+          <!-- ANNULEE -->
+          <ng-container *ngIf="selectedReservation?.statut === 'annulee'">
+
+            <span class="fw-bold text-danger">
+              Réservation annulée
+            </span>
+
+          </ng-container>
+
+        </div>
+
+      </div>
+
+    </div>
+
   </div>
 
 </div>

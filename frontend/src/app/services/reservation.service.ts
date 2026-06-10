@@ -69,9 +69,9 @@ export class ReservationService {
     return this.http.post(`${this.base}/`, data, { headers: this.headers() });
   }
 
-  updateStatut(id: number, statut: string): Observable<any> {
-    return this.http.patch(`${this.base}/${id}/statut/`, { statut }, { headers: this.headers() });
-  }
+  // updateStatut(id: number, statut: string): Observable<any> {
+  //   return this.http.patch(`${this.base}/${id}/statut/`, { statut }, { headers: this.headers() });
+  // }
 
   update(id: number, data: Partial<Reservation>): Observable<Reservation> {
     return this.http.patch<Reservation>(`${this.base}/${id}/`, data);
@@ -79,5 +79,39 @@ export class ReservationService {
 
   delete(id: number): Observable<void> {
     return this.http.delete<void>(`${this.base}/${id}/`);
+  }
+
+  terminerReservation(id: number) {
+    return this.http.patch(
+      `${environment.apiUrl}/reservations/${id}/statut/`,
+      {
+        statut: 'terminee'
+      }
+    );
+  }
+
+  confirmerReservation(id: number) {
+    return this.http.patch(
+      `${environment.apiUrl}/reservations/${id}/statut/`,
+      {
+        statut: 'confirmee'
+      }
+    );
+  }
+
+  annulerReservation(id: number) {
+    return this.http.patch(
+      `${environment.apiUrl}/reservations/${id}/statut/`,
+      {
+        statut: 'annulee'
+      }
+    );
+  }
+
+  updateStatut(id: number, statut: string) {
+    return this.http.patch(
+      `${this.base}/${id}/statut/`,
+      { statut }
+    );
   }
 }

@@ -31,6 +31,10 @@ export class ReservationsComponent implements OnInit {
   isEditMode = false;
   errorMessage = '';
 
+  // Modal détails
+  showDetailsModal = false;
+  selectedReservation: Reservation | null = null;
+
   newReservation: Partial<Reservation> = this.empty();
 
   // Prix calculé en temps réel
@@ -141,6 +145,43 @@ export class ReservationsComponent implements OnInit {
     this.onDatesOrMaterielChange();
     this.errorMessage = '';
     this.showModal = true;
+  }
+
+  openDetails(reservation: Reservation) {
+    this.selectedReservation = reservation;
+    this.showDetailsModal = true;
+  }
+
+  closeDetailsModal() {
+    this.showDetailsModal = false;
+    this.selectedReservation = null;
+  }
+
+
+  changeStatut(id: number, statut: string): void {
+    this.reservationService.updateStatut(id, statut).subscribe({
+      next: () => {
+
+        if (this.selectedReservation) {
+          this.selectedReservation.statut = statut;
+        }
+
+        this.loadAll();
+
+        if (
+          statut === 'terminee' ||
+          statut === 'annulee'
+        ) {
+          this.closeDetailsModal();
+        }
+      },
+
+      error: (err) => {
+        console.error(err);
+        alert('Impossible de mettre à jour le statut.');
+      }
+    });
+
   }
 
   closeModal(): void { this.showModal = false; }
