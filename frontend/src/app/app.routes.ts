@@ -2,6 +2,7 @@ import { Routes } from "@angular/router";
 import { authGuard } from "./guards/auth.guard";
 
 export const routes: Routes = [
+    { path: "", redirectTo: "home", pathMatch: "full" },
   { path: "home", loadComponent: () => import("./components/pages/landing-page/landing-page.component").then(m => m.LandingPageComponent) },
   { path: "login", loadComponent: () => import("./components/pages/login/login.component").then(m => m.LoginComponent) },
   {
@@ -57,5 +58,4 @@ export const routes: Routes = [
     path: '**',
     redirectTo: '404'
   },
-  { path: "", redirectTo: "home", pathMatch: "full" },
 ];
