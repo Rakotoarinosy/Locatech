@@ -18,6 +18,44 @@ export const routes: Routes = [
       { path: "", redirectTo: "dashboard", pathMatch: "full" }
     ]
   },
+  {
+  path: '400',
+  loadComponent: () =>
+    import('./components/error/error-400/error-400.component')
+      .then(m => m.Error400Component)
+  },
+
+  {
+    path: '401',
+    loadComponent: () =>
+      import('./components/error/error-401/error-401.component')
+        .then(m => m.Error401Component)
+  },
+
+  {
+    path: '404',
+  loadComponent: () =>
+      import('./components/error/error-404/error-404.component')
+        .then(m => m.Error404Component)
+  },
+
+  {
+    path: '502',
+    loadComponent: () =>
+      import('./components/error/error-502/error-502.component')
+        .then(m => m.Error502Component)
+  },
+    
+  {
+    path: '500',
+    loadComponent: () =>
+      import('./components/error/error-500/error-500.component')
+        .then(m => m.Error500Component)
+  },
+
+  {
+    path: '**',
+    redirectTo: '404'
+  },
   { path: "", redirectTo: "home", pathMatch: "full" },
-  { path: "**", redirectTo: "login" }
 ];
