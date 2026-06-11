@@ -54,12 +54,39 @@ class ReservationViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST
             )
         reservation.statut = new_statut
+        
+        # Gestion du matériel existante
         if new_statut in ['terminee', 'annulee']:
             reservation.materiel.statut = 'disponible'
             reservation.materiel.save()
+            
+        # ─── AUTOMATISATION : Génération de la facture à la confirmation ───
+        if new_statut == 'confirmee':
+            # On importe ici pour éviter les imports circulaires entre modèles/views
+            from apps.factures.models import Facture
+            from apps.factures.views import _generate_pdf
+            
+            # On vérifie si une facture n'existe pas déjà (évite les doublons si on reclique)
+            if not hasattr(reservation, 'facture'):
+                # Calcul du montant initial basé sur le prix_total calculé de la réservation
+                montant = reservation.prix_total
+                
+                # Création de la facture
+                facture = Facture.objects.create(
+                    reservation=reservation,
+                    montant=montant,
+                    statut='payee'
+                )
+                
+                # Génération du fichier PDF premium sur le disque
+                _generate_pdf(facture)
+                
+                # On met à jour la réservation avec l'ID de la facture créée
+                reservation.facture_id = facture.id
+
         reservation.save()
         return Response(ReservationSerializer(reservation).data)
-
+    
     @action(detail=False, methods=['get'], url_path='en-retard')
     def en_retard(self, request):
         aujourd_hui = date.today()

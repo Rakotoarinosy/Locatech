@@ -138,6 +138,14 @@
             </td>
             <td class="text-end pe-4">
               <div class="d-inline-flex gap-2">
+                <button
+                  *ngIf="r.facture_id"
+                  (click)="download(r)"
+                  class="btn btn-sm btn-icon-action text-success"
+                  title="Télécharger facture"
+                >
+                  <i class="bi bi-file-earmark-pdf"></i>
+                </button>
                 <button (click)="openDetails(r)"
                   class="btn btn-sm btn-icon-action text-primary" title="Détails">
                   <i class="bi bi-eye"></i>

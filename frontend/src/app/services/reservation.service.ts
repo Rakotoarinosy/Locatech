@@ -1,22 +1,9 @@
 import { Injectable, PLATFORM_ID, Inject } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, BehaviorSubject, tap } from 'rxjs';
 import { isPlatformBrowser } from '@angular/common';
 import { environment } from '../../environments/environment';
-export interface Reservation {
-  id?: number;
-  client: number;
-  materiel: number;
-  date_debut: string;
-  date_fin: string;
-  quantite: number;
-  prix_total?: number;
-  statut?: string;
-  notes?: string;
-  created_at?: string;
-  client_detail?: any;
-  materiel_detail?: any;
-}
+import { Reservation } from '../models/reservation.models';
 
 export interface ReservationStats {
   total: number;
@@ -26,6 +13,8 @@ export interface ReservationStats {
 @Injectable({ providedIn: 'root' })
 export class ReservationService {
   private base = `${environment.apiUrl}/reservations/reservations`;
+  private pendingCountSubject = new BehaviorSubject<number>(0);
+  pendingCount$ = this.pendingCountSubject.asObservable();
 
   constructor(
     private http: HttpClient,
@@ -66,36 +55,42 @@ export class ReservationService {
   }
       
   create(data: any): Observable<any> {
-    return this.http.post(`${this.base}/`, data, { headers: this.headers() });
-  }
+    return this.http.post(`${this.base}/`, data, { headers: this.headers() }).pipe(
+      tap(() => this.refreshPendingCount())
+    );
+  } 
 
   // updateStatut(id: number, statut: string): Observable<any> {
   //   return this.http.patch(`${this.base}/${id}/statut/`, { statut }, { headers: this.headers() });
   // }
 
   update(id: number, data: Partial<Reservation>): Observable<Reservation> {
-    return this.http.patch<Reservation>(`${this.base}/${id}/`, data);
+    return this.http.patch<Reservation>(`${this.base}/${id}/`, data).pipe(
+      tap(() => this.refreshPendingCount()) // <-- Ajouté
+    );
   }
 
   delete(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.base}/${id}/`);
+    return this.http.delete<void>(`${this.base}/${id}/`).pipe(
+      tap(() => this.refreshPendingCount()) // <-- Ajouté
+    );
   }
 
-  terminerReservation(id: number) {
+terminerReservation(id: number) {
     return this.http.patch(
       `${environment.apiUrl}/reservations/${id}/statut/`,
-      {
-        statut: 'terminee'
-      }
+      { statut: 'terminee' }
+    ).pipe(
+      tap(() => this.refreshPendingCount())
     );
   }
 
   confirmerReservation(id: number) {
     return this.http.patch(
       `${environment.apiUrl}/reservations/${id}/statut/`,
-      {
-        statut: 'confirmee'
-      }
+      { statut: 'confirmee' }
+    ).pipe(
+      tap(() => this.refreshPendingCount()) // <-- Ajouté
     );
   }
 
@@ -105,6 +100,8 @@ export class ReservationService {
       {
         statut: 'annulee'
       }
+    ).pipe(
+      tap(() => this.refreshPendingCount())
     );
   }
 
@@ -112,6 +109,25 @@ export class ReservationService {
     return this.http.patch(
       `${this.base}/${id}/statut/`,
       { statut }
+      ).pipe(
+      tap(() => this.refreshPendingCount())
     );
+    }
+
+  refreshPendingCount() {
+    // Ajout du slash final '/' pour correspondre aux routes Django standard
+    this.http.get<any[]>(`${this.base}/`, { headers: this.headers() }).subscribe({
+      next: (reservations) => {
+        // Ajout du support pour 'En cours' avec une majuscule comme vu sur l'interface
+        const count = reservations.filter(r => 
+          r.statut === 'en cours' || 
+          r.statut === 'en_cours' || 
+          r.statut?.toLowerCase() === 'en cours'
+        ).length;
+        
+        this.pendingCountSubject.next(count);
+      },
+      error: (err) => console.error('Erreur lors du calcul du badge sidebar', err)
+    });
   }
 }

@@ -1,0 +1,39 @@
+// Variables du Design System LocaTech
+$bg-light: #f8fafc;
+$border-color: #f1f5f9;
+
+.border-bottom-eee {
+  border-bottom: 1px solid $border-color !important;
+}
+
+// Badges de statuts transparents modernes
+.bg-success-subtle {
+  background-color: rgba(25, 135, 84, 0.12) !important;
+}
+.bg-danger-subtle {
+  background-color: rgba(220, 53, 69, 0.12) !important;
+}
+.bg-warning-subtle {
+  background-color: rgba(255, 193, 7, 0.15) !important;
+}
+
+// Tailles de polices
+.fs-7 { font-size: 0.8rem; }
+.fs-8 { font-size: 0.75rem; }
+
+// Effet de survol sur la table
+tbody tr {
+  transition: background-color 0.15s ease;
+  &:hover {
+    background-color: #fafbfc;
+  }
+}
+
+// Style boutons d'action icônes
+.btn-light {
+  background-color: #ffffff;
+  &:hover {
+    background-color: $bg-light;
+    border-color: #cbd5e1 !important;
+  }
+}

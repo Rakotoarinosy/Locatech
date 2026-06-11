@@ -33,7 +33,9 @@
     <a routerLink="/back-office/reservations" routerLinkActive="active" 
        class="nav-item" (click)="onOverlayClick()">
       <mat-icon>event</mat-icon> Réservations
-      <span class="badge">3</span>
+      @if (reservationCount > 0) {
+         <span class="badge">{{ reservationCount }}</span>
+      }
     </a>
 
     <span class="nav-section">Finances</span>

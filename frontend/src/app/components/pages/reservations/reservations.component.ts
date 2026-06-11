@@ -1,10 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ReservationService, Reservation, ReservationStats } from '../../../services/reservation.service';
+import { ReservationService, ReservationStats } from '../../../services/reservation.service';
 import { ClientService } from '../../../services/client.service';
 import { MaterielService } from '../../../services/materiel.service';
+import { FactureService } from '../../../services/facture.service';
 import { Materiel } from '../../../models/materiel.model';
+import { Reservation } from '../../../models/reservation.models';
 import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
 
 @Component({
@@ -51,7 +53,8 @@ export class ReservationsComponent implements OnInit {
   constructor(
     private reservationService: ReservationService,
     private clientService: ClientService,
-    private materielService: MaterielService
+    private materielService: MaterielService,
+    private factureService: FactureService
   ) {}
 
   ngOnInit(): void {
@@ -247,4 +250,26 @@ export class ReservationsComponent implements OnInit {
     const d2 = new Date(r.date_fin);
     return Math.max(0, Math.ceil((d2.getTime() - d1.getTime()) / (1000 * 60 * 60 * 24)));
   }
+
+  download(reservation: Reservation) {
+  if (!reservation.facture_id) {
+    alert("La facture n'est pas encore disponible. Veuillez d'abord confirmer la réservation.");
+    return;
+  }
+  
+  this.factureService.download(reservation.facture_id).subscribe({
+    next: (blob) => {
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `facture-reservation-${reservation.id}.pdf`;
+      a.click();
+      window.URL.revokeObjectURL(url);
+    },
+    error: (err) => {
+      console.error(err);
+      alert("Erreur lors du téléchargement du PDF.");
+    }
+  });
+}
 }
