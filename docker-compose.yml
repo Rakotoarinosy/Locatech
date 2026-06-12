@@ -1,0 +1,47 @@
+services:
+
+  db:
+    image: postgres:17
+    container_name: locatech-db
+
+    environment:
+      POSTGRES_DB: locatech
+      POSTGRES_USER: locatech
+      POSTGRES_PASSWORD: locatech123
+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: ./locatech
+      dockerfile: Dockerfile
+
+    container_name: locatech-backend
+
+    command: >
+      sh -c "
+      python manage.py migrate &&
+      gunicorn backend.wsgi:application --bind 0.0.0.0:8045
+      "
+
+    volumes:
+      - ./locatech:/app
+      - media_data:/app/media
+
+    env_file:
+      - .env
+
+    depends_on:
+      - db
+
+    ports:
+      - "8045:8045"
+
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  media_data:
