@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://locatech.rakotoarinosy.com'
+  apiUrl: 'https://api.locatech-mada.rakotoarinosy.com'
 };
