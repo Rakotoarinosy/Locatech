@@ -8,6 +8,7 @@ from apps.clients.models import Client
 from apps.materials.models import Materiel
 from apps.reservations.models import Reservation
 from apps.factures.models import Facture
+from django.utils import timezone
 
 
 class DashboardStatsView(APIView):
@@ -16,7 +17,7 @@ class DashboardStatsView(APIView):
 
     def get(self, request):
         aujourd_hui = date.today()
-        debut_mois = aujourd_hui.replace(day=1)
+        debut_mois = timezone.now().replace(day=1, hour=0, minute=0, second=0, microsecond=0)
 
         total_clients = Client.objects.count()
         total_materiels = Materiel.objects.count()
