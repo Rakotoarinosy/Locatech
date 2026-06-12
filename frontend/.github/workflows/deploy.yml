@@ -1,0 +1,95 @@
+name: Build & Deploy LocaTech
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  FRONTEND_IMAGE: ghcr.io/rakotoarinosy/locatech-frontend:latest
+  BACKEND_IMAGE: ghcr.io/rakotoarinosy/locatech-backend:latest
+
+jobs:
+
+  build-frontend:
+    name: Build Frontend
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Login GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build & Push Frontend
+        uses: docker/build-push-action@v5
+        with:
+          context: ./frontend
+          push: true
+          tags: ${{ env.FRONTEND_IMAGE }}
+
+  build-backend:
+    name: Build Backend
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Login GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build & Push Backend
+        uses: docker/build-push-action@v5
+        with:
+          context: ./locatech
+          push: true
+          tags: ${{ env.BACKEND_IMAGE }}
+
+  deploy:
+    name: Deploy VPS
+    runs-on: ubuntu-latest
+
+    needs:
+      - build-frontend
+      - build-backend
+
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+
+          script: |
+            cd /srv/Locatech
+
+            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io \
+              -u ${{ github.actor }} \
+              --password-stdin
+
+            git pull origin main
+
+            docker compose pull
+
+            docker compose up -d
+
+            docker image prune -af
