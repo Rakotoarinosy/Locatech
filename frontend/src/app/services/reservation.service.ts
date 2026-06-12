@@ -12,7 +12,7 @@ export interface ReservationStats {
 
 @Injectable({ providedIn: 'root' })
 export class ReservationService {
-  private base = `${environment.apiUrl}/reservations/reservations`;
+  private base = `${environment.apiUrl}/reservations/reservations/`;
   private pendingCountSubject = new BehaviorSubject<number>(0);
   pendingCount$ = this.pendingCountSubject.asObservable();
 
