@@ -20,15 +20,13 @@ class ReservationViewSet(viewsets.ModelViewSet):
         aujourd_hui = date.today()
 
         # Auto-calcul retard_jours sur les réservations en cours dépassées
-        Reservation.objects.filter(
+        retards = Reservation.objects.filter(
             date_fin__lt=aujourd_hui,
             statut__in=['en cours', 'confirmee']
-        ).update(
-            retard_jours=django_models.ExpressionWrapper(
-                django_models.Value(aujourd_hui) - django_models.F('date_fin'),
-                output_field=django_models.IntegerField()
-            )
         )
+        for r in retards: 
+            r.retard_jours = ( aujourd_hui - r.date_fin ).days 
+        r.save()
 
         statut = self.request.query_params.get('statut')
         client_id = self.request.query_params.get('client')
