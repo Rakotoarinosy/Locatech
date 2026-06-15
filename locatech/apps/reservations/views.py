@@ -26,7 +26,7 @@ class ReservationViewSet(viewsets.ModelViewSet):
         )
         for r in retards: 
             r.retard_jours = ( aujourd_hui - r.date_fin ).days 
-        r.save()
+            r.save()
 
         statut = self.request.query_params.get('statut')
         client_id = self.request.query_params.get('client')
