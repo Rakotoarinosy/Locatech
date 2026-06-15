@@ -1,2 +1,7 @@
 .env
+.env.*
 locatech/.env.prod
+locatech/backend/media/materiels/
+locatech/backend/media/**
+locatech/backend/staticfiles/
+locatech/backend/backend/**
