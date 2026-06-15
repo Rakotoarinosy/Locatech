@@ -16,8 +16,8 @@ class DashboardStatsView(APIView):
     permission_classes = (IsAuthenticated,)
 
     def get(self, request):
-        aujourd_hui = date.today()
-        debut_mois = timezone.now().replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+        aujourd_hui = timezone.now()
+        debut_mois = aujourd_hui.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
 
         total_clients = Client.objects.count()
         total_materiels = Materiel.objects.count()
