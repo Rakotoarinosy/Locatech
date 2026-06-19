@@ -10,20 +10,21 @@ from django.conf import settings
 from .models import Facture
 from .serializers import FactureSerializer
 from apps.reservations.models import Reservation
+from reportlab.lib.pagesizes import A4
+from reportlab.lib import colors
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, Image
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.units import cm
+import io
+from django.core.files.base import ContentFile
+from django.conf import settings
 
 def _generate_pdf(facture):
     """Génère un PDF professionnel pour la facture et le sauvegarde dans media/factures/."""
     try:
-        from reportlab.lib.pagesizes import A4
-        from reportlab.lib import colors
-        from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, Image
-        from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-        from reportlab.lib.units import cm
-        import io
-        from django.core.files.base import ContentFile
-        from django.conf import settings
-
         r = facture.reservation
+        penalite = facture.montant - r.prix_total
+        montant_location = r.prix_total
         buffer = io.BytesIO()
         
         # Marges de la page A4 (2 cm partout)
@@ -70,12 +71,18 @@ def _generate_pdf(facture):
         
         # Colonne Droite : Métadonnées de la facture
         date_facture = facture.created_at.strftime('%d/%m/%Y') if facture.created_at else date.today().strftime('%d/%m/%Y')
+        statut_affiche = facture.get_statut_display().upper()
+        if facture.reservation.statut == 'confirmee':
+            statut_affiche = "EN ATTENTE DE RETOUR DU MATÉRIEL"
+        elif facture.reservation.statut == 'en_attente_retour':
+            statut_affiche = "MATÉRIEL EN RETARD — EN ATTENTE DE RETOUR"
         invoice_info = [
             Paragraph("FACTURE", style_invoice_title),
             Spacer(1, 0.2*cm),
             Paragraph(f"<b>N° :</b> {facture.numero}", style_invoice_meta),
             Paragraph(f"<b>Date :</b> {date_facture}", style_invoice_meta),
-            Paragraph(f"<b>Statut :</b> {facture.get_statut_display().upper()}", style_invoice_meta),
+            # Paragraph(f"<b>Statut :</b> {facture.get_statut_display().upper()}", style_invoice_meta),
+            Paragraph(f"<b>Statut :</b> {statut_affiche}", style_invoice_meta),
         ]
         
         header_table = Table([[company_info, invoice_info]], colWidths=[9.5*cm, 7.5*cm])
@@ -171,10 +178,26 @@ def _generate_pdf(facture):
 
         # ─── BLOC TOTAL (ALIGNÉ À DROITE) ───
         total_data = [
-            [Paragraph("Montant Total H.T. :", style_total_label), Paragraph(f"{IntlFormat(facture.montant)} Ar", style_body_bold)],
-            [Paragraph("T.V.A. (0%) :", style_total_label), Paragraph("0.00 Ar", style_body)],
-            [Paragraph("TOTAL À PAYER :", style_total_label), Paragraph(f"{IntlFormat(facture.montant)} Ar", style_total_val)],
+            [
+                Paragraph("Montant location :", style_total_label),
+                Paragraph(f"{IntlFormat(montant_location)} Ar", style_body_bold)
+            ],
         ]
+        
+        if penalite > 0:
+            total_data.append([
+                Paragraph("Pénalités de retard :", style_total_label),
+                Paragraph(
+                    f"<font color='#dc2626'>{IntlFormat(penalite)} Ar</font>",
+                    style_body_bold
+                )
+            ])
+
+        total_data.append([
+            Paragraph("TOTAL À PAYER :", style_total_label),
+            Paragraph(f"{IntlFormat(facture.montant)} Ar", style_total_val)
+        ])
+        
         total_table = Table(total_data, colWidths=[12*cm, 5*cm])
         total_table.setStyle(TableStyle([
             ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
@@ -200,11 +223,12 @@ def _generate_pdf(facture):
 
     except Exception as e:
         print(f"Erreur de génération PDF : {str(e)}")
-        # Remplacement de secours en cas de crash
-        from django.core.files.base import ContentFile
+        import traceback
+        traceback.print_exc()
+        # ContentFile est déjà importé en haut du fichier, pas besoin de le réimporter
         r = facture.reservation
         content = f"LOCATECH — FACTURE N°{facture.numero}\nTotal: {facture.montant} Ar"
-        facture.pdf.save(f"facture_{facture.numero}.txt", ContentFile(content.encode()), save=True)
+        facture.pdf.save(f"facture_{facture.numero}.pdf", ContentFile(content.encode()), save=True)
         return True
 
 def IntlFormat(value):
@@ -279,7 +303,6 @@ class FactureViewSet(viewsets.ModelViewSet):
     
     @action(detail=True, methods=['patch'])
     def payer(self, request, pk=None):
-
         facture = self.get_object()
 
         if facture.statut == 'payee':
@@ -290,15 +313,34 @@ class FactureViewSet(viewsets.ModelViewSet):
 
         facture.statut = 'payee'
         facture.save()
-        
         reservation = facture.reservation
-        reservation.statut = 'confirmee'
-        reservation.save()
+        aujourd_hui = date.today()
 
-        return Response(
-            FactureSerializer(facture).data
-        )
-        
+        if aujourd_hui <= reservation.date_fin:
+            # Paiement dans les temps → confirmee, matériel loué
+            reservation.statut = 'confirmee'
+            reservation.materiel.statut = 'loue'
+            reservation.materiel.save()
+        else:
+            # Paiement après date_fin → déjà en en_attente_retour ou retard
+            # On ne touche pas au statut, le get_queryset gère la transition
+            pass
+
+        # if aujourd_hui > reservation.date_fin:
+        #     # Paiement tardif : matériel déjà rentré (ou en retard)
+        #     reservation.statut = 'terminee'
+        #     reservation.materiel.statut = 'disponible'
+        #     reservation.materiel.save()
+        # else:
+        #     # Paiement normal : matériel encore chez le client
+        #     reservation.statut = 'confirmee'
+        #     reservation.materiel.statut = 'loue'
+        #     reservation.materiel.save()
+
+        reservation.save()
+        return Response(FactureSerializer(facture).data)
+    
+    
     @action(detail=True, methods=['patch'])
     def annuler(self, request, pk=None):
 

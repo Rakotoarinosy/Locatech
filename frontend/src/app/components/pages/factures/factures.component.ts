@@ -1,77 +1,105 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FactureService } from '../../../services/facture.service'; // Ajuste le chemin relatif si besoin
 import { FormsModule } from '@angular/forms';
+import { FactureService } from '../../../services/facture.service';
+import { ModalPayementComponent } from '../modal-payement/modal-payement.component';
 
 @Component({
   selector: 'app-factures',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ModalPayementComponent], // ← ajouter ici
   templateUrl: './factures.component.html',
   styleUrl: './factures.component.scss'
 })
 export class FacturesComponent implements OnInit {
+
   factures: any[] = [];
   filteredFactures: any[] = [];
-  searchTerm: string = '';
-  statusFilter: string = '';
+  searchTerm = '';
+  statusFilter = '';
 
-  // Variables pour les KPIs du haut
-  totalFactures: number = 0;
-  totalRevenus: number = 0;
-  facturesImpayees: number = 0;
+  totalFactures = 0;
+  totalRevenus = 0;
+  facturesEnAttente = 0;
+  facturesAPayer = 0;
+
+  showPaiementModal = false;
+  selectedFacture: any = null;
+  paiementLoading = false;
 
   constructor(private factureService: FactureService) {}
 
-  ngOnInit(): void {
-    this.loadAllFactures();
-  }
+  ngOnInit(): void { this.loadFactures(); }
 
-  loadAllFactures(): void {
+  loadFactures(): void {
     this.factureService.getFactures().subscribe({
       next: (data) => {
         this.factures = data;
-        this.filteredFactures = data;
+        this.applyFilters();
         this.calculateKPIs();
       },
-      error: (err) => console.error('Erreur lors du chargement des factures', err)
+      error: (err) => console.error(err)
     });
   }
 
   calculateKPIs(): void {
     this.totalFactures = this.factures.length;
-    // Calcule la somme de toutes les factures dont le statut est 'payee'
     this.totalRevenus = this.factures
       .filter(f => f.statut === 'payee')
       .reduce((sum, f) => sum + parseFloat(f.montant), 0);
-
-    // 2. Compte le nombre de factures en attente (impayées)
-    this.facturesImpayees = this.factures
-      .filter(f => f.statut !== 'payee').length;
+    this.facturesEnAttente = this.factures.filter(f => f.statut === 'en_attente').length;
+    this.facturesAPayer   = this.factures.filter(f => f.statut === 'a_payer').length;
   }
 
-  onSearch(): void {
-    const term = this.searchTerm.toLowerCase();
-    const statutTarget = this.statusFilter;
+  onSearch(): void { this.applyFilters(); }
 
-    this.filteredFactures = this.factures.filter(facture => {
+  applyFilters(): void {
+    const term   = this.searchTerm.toLowerCase();
+    const statut = this.statusFilter;
+    this.filteredFactures = this.factures.filter(f => {
+      const textMatch   = !term || f.numero?.toLowerCase().includes(term)
+        || f.reservation_detail?.client_detail?.nom?.toLowerCase().includes(term);
+      const statutMatch = !statut || f.statut === statut;
+      return textMatch && statutMatch;
+    });
+  }
 
-    let matchesText = true;
-    if (term) {
-      const numeroMatch = facture.numero?.toLowerCase().includes(term);
-      const clientMatch = facture.reservation_detail?.client_detail?.nom?.toLowerCase().includes(term);
-      
-      matchesText = numeroMatch || clientMatch;
-    }
+  openPaiementModal(facture: any): void {
+    this.selectedFacture  = facture;
+    this.showPaiementModal = true;
+  }
 
-    
-    let matchesStatut = true;
-    if (statutTarget) {
-      matchesStatut = facture.statut === statutTarget;
-    }
+  closePaiementModal(): void {
+    this.showPaiementModal = false;
+    this.selectedFacture  = null;
+  }
 
-    // La facture doit valider les deux conditions
-    return matchesText && matchesStatut;
+  /**
+   * Appelé par (confirmer) du modal — on ignore montant/mode
+   * car côté facture le montant est déjà fixé dans le backend.
+   */
+  confirmerPaiement(event: { montant: number; mode: string }): void {
+    if (!this.selectedFacture) return;
+    this.paiementLoading = true;
+
+    this.factureService.payer(this.selectedFacture.id).subscribe({
+      next: () => {
+        this.paiementLoading = false;
+        this.closePaiementModal();
+        this.loadFactures();
+      },
+      error: (err) => {
+        this.paiementLoading = false;
+        alert(err.error?.error ?? 'Erreur lors du paiement.');
+      }
+    });
+  }
+
+  annulerFacture(facture: any): void {
+    if (!confirm('Annuler cette facture ?')) return;
+    this.factureService.annuler(facture.id).subscribe({
+      next: () => this.loadFactures(),
+      error: (err) => alert(err.error?.error ?? 'Erreur.')
     });
   }
 
@@ -79,16 +107,27 @@ export class FacturesComponent implements OnInit {
     this.factureService.download(facture.id).subscribe({
       next: (blob: Blob) => {
         const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
+        const a   = document.createElement('a');
+        a.href    = url;
         a.download = `facture-${facture.numero}.pdf`;
         a.click();
         window.URL.revokeObjectURL(url);
       },
-      error: (err) => {
-        console.error('Erreur au téléchargement du PDF', err);
-        alert('Erreur lors de la récupération du fichier PDF.');
-      }
+      error: () => alert('Erreur téléchargement PDF.')
     });
+  }
+
+  getStatutBadge(statut: string): { css: string; label: string } {
+    const map: { [k: string]: { css: string; label: string } } = {
+      'payee':      { css: 'success',   label: 'Payée'      },
+      'en_attente': { css: 'warning',   label: 'En attente' },
+      'a_payer':    { css: 'danger',    label: 'À payer'    },
+      'annulee':    { css: 'secondary', label: 'Annulée'    },
+    };
+    return map[statut] ?? { css: 'secondary', label: statut };
+  }
+
+  formatPrix(p: number): string {
+    return new Intl.NumberFormat('fr-MG').format(p) + ' Ar';
   }
 }

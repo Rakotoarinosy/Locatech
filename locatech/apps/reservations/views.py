@@ -6,6 +6,9 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from .models import Reservation
 from .serializers import ReservationSerializer
+from decimal import Decimal
+from apps.factures.models import Facture
+from apps.factures.views import _generate_pdf
 
 
 class ReservationViewSet(viewsets.ModelViewSet):
@@ -19,10 +22,17 @@ class ReservationViewSet(viewsets.ModelViewSet):
         queryset = super().get_queryset()
         aujourd_hui = date.today()
 
-        # Auto-calcul retard_jours sur les réservations en cours dépassées
+        # Réservations confirmées dont la date_fin est dépassée
+        # → passent automatiquement en "en_attente_retour"
+        Reservation.objects.filter(
+            date_fin__lt=aujourd_hui,
+            statut='confirmee'
+        ).update(statut='en_attente_retour')
+
+        # Calcul des retards sur les réservations en attente de retour
         retards = Reservation.objects.filter(
             date_fin__lt=aujourd_hui,
-            statut__in=['en cours', 'confirmee']
+            statut='en_attente_retour'
         )
         for r in retards: 
             r.retard_jours = ( aujourd_hui - r.date_fin ).days 
@@ -45,42 +55,67 @@ class ReservationViewSet(viewsets.ModelViewSet):
     def update_statut(self, request, pk=None):
         reservation = self.get_object()
         new_statut = request.data.get('statut')
-        valid = ['en cours', 'confirmee', 'terminee', 'annulee']
+        valid = ['en_attente', 'en cours', 'confirmee', 'en_attente_retour', 'terminee', 'annulee']
         if new_statut not in valid:
             return Response(
                 {'error': f'Statut invalide. Valeurs : {valid}'},
                 status=status.HTTP_400_BAD_REQUEST
             )
         reservation.statut = new_statut
-        
-        # Gestion du matériel existante
-        if new_statut in ['terminee', 'annulee']:
-            reservation.materiel.statut = 'disponible'
-            reservation.materiel.save()
-            
-        # ─── AUTOMATISATION : Génération de la facture à la confirmation ───
+
+        # ── ÉTAPE 1 : Confirmation → facture en_attente ──────────────
         if new_statut == 'confirmee':
-            # On importe ici pour éviter les imports circulaires entre modèles/views
-            from apps.factures.models import Facture
-            from apps.factures.views import _generate_pdf
-            
-            # On vérifie si une facture n'existe pas déjà (évite les doublons si on reclique)
             if not hasattr(reservation, 'facture'):
-                # Calcul du montant initial basé sur le prix_total calculé de la réservation
-                montant = reservation.prix_total
-                
-                # Création de la facture
                 facture = Facture.objects.create(
                     reservation=reservation,
-                    montant=montant,
-                    statut='payee'
+                    montant=reservation.prix_total,
+                    statut='en_attente'          # ← pas encore payée
                 )
-                
-                # Génération du fichier PDF premium sur le disque
                 _generate_pdf(facture)
-                
-                # On met à jour la réservation avec l'ID de la facture créée
-                reservation.facture_id = facture.id
+            return Response({
+                'message': 'Facture générée. En attente de paiement.',
+                'reservation': ReservationSerializer(reservation).data
+            })
+
+        # ── ÉTAPE 2 : Terminée → calcul retard + facture a_payer ─────
+        elif new_statut == 'terminee':
+            reservation.statut = 'terminee'
+            aujourd_hui = date.today()
+            reservation.materiel.statut = 'disponible'
+            reservation.materiel.save()
+
+            # Calcul retard
+            retard = max(0, (aujourd_hui - reservation.date_fin).days)
+            reservation.retard_jours = retard
+
+            # Mise à jour facture
+            if hasattr(reservation, 'facture'):
+                facture = reservation.facture
+                penalite = Decimal(0)
+                if retard > 0:
+                    penalite = (
+                        reservation.materiel.prix_journalier
+                        * Decimal(retard)
+                        * Decimal('1.5')
+                    )
+                facture.montant = reservation.prix_total + penalite
+                facture.statut = 'a_payer'
+                facture.save()
+                _generate_pdf(facture)   # régénère le PDF avec pénalité
+
+        # ── ÉTAPE 3 : Annulation ──────────────────────────────────────
+        elif new_statut == 'annulee':
+            reservation.statut = 'annulee'
+            reservation.materiel.statut = 'disponible'
+            reservation.materiel.save()
+            if hasattr(reservation, 'facture'):
+                facture = reservation.facture
+                if facture.statut != 'payee':
+                    facture.statut = 'annulee'
+                    facture.save()
+            
+        else:        
+            reservation.statut = new_statut 
 
         reservation.save()
         return Response(ReservationSerializer(reservation).data)
@@ -90,7 +125,7 @@ class ReservationViewSet(viewsets.ModelViewSet):
         aujourd_hui = date.today()
         retards = Reservation.objects.filter(
             date_fin__lt=aujourd_hui,
-            statut__in=['en cours', 'confirmee']
+            statut__in=['confirmee', 'en_attente_retour']
         )
         for r in retards:
             r.retard_jours = (aujourd_hui - r.date_fin).days
@@ -101,6 +136,39 @@ class ReservationViewSet(viewsets.ModelViewSet):
     def stats(self, request):
         total = Reservation.objects.count()
         par_statut = {}
-        for s in ['en cours', 'confirmee', 'terminee', 'annulee']:
+        for s in ['en_attente', 'en cours', 'confirmee', 'en_attente_retour', 'terminee', 'annulee']:
             par_statut[s] = Reservation.objects.filter(statut=s).count()
         return Response({'total': total, 'par_statut': par_statut})
+    
+    @action(detail=True, methods=['patch'], url_path='confirmer-retour')
+    def confirmer_retour(self, request, pk=None):
+        reservation = self.get_object()
+
+        if reservation.statut not in ['confirmee', 'en_attente_retour']:
+            return Response(
+                {'error': 'La réservation n\'est pas en attente de retour.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        aujourd_hui = date.today()
+        retard = max(0, (aujourd_hui - reservation.date_fin).days)
+        reservation.retard_jours = retard
+        reservation.statut = 'terminee'
+        reservation.materiel.statut = 'disponible'
+        reservation.materiel.save()
+        reservation.save()
+
+        # Si retard → régénère la facture avec pénalités
+        if retard > 0 and hasattr(reservation, 'facture'):
+            facture = reservation.facture
+            penalite = (
+                reservation.materiel.prix_journalier
+                * Decimal(retard)
+                * Decimal('1.5')
+            )
+            facture.montant = reservation.prix_total + penalite
+            facture.statut = 'a_payer'  # redevient à payer pour les pénalités
+            facture.save()
+            _generate_pdf(facture)
+
+        return Response(ReservationSerializer(reservation).data)

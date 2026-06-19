@@ -24,7 +24,7 @@ class DashboardStatsView(APIView):
         materiels_dispo = Materiel.objects.filter(statut='disponible').count()
 
         reservations_actives = Reservation.objects.filter(
-            statut__in=['en cours', 'confirmee']
+            statut__in=['confirmee', 'en_attente_retour']
         ).count()
 
         revenus_total = Facture.objects.aggregate(
@@ -37,7 +37,7 @@ class DashboardStatsView(APIView):
 
         reservations_en_retard = Reservation.objects.filter(
             date_fin__lt=aujourd_hui,
-            statut__in=['en cours', 'confirmee']
+            statut__in=['confirmee', 'en_attente_retour']
         ).count()
 
         return Response({

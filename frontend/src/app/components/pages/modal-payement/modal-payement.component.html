@@ -1,0 +1,61 @@
+<!-- Overlay flouté (séparé du modal) -->
+<div *ngIf="visible" class="modal-overlay-backdrop" (click)="closeModal()"></div>
+
+<!-- Modal centré par-dessus -->
+<div *ngIf="visible" class="modal" style="z-index:1055">
+  <div class="modal-dialog modal-dialog-centered m-0" style="max-width:420px; width:100%"
+       (click)="$event.stopPropagation()">
+    <div class="modal-content border-0 rounded-4 shadow-lg">
+
+      <div class="modal-header bg-success text-white border-0">
+        <h5 class="fw-bold mb-0">
+          <i class="bi bi-cash-coin me-2"></i>Confirmer le paiement
+        </h5>
+        <button type="button" class="btn-close btn-close-white" (click)="closeModal()"></button>
+      </div>
+
+      <div class="modal-body p-4">
+        <div *ngIf="paiementError" class="alert alert-danger py-2 mb-3">
+          <i class="bi bi-exclamation-triangle me-2"></i>{{ paiementError }}
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Montant reçu (Ar)</label>
+          <div class="input-group">
+            <span class="input-group-text bg-light border-end-0">Ar</span>
+            <input type="number" class="form-control border-start-0"
+                   [(ngModel)]="paiementMontant" min="0" step="500" disabled>
+          </div>
+          <small class="text-muted">Montant de la facture : {{ formatPrix(montantFacture) }}</small>
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Mode de paiement</label>
+          <select class="form-select" [(ngModel)]="paiementMode">
+            <option *ngFor="let m of MODES_PAIEMENT" [value]="m.value">{{ m.label }}</option>
+          </select>
+        </div>
+        <div class="alert alert-success-subtle border border-success-subtle rounded-3 p-3">
+          <div class="d-flex align-items-center gap-2">
+            <i class="bi bi-info-circle text-success"></i>
+            <span class="small">
+              Après confirmation, la réservation passera en <strong>Confirmée</strong>.
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer border-0 pt-0 gap-2">
+        <button type="button" class="btn btn-outline-secondary" (click)="closeModal()">
+          Annuler
+        </button>
+        <button type="button" class="btn btn-success px-4"
+                (click)="validerPaiement()"
+                [disabled]="paiementLoading || paiementMontant <= 0">
+          <span *ngIf="paiementLoading" class="spinner-border spinner-border-sm me-2"></span>
+          <i *ngIf="!paiementLoading" class="bi bi-check-lg me-1"></i>
+          Valider le paiement
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>

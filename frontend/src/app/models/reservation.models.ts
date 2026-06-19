@@ -13,4 +13,6 @@ export interface Reservation {
   client_detail?: any;
   materiel_detail?: any;
   facture_id?: number | null;
+  retard_jours?: number;
+  mode_paiement: string;
 }

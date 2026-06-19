@@ -130,4 +130,29 @@ terminerReservation(id: number) {
       error: (err) => console.error('Erreur lors du calcul du badge sidebar', err)
     });
   }
+
+
+  /**
+   * NOUVEAU — confirme le paiement d'une réservation en_attente
+   * → statut passe à "confirmee", matériel → loué
+   */
+  confirmerPaiement(id: number, montantRecu: number, modePaiement: string): Observable<any> {
+    return this.http.patch(
+      `${this.base}/${id}/confirmer-paiement/`,
+      { montant_recu: montantRecu, mode_paiement: modePaiement },
+      { headers: this.headers() }
+    ).pipe(tap(() => this.refreshPendingCount()));
+  }
+
+  /**
+   * NOUVEAU — confirme le retour du matériel (en_attente_retour → terminee)
+   * Si retard détecté, le backend régénère la facture avec pénalités
+   */
+  confirmerRetour(id: number): Observable<any> {
+    return this.http.patch(
+      `${this.base}/${id}/confirmer-retour/`,
+      {},
+      { headers: this.headers() }
+    ).pipe(tap(() => this.refreshPendingCount()));
+  }
 }

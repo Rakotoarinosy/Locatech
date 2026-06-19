@@ -6,6 +6,7 @@ class Facture(models.Model):
 
     STATUT_CHOICES = [
         ('en_attente', 'En attente'),
+        ('a_payer', 'À payer'),
         ('payee', 'Payée'),
         ('annulee', 'Annulée'),
     ]

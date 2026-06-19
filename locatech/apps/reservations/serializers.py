@@ -45,7 +45,7 @@ class ReservationSerializer(serializers.ModelSerializer):
             # 3. Quantité déjà réservée sur la même période
             reservations_chevauchantes = Reservation.objects.filter(
                 materiel=materiel,
-                statut__in=['en cours', 'confirmee'],
+                statut__in=['confirmee', 'en_attente_retour'],
                 date_debut__lt=date_fin,
                 date_fin__gt=date_debut,
             )
@@ -113,3 +113,6 @@ class ReservationSerializer(serializers.ModelSerializer):
         instance.save()
 
         return instance
+    
+    # def perform_create(self, serializer):
+    #     serializer.save(statut='en_attente')
