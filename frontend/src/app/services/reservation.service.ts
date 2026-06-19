@@ -87,7 +87,7 @@ terminerReservation(id: number) {
 
   confirmerReservation(id: number) {
     return this.http.patch(
-      `${environment.apiUrl}/reservations/${id}/statut/`,
+      `${this.base}/${id}/statut/`,
       { statut: 'confirmee' }
     ).pipe(
       tap(() => this.refreshPendingCount()) // <-- Ajouté
@@ -96,13 +96,9 @@ terminerReservation(id: number) {
 
   annulerReservation(id: number) {
     return this.http.patch(
-      `${environment.apiUrl}/reservations/${id}/statut/`,
-      {
-        statut: 'annulee'
-      }
-    ).pipe(
-      tap(() => this.refreshPendingCount())
-    );
+      `${this.base}/${id}/statut/`,
+      { statut: 'annulee' }
+    ).pipe(tap(() => this.refreshPendingCount()));
   }
 
   updateStatut(id: number, statut: string) {
