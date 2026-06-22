@@ -169,7 +169,7 @@ class ReservationViewSet(viewsets.ModelViewSet):
                     * Decimal('1.5')
                 )
             facture.montant = reservation.prix_total + penalite
-            facture.statut = 'a_payer'  # redevient à payer pour les pénalités
+            facture.statut = 'payee'  # redevient à payer pour les pénalités
             facture.save()
             _generate_pdf(facture)
 
