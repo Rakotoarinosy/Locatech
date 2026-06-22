@@ -159,13 +159,15 @@ class ReservationViewSet(viewsets.ModelViewSet):
         reservation.save()
 
         # Si retard → régénère la facture avec pénalités
-        if retard > 0 and hasattr(reservation, 'facture'):
+        if hasattr(reservation, 'facture'):
             facture = reservation.facture
-            penalite = (
-                reservation.materiel.prix_journalier
-                * Decimal(retard)
-                * Decimal('1.5')
-            )
+            penalite = Decimal(0)
+            if retard > 0 :
+                penalite = (
+                    reservation.materiel.prix_journalier
+                    * Decimal(retard)
+                    * Decimal('1.5')
+                )
             facture.montant = reservation.prix_total + penalite
             facture.statut = 'a_payer'  # redevient à payer pour les pénalités
             facture.save()
