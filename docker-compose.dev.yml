@@ -15,19 +15,25 @@ services:
     restart: unless-stopped
 
   frontend:
-    image: ghcr.io/rakotoarinosy/locatech-frontend:latest
-    container_name: locatech-frontend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    container_name: locatech-frontend-dev
 
     ports:
-      - "42000:80"
+      - "4200:4200"
 
     restart: unless-stopped
 
     depends_on:
       - backend
 
+
   backend:
-    image: ghcr.io/rakotoarinosy/locatech-backend:latest
+    build:
+      context: ./locatech
+      dockerfile: Dockerfile
+
     container_name: locatech-backend
 
     command: >
@@ -38,10 +44,11 @@ services:
       "
 
     volumes:
-      - ./locatech/media:/app/backend/media
+      - ./locatech:/app
+      - ./locatech/media:/app/media 
 
     env_file:
-      - .env
+      - .env.dev
 
     depends_on:
       - db
@@ -53,3 +60,4 @@ services:
 
 volumes:
   postgres_data:
+  media_data:
