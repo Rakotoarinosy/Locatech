@@ -1,11 +1,11 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterModule } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { interval, Subscription, forkJoin } from 'rxjs';
-import { AnalyticsService } from '../../../services/analytics.service';
 import { ReservationService } from '../../../services/reservation.service';
+import { AnalyticsStore } from '../../../stores/analytics.store';
 
 @Component({
   selector: 'app-dashboard',
@@ -32,38 +32,31 @@ export class DashboardComponent implements OnInit, OnDestroy {
   activitesRecentes: any[] = [];
 
   constructor(
-    private analyticsService: AnalyticsService,
-    private reservationService: ReservationService,
-  ) {}
+    public analyticsStore: AnalyticsStore
+  ) {
+    effect(()=> {
+      const dashboard = this.analyticsStore.dashboardStats();
+      if(dashboard){
+        this.applyDashboardStats(dashboard);
+      }
+    });
+    effect(() => {
+      const reservations = this.analyticsStore.reservationsRecentes();
+      if (reservations){
+        this.applyReservations(reservations);
+      }
+    });
+    effect(() => {
+      this.topMateriels = this.analyticsStore.topMateriels();
+    });
+  }
 
   ngOnInit(): void {
-    this.loadAll();
-    this.refreshSub = interval(30000).subscribe(() => this.loadAll());
+    this.analyticsStore.loadAll();
   }
 
   ngOnDestroy(): void {
     this.refreshSub?.unsubscribe();
-  }
-
-  loadAll(): void {
-    forkJoin({
-      dashboard:    this.analyticsService.getDashboardStats(),
-      reservations: this.reservationService.getRecentes(),
-      topClients:   this.analyticsService.getTopClients(),
-      topMateriels: this.analyticsService.getTopMateriels(),
-    }).subscribe({
-      next: ({ dashboard, reservations, topClients, topMateriels }) => {
-        this.applyDashboardStats(dashboard);
-        this.applyReservations(reservations);
-        this.topClients   = topClients;
-        this.topMateriels = topMateriels;
-        this.loading = false;
-      },
-      error: (err) => {
-        console.error('Erreur chargement dashboard', err);
-        this.loading = false;
-      }
-    });
   }
 
   private applyDashboardStats(d: any): void {

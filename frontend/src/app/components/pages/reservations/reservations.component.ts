@@ -9,6 +9,7 @@ import { Materiel } from '../../../models/materiel.model';
 import { Reservation } from '../../../models/reservation.models';
 import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
 import { ModalPayementComponent } from '../modal-payement/modal-payement.component';
+import { AnalyticsStore } from '../../../stores/analytics.store';
 
 @Component({
   selector: 'app-reservations',
@@ -65,7 +66,8 @@ export class ReservationsComponent implements OnInit {
     private reservationService: ReservationService,
     private clientService: ClientService,
     private materielService: MaterielService,
-    private factureService: FactureService
+    private factureService: FactureService,
+    private analyticsStore: AnalyticsStore
   ) {}
 
   ngOnInit(): void {
@@ -201,7 +203,7 @@ export class ReservationsComponent implements OnInit {
   confirmerRetour(id: number): void {
     if (!confirm('Confirmer le retour du matériel ?')) return;
     this.reservationService.confirmerRetour(id).subscribe({
-      next: () => { this.closeDetailsModal(); this.loadAll(); },
+      next: () => { this.closeDetailsModal(); this.loadAll(); this.analyticsStore.refresh(); },
       error: (err) => alert(err.error?.error ?? 'Erreur lors du retour.')
     });
   }
@@ -210,7 +212,7 @@ export class ReservationsComponent implements OnInit {
   annuler(id: number): void {
     if (!confirm('Annuler cette réservation ?')) return;
     this.reservationService.annulerReservation(id).subscribe({
-      next: () => { this.closeDetailsModal(); this.loadAll(); },
+      next: () => { this.closeDetailsModal(); this.loadAll(); this.analyticsStore.refresh();},
       error: (err) => alert(err.error?.error ?? 'Erreur lors de l\'annulation.')
     });
   }
@@ -229,12 +231,16 @@ export class ReservationsComponent implements OnInit {
 
     if (this.isEditMode && this.newReservation.id) {
       this.reservationService.update(this.newReservation.id, payload).subscribe({
-        next: () => { this.closeModal(); this.loadAll(); },
+        next: () => { 
+          this.closeModal(); 
+          this.loadAll();
+          this.analyticsStore.refresh();
+        },
         error: e => this.errorMessage = e.error?.non_field_errors?.[0] ?? 'Erreur lors de la modification.'
       });
     } else {
       this.reservationService.create(payload).subscribe({
-        next: () => { this.closeModal(); this.loadAll(); },
+        next: () => { this.closeModal(); this.loadAll(); this.analyticsStore.refresh();},
         error: e => this.errorMessage = e.error?.non_field_errors?.[0] ?? 'Erreur lors de la création.'
       });
     }
@@ -302,7 +308,10 @@ export class ReservationsComponent implements OnInit {
   // Dans reservations.component.ts
   genererFacture(id: number): void {
     this.reservationService.updateStatut(id, 'confirmee').subscribe({
-      next: () => this.loadAll(),
+      next: () => {
+        this.loadAll();
+        this.analyticsStore.refresh();
+      },
       error: (err) => alert(err.error?.error ?? 'Erreur')
     });
   }
@@ -330,6 +339,7 @@ export class ReservationsComponent implements OnInit {
             this.paiementLoading = false;
             this.showPaiementModal = false;
             this.loadAll();
+            this.analyticsStore.refresh();
           },
           error: (err) => {
             this.paiementLoading = false;
