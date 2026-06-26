@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MaterielService } from '../../../services/materiel.service';
 import { Materiel, MaterielStats } from '../../../models/materiel.model';
+import { Categorie } from '../../../models/materiel.model';
 
 @Component({
   selector: 'app-materiels',
@@ -15,6 +16,7 @@ export class MaterielsComponent implements OnInit {
   private materielService = inject(MaterielService);
 
   materiels: Materiel[] = [];
+  categories: Categorie[] = [];
   stats?: MaterielStats;
   loading = false;
 
@@ -34,7 +36,7 @@ export class MaterielsComponent implements OnInit {
   // Objet calqué sur le modèle Django pour le Data Binding double-sens
   formModel: Partial<Materiel> = {
     nom: '',
-    categorie: '',
+    categorie_id: null,
     prix_journalier: 0,
     statut: 'disponible',
     description: '',
@@ -44,6 +46,7 @@ export class MaterielsComponent implements OnInit {
   ngOnInit(): void {
     this.loadMateriels();
     this.loadStats();
+    this.loadCategories();
   }
 
   loadMateriels(): void {
@@ -71,6 +74,13 @@ export class MaterielsComponent implements OnInit {
     });
   }
 
+  loadCategories(): void {
+    this.materielService.getCategories().subscribe({
+      next: (data) => this.categories = data,
+      error: (err) => console.error(err)
+    });
+  }
+
   onFiltersChange(): void {
     this.loadMateriels();
   }
@@ -83,7 +93,7 @@ export class MaterielsComponent implements OnInit {
     this.imagePreview = null;
     this.formModel = {
       nom: '',
-      categorie: '',
+      categorie_id: null,
       prix_journalier: 0,
       statut: 'disponible',
       description: '',
@@ -97,7 +107,10 @@ export class MaterielsComponent implements OnInit {
     this.currentMaterielId = materiel.id;
     this.selectedFile = null;
     this.imagePreview = materiel.photo || null; // On garde l'image actuelle en aperçu
-    this.formModel = { ...materiel };
+    this.formModel = { 
+      ...materiel,
+      categorie_id: materiel.categorie.id  
+    };
     this.isModalOpen = true;
   }
 

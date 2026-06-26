@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
-import { Materiel, MaterielStats } from '../models/materiel.model';
+import { Categorie, Materiel, MaterielStats } from '../models/materiel.model';
 
 @Injectable({
   providedIn: 'root'
@@ -59,5 +59,21 @@ export class MaterielService {
 
   getStats(): Observable<MaterielStats> {
     return this.http.get<MaterielStats>(`${this.baseUrl}stats/`);
+  }
+
+  getCategories(): Observable<Categorie[]> {
+    return this.http.get<Categorie[]>(`${environment.apiUrl}/materiels/categories/`);
+  }
+
+  createCategorie(nom: string): Observable<Categorie> {
+    return this.http.post<Categorie>(`${environment.apiUrl}/materiels/categories/`, { nom });
+  }
+
+  updateCategorie(id: number, nom: string): Observable<Categorie> {
+    return this.http.patch<Categorie>(`${environment.apiUrl}/materiels/categories/${id}/`, { nom });
+  }
+
+  deleteCategorie(id: number): Observable<void> {
+    return this.http.delete<void>(`${environment.apiUrl}/materiels/categories/${id}/`);
   }
 }

@@ -1,0 +1,992 @@
+[
+{
+    "model": "users.user",
+    "pk": 1,
+    "fields": {
+        "password": "pbkdf2_sha256$1000000$2P06mGLr7ZANKGWO99ZTHp$OX3ZqF/0VOfMlzk9nyVZ9xA7EUs3/6Fgy4Bnpq8+IpA=",
+        "last_login": "2026-06-25T10:35:45.300Z",
+        "is_superuser": true,
+        "username": "Rakotoarinosy",
+        "first_name": "",
+        "last_name": "",
+        "email": "fehizoroarinosy@gmail.com",
+        "is_staff": true,
+        "is_active": true,
+        "date_joined": "2026-06-25T10:35:10.452Z",
+        "role": "staff",
+        "groups": [],
+        "user_permissions": []
+    }
+},
+{
+    "model": "materials.categorie",
+    "pk": 1,
+    "fields": {
+        "nom": "Mobilier"
+    }
+},
+{
+    "model": "materials.categorie",
+    "pk": 2,
+    "fields": {
+        "nom": "Décoration"
+    }
+},
+{
+    "model": "materials.categorie",
+    "pk": 3,
+    "fields": {
+        "nom": "Sonorisation"
+    }
+},
+{
+    "model": "materials.categorie",
+    "pk": 4,
+    "fields": {
+        "nom": "Éclairage"
+    }
+},
+{
+    "model": "materials.categorie",
+    "pk": 5,
+    "fields": {
+        "nom": "Vaisselle"
+    }
+},
+{
+    "model": "materials.categorie",
+    "pk": 6,
+    "fields": {
+        "nom": "Cuisine"
+    }
+},
+{
+    "model": "materials.categorie",
+    "pk": 7,
+    "fields": {
+        "nom": "Tente"
+    }
+},
+{
+    "model": "materials.materiel",
+    "pk": 1,
+    "fields": {
+        "nom": "Chaise en plastique",
+        "prix_journalier": "1500.00",
+        "statut": "disponible",
+        "photo": "",
+        "description": "Chaise blanche empilable",
+        "quantite": 300,
+        "created_at": "2026-06-25T10:42:14.593Z",
+        "categorie": 1
+    }
+},
+{
+    "model": "materials.materiel",
+    "pk": 2,
+    "fields": {
+        "nom": "Table ronde 8 places",
+        "prix_journalier": "12000.00",
+        "statut": "disponible",
+        "photo": "",
+        "description": "Table ronde pour réception",
+        "quantite": 40,
+        "created_at": "2026-06-25T10:42:14.593Z",
+        "categorie": 1
+    }
+},
+{
+    "model": "materials.materiel",
+    "pk": 3,
+    "fields": {
+        "nom": "Table rectangulaire",
+        "prix_journalier": "10000.00",
+        "statut": "disponible",
+        "photo": "",
+        "description": "Table pour buffet",
+        "quantite": 30,
+        "created_at": "2026-06-25T10:42:14.593Z",
+        "categorie": 1
+    }
+},
+{
+    "model": "materials.materiel",
+    "pk": 4,
+    "fields": {
+        "nom": "Nappe blanche",
+        "prix_journalier": "3000.00",
+        "statut": "disponible",
+        "photo": "",
+        "description": "Nappe ronde blanche",
+        "quantite": 120,
+        "created_at": "2026-06-25T10:42:14.593Z",
+        "categorie": 2
+    }
+},
+{
+    "model": "materials.materiel",
+    "pk": 5,
+    "fields": {
+        "nom": "Housse de chaise",
+        "prix_journalier": "800.00",
+        "statut": "disponible",
+        "photo": "",
+        "description": "Housse blanche extensible",
+        "quantite": 300,
+        "created_at": "2026-06-25T10:42:14.593Z",
+        "categorie": 2
+    }
+},
+{
+    "model": "materials.materiel",
+    "pk": 6,
+    "fields": {
+        "nom": "Arche de mariage",
+        "prix_journalier": "60000.00",
+        "statut": "disponible",
+        "photo": "",
+        "description": "Arche décorative",
+        "quantite": 2,
+        "created_at": "2026-06-25T10:42:14.593Z",
+        "categorie": 2
+    }
+},
+{
+    "model": "materials.materiel",
+    "pk": 7,
+    "fields": {
+        "nom": "Micro HF",
+        "prix_journalier": "15000.00",
+        "statut": "disponible",
+        "photo": "",
+        "description": "Micro sans fil",
+        "quantite": 8,
+        "created_at": "2026-06-25T10:42:14.593Z",
+        "categorie": 3
+    }
+},
+{
+    "model": "materials.materiel",
+    "pk": 8,
+    "fields": {
+        "nom": "Enceinte JBL",
+        "prix_journalier": "35000.00",
+        "statut": "disponible",
+        "photo": "",
+        "description": "Enceinte amplifiée",
+        "quantite": 10,
+        "created_at": "2026-06-25T10:42:14.594Z",
+        "categorie": 3
+    }
+},
+{
+    "model": "materials.materiel",
+    "pk": 9,
+    "fields": {
+        "nom": "Table de mixage",
+        "prix_journalier": "40000.00",
+        "statut": "disponible",
+        "photo": "",
+        "description": "Console audio",
+        "quantite": 3,
+        "created_at": "2026-06-25T10:42:14.594Z",
+        "categorie": 3
+    }
+},
+{
+    "model": "materials.materiel",
+    "pk": 10,
+    "fields": {
+        "nom": "Projecteur LED RGB",
+        "prix_journalier": "12000.00",
+        "statut": "disponible",
+        "photo": "",
+        "description": "Projecteur LED couleur",
+        "quantite": 24,
+        "created_at": "2026-06-25T10:42:14.594Z",
+        "categorie": 4
+    }
+},
+{
+    "model": "materials.materiel",
+    "pk": 11,
+    "fields": {
+        "nom": "Lyre Beam",
+        "prix_journalier": "30000.00",
+        "statut": "disponible",
+        "photo": "",
+        "description": "Lyre motorisée",
+        "quantite": 12,
+        "created_at": "2026-06-25T10:42:14.594Z",
+        "categorie": 4
+    }
+},
+{
+    "model": "materials.materiel",
+    "pk": 12,
+    "fields": {
+        "nom": "Machine à fumée",
+        "prix_journalier": "25000.00",
+        "statut": "disponible",
+        "photo": "",
+        "description": "Machine à fumée professionnelle",
+        "quantite": 4,
+        "created_at": "2026-06-25T10:42:14.594Z",
+        "categorie": 4
+    }
+},
+{
+    "model": "materials.materiel",
+    "pk": 13,
+    "fields": {
+        "nom": "Assiette",
+        "prix_journalier": "300.00",
+        "statut": "disponible",
+        "photo": "",
+        "description": "Assiette blanche",
+        "quantite": 500,
+        "created_at": "2026-06-25T10:42:14.594Z",
+        "categorie": 5
+    }
+},
+{
+    "model": "materials.materiel",
+    "pk": 14,
+    "fields": {
+        "nom": "Verre",
+        "prix_journalier": "200.00",
+        "statut": "disponible",
+        "photo": "",
+        "description": "Verre transparent",
+        "quantite": 700,
+        "created_at": "2026-06-25T10:42:14.594Z",
+        "categorie": 5
+    }
+},
+{
+    "model": "materials.materiel",
+    "pk": 15,
+    "fields": {
+        "nom": "Couvert",
+        "prix_journalier": "150.00",
+        "statut": "disponible",
+        "photo": "",
+        "description": "Fourchette, couteau et cuillère",
+        "quantite": 700,
+        "created_at": "2026-06-25T10:42:14.594Z",
+        "categorie": 5
+    }
+},
+{
+    "model": "materials.materiel",
+    "pk": 16,
+    "fields": {
+        "nom": "Marmite 100L",
+        "prix_journalier": "18000.00",
+        "statut": "disponible",
+        "photo": "",
+        "description": "Grande marmite",
+        "quantite": 6,
+        "created_at": "2026-06-25T10:42:14.594Z",
+        "categorie": 6
+    }
+},
+{
+    "model": "materials.materiel",
+    "pk": 17,
+    "fields": {
+        "nom": "Réchaud à gaz",
+        "prix_journalier": "10000.00",
+        "statut": "disponible",
+        "photo": "",
+        "description": "Réchaud professionnel",
+        "quantite": 12,
+        "created_at": "2026-06-25T10:42:14.594Z",
+        "categorie": 6
+    }
+},
+{
+    "model": "materials.materiel",
+    "pk": 18,
+    "fields": {
+        "nom": "Tente 5x10m",
+        "prix_journalier": "120000.00",
+        "statut": "disponible",
+        "photo": "",
+        "description": "Tente de réception",
+        "quantite": 8,
+        "created_at": "2026-06-25T10:42:14.594Z",
+        "categorie": 7
+    }
+},
+{
+    "model": "materials.materiel",
+    "pk": 19,
+    "fields": {
+        "nom": "Barnum 3x3m",
+        "prix_journalier": "50000.00",
+        "statut": "disponible",
+        "photo": "",
+        "description": "Barnum pliable",
+        "quantite": 10,
+        "created_at": "2026-06-25T10:42:14.594Z",
+        "categorie": 7
+    }
+},
+{
+    "model": "ai.messagehistory",
+    "pk": 1,
+    "fields": {
+        "user": 1,
+        "sender": "user",
+        "text": "pour mon anniversaire j'invite 20 personne mais aide moi",
+        "recommendation": null,
+        "timestamp": "2026-06-26T13:58:19.110Z"
+    }
+},
+{
+    "model": "ai.messagehistory",
+    "pk": 2,
+    "fields": {
+        "user": 1,
+        "sender": "ai",
+        "text": "Pour célébrer votre anniversaire avec 20 invités, je vous propose une solution complète incluant le mobilier pour l'assise et le repas, la décoration pour une ambiance soignée, un système de sonorisation et d'éclairage pour la fête, la vaisselle nécessaire, un réchaud pour la cuisine et une tente pour un abri confortable. Tous les articles sont disponibles et choisis pour correspondre au nombre de vos invités.",
+        "recommendation": {
+            "resume": "Pour célébrer votre anniversaire avec 20 invités, je vous propose une solution complète incluant le mobilier pour l'assise et le repas, la décoration pour une ambiance soignée, un système de sonorisation et d'éclairage pour la fête, la vaisselle nécessaire, un réchaud pour la cuisine et une tente pour un abri confortable. Tous les articles sont disponibles et choisis pour correspondre au nombre de vos invités.",
+            "cout_total": 508000.0,
+            "materiels": [
+                {
+                    "id": 1,
+                    "nom": "Chaise en plastique",
+                    "categorie": "Mobilier",
+                    "quantite": 20,
+                    "prix_unitaire": 1500.0,
+                    "prix_total": 30000.0,
+                    "raison": "Assurer un siège confortable pour chacun des 20 invités."
+                },
+                {
+                    "id": 2,
+                    "nom": "Table ronde 8 places",
+                    "categorie": "Mobilier",
+                    "quantite": 3,
+                    "prix_unitaire": 12000.0,
+                    "prix_total": 36000.0,
+                    "raison": "Trois tables rondes permettent de disposer 20 invités de manière conviviale (24 places au total)."
+                },
+                {
+                    "id": 3,
+                    "nom": "Table rectangulaire",
+                    "categorie": "Mobilier",
+                    "quantite": 1,
+                    "prix_unitaire": 10000.0,
+                    "prix_total": 10000.0,
+                    "raison": "Idéale pour présenter un buffet, les boissons ou le gâteau d'anniversaire."
+                },
+                {
+                    "id": 4,
+                    "nom": "Nappe blanche",
+                    "categorie": "Décoration",
+                    "quantite": 4,
+                    "prix_unitaire": 3000.0,
+                    "prix_total": 12000.0,
+                    "raison": "Pour habiller les trois tables rondes et la table rectangulaire, ajoutant une touche d'élégance."
+                },
+                {
+                    "id": 5,
+                    "nom": "Housse de chaise",
+                    "categorie": "Décoration",
+                    "quantite": 20,
+                    "prix_unitaire": 800.0,
+                    "prix_total": 16000.0,
+                    "raison": "Pour améliorer l'esthétique des chaises et uniformiser la décoration."
+                },
+                {
+                    "id": 7,
+                    "nom": "Micro HF",
+                    "categorie": "Sonorisation",
+                    "quantite": 1,
+                    "prix_unitaire": 15000.0,
+                    "prix_total": 15000.0,
+                    "raison": "Utile pour des annonces, des discours ou des animations pendant la fête."
+                },
+                {
+                    "id": 8,
+                    "nom": "Enceinte JBL",
+                    "categorie": "Sonorisation",
+                    "quantite": 2,
+                    "prix_unitaire": 35000.0,
+                    "prix_total": 70000.0,
+                    "raison": "Deux enceintes pour une diffusion sonore équilibrée et une bonne ambiance musicale."
+                },
+                {
+                    "id": 9,
+                    "nom": "Table de mixage",
+                    "categorie": "Sonorisation",
+                    "quantite": 1,
+                    "prix_unitaire": 40000.0,
+                    "prix_total": 40000.0,
+                    "raison": "Permet de gérer et d'ajuster le son des enceintes et du microphone."
+                },
+                {
+                    "id": 10,
+                    "nom": "Projecteur LED RGB",
+                    "categorie": "Éclairage",
+                    "quantite": 4,
+                    "prix_unitaire": 12000.0,
+                    "prix_total": 48000.0,
+                    "raison": "Quatre projecteurs pour créer une ambiance lumineuse colorée et festive."
+                },
+                {
+                    "id": 11,
+                    "nom": "Lyre Beam",
+                    "categorie": "Éclairage",
+                    "quantite": 2,
+                    "prix_unitaire": 30000.0,
+                    "prix_total": 60000.0,
+                    "raison": "Deux lyres pour des effets lumineux dynamiques, parfaits pour une piste de danse ou une ambiance de fête."
+                },
+                {
+                    "id": 12,
+                    "nom": "Machine à fumée",
+                    "categorie": "Éclairage",
+                    "quantite": 1,
+                    "prix_unitaire": 25000.0,
+                    "prix_total": 25000.0,
+                    "raison": "Ajoute une dimension aux effets lumineux et crée une atmosphère de club."
+                },
+                {
+                    "id": 13,
+                    "nom": "Assiette",
+                    "categorie": "Vaisselle",
+                    "quantite": 20,
+                    "prix_unitaire": 300.0,
+                    "prix_total": 6000.0,
+                    "raison": "Une assiette par personne pour le repas principal."
+                },
+                {
+                    "id": 14,
+                    "nom": "Verre",
+                    "categorie": "Vaisselle",
+                    "quantite": 40,
+                    "prix_unitaire": 200.0,
+                    "prix_total": 8000.0,
+                    "raison": "Deux verres par personne pour les boissons, permettant un changement ou plusieurs types de boissons."
+                },
+                {
+                    "id": 15,
+                    "nom": "Couvert",
+                    "categorie": "Vaisselle",
+                    "quantite": 40,
+                    "prix_unitaire": 150.0,
+                    "prix_total": 6000.0,
+                    "raison": "Deux couverts par personne (ex: fourchette et couteau) pour le repas."
+                },
+                {
+                    "id": 17,
+                    "nom": "Réchaud à gaz",
+                    "categorie": "Cuisine",
+                    "quantite": 1,
+                    "prix_unitaire": 10000.0,
+                    "prix_total": 10000.0,
+                    "raison": "Utile pour maintenir les plats au chaud ou pour une petite préparation sur place."
+                },
+                {
+                    "id": 18,
+                    "nom": "Tente 5x10m",
+                    "categorie": "Tente",
+                    "quantite": 1,
+                    "prix_unitaire": 120000.0,
+                    "prix_total": 120000.0,
+                    "raison": "Offre un abri spacieux pour les 20 invités et le matériel, protégeant des intempéries ou du soleil."
+                }
+            ],
+            "conseils": [
+                "Pensez à la disposition des tables et de l'espace pour le buffet ou la piste de danse sous la tente.",
+                "Prévoyez une playlist variée qui plaira à vos invités pour l'ambiance musicale.",
+                "Assurez-vous d'avoir accès à une source d'alimentation électrique suffisante pour la sonorisation et l'éclairage."
+            ]
+        },
+        "timestamp": "2026-06-26T13:58:43.425Z"
+    }
+},
+{
+    "model": "ai.messagehistory",
+    "pk": 3,
+    "fields": {
+        "user": 1,
+        "sender": "user",
+        "text": "pour mon anniversaire j'invite 20 personne et aide moi",
+        "recommendation": null,
+        "timestamp": "2026-06-26T13:59:45.700Z"
+    }
+},
+{
+    "model": "ai.messagehistory",
+    "pk": 4,
+    "fields": {
+        "user": 1,
+        "sender": "ai",
+        "text": "Voici une proposition complète pour la location de matériel pour votre anniversaire de 20 personnes. La sélection inclut le mobilier nécessaire pour l'assise et le repas, des éléments de décoration pour une ambiance festive, un système de sonorisation et d'éclairage pour l'ambiance, la vaisselle de base et un réchaud pour les plats.",
+        "recommendation": {
+            "resume": "Voici une proposition complète pour la location de matériel pour votre anniversaire de 20 personnes. La sélection inclut le mobilier nécessaire pour l'assise et le repas, des éléments de décoration pour une ambiance festive, un système de sonorisation et d'éclairage pour l'ambiance, la vaisselle de base et un réchaud pour les plats.",
+            "cout_total": 247000.0,
+            "materiels": [
+                {
+                    "id": 1,
+                    "nom": "Chaise en plastique",
+                    "categorie": "Mobilier",
+                    "quantite": 20,
+                    "prix_unitaire": 1500.0,
+                    "prix_total": 30000.0,
+                    "raison": "Une chaise par invité pour un confort optimal durant l'événement."
+                },
+                {
+                    "id": 2,
+                    "nom": "Table ronde 8 places",
+                    "categorie": "Mobilier",
+                    "quantite": 3,
+                    "prix_unitaire": 12000.0,
+                    "prix_total": 36000.0,
+                    "raison": "Trois tables rondes permettent d'accueillir confortablement les 20 invités, favorisant les échanges."
+                },
+                {
+                    "id": 4,
+                    "nom": "Nappe blanche",
+                    "categorie": "Décoration",
+                    "quantite": 3,
+                    "prix_unitaire": 3000.0,
+                    "prix_total": 9000.0,
+                    "raison": "Pour habiller chaque table et créer une base élégante pour votre décoration."
+                },
+                {
+                    "id": 5,
+                    "nom": "Housse de chaise",
+                    "categorie": "Décoration",
+                    "quantite": 20,
+                    "prix_unitaire": 800.0,
+                    "prix_total": 16000.0,
+                    "raison": "Pour embellir les chaises et harmoniser l'ensemble de votre décoration de salle."
+                },
+                {
+                    "id": 7,
+                    "nom": "Micro HF",
+                    "categorie": "Sonorisation",
+                    "quantite": 1,
+                    "prix_unitaire": 15000.0,
+                    "prix_total": 15000.0,
+                    "raison": "Utile pour d'éventuels discours, annonces ou animations musicales légères."
+                },
+                {
+                    "id": 8,
+                    "nom": "Enceinte JBL",
+                    "categorie": "Sonorisation",
+                    "quantite": 2,
+                    "prix_unitaire": 35000.0,
+                    "prix_total": 70000.0,
+                    "raison": "Deux enceintes pour une diffusion sonore de qualité et une ambiance musicale agréable pour la fête."
+                },
+                {
+                    "id": 10,
+                    "nom": "Projecteur LED RGB",
+                    "categorie": "Éclairage",
+                    "quantite": 4,
+                    "prix_unitaire": 12000.0,
+                    "prix_total": 48000.0,
+                    "raison": "Pour créer une ambiance lumineuse colorée et dynamique, parfaite pour un anniversaire."
+                },
+                {
+                    "id": 13,
+                    "nom": "Assiette",
+                    "categorie": "Vaisselle",
+                    "quantite": 20,
+                    "prix_unitaire": 300.0,
+                    "prix_total": 6000.0,
+                    "raison": "Le nombre d'assiettes nécessaire pour chaque invité."
+                },
+                {
+                    "id": 14,
+                    "nom": "Verre",
+                    "categorie": "Vaisselle",
+                    "quantite": 20,
+                    "prix_unitaire": 200.0,
+                    "prix_total": 4000.0,
+                    "raison": "Des verres pour que chaque invité puisse se rafraîchir."
+                },
+                {
+                    "id": 15,
+                    "nom": "Couvert",
+                    "categorie": "Vaisselle",
+                    "quantite": 20,
+                    "prix_unitaire": 150.0,
+                    "prix_total": 3000.0,
+                    "raison": "Un set de couverts pour chaque participant au repas."
+                },
+                {
+                    "id": 17,
+                    "nom": "Réchaud à gaz",
+                    "categorie": "Cuisine",
+                    "quantite": 1,
+                    "prix_unitaire": 10000.0,
+                    "prix_total": 10000.0,
+                    "raison": "Pratique pour maintenir les plats chauds ou préparer un café/thé si besoin."
+                }
+            ],
+            "conseils": [
+                "Vérifiez l'espace disponible pour l'aménagement des 3 tables rondes et des chaises, ainsi que pour l'équipement de sonorisation et d'éclairage.",
+                "Considérez si vous avez besoin d'éléments de décoration supplémentaires (centre de table, ballons, etc.) non inclus dans ce catalogue mais qui pourraient compléter l'ambiance.",
+                "Prévoyez une source d'alimentation électrique suffisante pour la sonorisation et l'éclairage."
+            ]
+        },
+        "timestamp": "2026-06-26T13:59:59.808Z"
+    }
+},
+{
+    "model": "ai.messagehistory",
+    "pk": 5,
+    "fields": {
+        "user": 1,
+        "sender": "user",
+        "text": "pour mon anniversaire j'invite 20 personne qu'est-ce qu'il faut??",
+        "recommendation": null,
+        "timestamp": "2026-06-26T14:05:38.509Z"
+    }
+},
+{
+    "model": "ai.messagehistory",
+    "pk": 6,
+    "fields": {
+        "user": 1,
+        "sender": "ai",
+        "text": "Pour votre anniversaire avec 20 invités, nous avons préparé une sélection complète pour garantir le confort et l'ambiance de votre événement. Cela inclut le mobilier essentiel comme les chaises et tables rondes, la décoration pour une touche festive, un système de sonorisation pour la musique et les annonces, de l'éclairage d'ambiance, et toute la vaisselle nécessaire pour le repas.",
+        "recommendation": {
+            "resume": "Pour votre anniversaire avec 20 invités, nous avons préparé une sélection complète pour garantir le confort et l'ambiance de votre événement. Cela inclut le mobilier essentiel comme les chaises et tables rondes, la décoration pour une touche festive, un système de sonorisation pour la musique et les annonces, de l'éclairage d'ambiance, et toute la vaisselle nécessaire pour le repas.",
+            "cout_total": 178000.0,
+            "materiels": [
+                {
+                    "id": 1,
+                    "nom": "Chaise en plastique",
+                    "categorie": "Mobilier",
+                    "quantite": 20,
+                    "prix_unitaire": 1500.0,
+                    "prix_total": 30000.0,
+                    "raison": "Une chaise par personne pour le confort de tous les invités."
+                },
+                {
+                    "id": 2,
+                    "nom": "Table ronde 8 places",
+                    "categorie": "Mobilier",
+                    "quantite": 3,
+                    "prix_unitaire": 12000.0,
+                    "prix_total": 36000.0,
+                    "raison": "Pour 20 personnes, 3 tables rondes de 8 places (capacité totale de 24 places) offrent un agencement convivial et spacieux."
+                },
+                {
+                    "id": 4,
+                    "nom": "Nappe blanche",
+                    "categorie": "Décoration",
+                    "quantite": 3,
+                    "prix_unitaire": 3000.0,
+                    "prix_total": 9000.0,
+                    "raison": "Une nappe par table pour une présentation élégante."
+                },
+                {
+                    "id": 5,
+                    "nom": "Housse de chaise",
+                    "categorie": "Décoration",
+                    "quantite": 20,
+                    "prix_unitaire": 800.0,
+                    "prix_total": 16000.0,
+                    "raison": "Pour habiller les chaises et créer une ambiance plus raffinée et festive."
+                },
+                {
+                    "id": 8,
+                    "nom": "Enceinte JBL",
+                    "categorie": "Sonorisation",
+                    "quantite": 1,
+                    "prix_unitaire": 35000.0,
+                    "prix_total": 35000.0,
+                    "raison": "Pour diffuser de la musique d'ambiance ou de fête pour vos 20 invités."
+                },
+                {
+                    "id": 7,
+                    "nom": "Micro HF",
+                    "categorie": "Sonorisation",
+                    "quantite": 1,
+                    "prix_unitaire": 15000.0,
+                    "prix_total": 15000.0,
+                    "raison": "Idéal pour les discours, les annonces ou les animations."
+                },
+                {
+                    "id": 10,
+                    "nom": "Projecteur LED RGB",
+                    "categorie": "Éclairage",
+                    "quantite": 2,
+                    "prix_unitaire": 12000.0,
+                    "prix_total": 24000.0,
+                    "raison": "Pour créer une ambiance lumineuse colorée et festive adaptée à un anniversaire."
+                },
+                {
+                    "id": 13,
+                    "nom": "Assiette",
+                    "categorie": "Vaisselle",
+                    "quantite": 20,
+                    "prix_unitaire": 300.0,
+                    "prix_total": 6000.0,
+                    "raison": "Une assiette par personne pour le service du repas."
+                },
+                {
+                    "id": 14,
+                    "nom": "Verre",
+                    "categorie": "Vaisselle",
+                    "quantite": 20,
+                    "prix_unitaire": 200.0,
+                    "prix_total": 4000.0,
+                    "raison": "Un verre par personne pour les boissons."
+                },
+                {
+                    "id": 15,
+                    "nom": "Couvert",
+                    "categorie": "Vaisselle",
+                    "quantite": 20,
+                    "prix_unitaire": 150.0,
+                    "prix_total": 3000.0,
+                    "raison": "Un set de couverts par personne pour le repas."
+                }
+            ],
+            "conseils": [
+                "Si l'espace est grand ou si vous souhaitez une meilleure répartition du son, envisagez l'ajout d'une seconde Enceinte JBL (ID 8).",
+                "Pour une ambiance de fête plus marquée, une Machine à fumée (ID 12) peut ajouter un effet visuel spectaculaire.",
+                "Si l'anniversaire se déroule en extérieur, une Tente 5x10m (ID 18) ou un Barnum 3x3m (ID 19) pourrait être indispensable pour abriter vos invités en cas d'intempéries ou de forte chaleur.",
+                "Si vous prévoyez de préparer des plats chauds sur place, des équipements de cuisine comme une Marmite 100L (ID 16) ou un Réchaud à gaz (ID 17) pourraient être nécessaires."
+            ]
+        },
+        "timestamp": "2026-06-26T14:05:56.523Z"
+    }
+},
+{
+    "model": "ai.messagehistory",
+    "pk": 7,
+    "fields": {
+        "user": 1,
+        "sender": "user",
+        "text": "anniversaire 20 personnes",
+        "recommendation": null,
+        "timestamp": "2026-06-26T14:14:27.768Z"
+    }
+},
+{
+    "model": "ai.messagehistory",
+    "pk": 8,
+    "fields": {
+        "user": 1,
+        "sender": "ai",
+        "text": "Proposition de matériel pour un anniversaire de 20 personnes incluant mobilier, décoration, sonorisation, éclairage et vaisselle pour assurer le confort des invités et une ambiance agréable.",
+        "recommendation": {
+            "resume": "Proposition de matériel pour un anniversaire de 20 personnes incluant mobilier, décoration, sonorisation, éclairage et vaisselle pour assurer le confort des invités et une ambiance agréable.",
+            "cout_total": 202000.0,
+            "materiels": [
+                {
+                    "id": 1,
+                    "nom": "Chaise en plastique",
+                    "categorie": "Mobilier",
+                    "quantite": 20,
+                    "prix_unitaire": 1500.0,
+                    "prix_total": 30000.0,
+                    "raison": "Pour asseoir les 20 invités."
+                },
+                {
+                    "id": 2,
+                    "nom": "Table ronde 8 places",
+                    "categorie": "Mobilier",
+                    "quantite": 3,
+                    "prix_unitaire": 12000.0,
+                    "prix_total": 36000.0,
+                    "raison": "Trois tables rondes permettent d'accueillir confortablement 20 personnes (24 places au total)."
+                },
+                {
+                    "id": 4,
+                    "nom": "Nappe blanche",
+                    "categorie": "Décoration",
+                    "quantite": 3,
+                    "prix_unitaire": 3000.0,
+                    "prix_total": 9000.0,
+                    "raison": "Pour habiller les trois tables et créer une base élégante."
+                },
+                {
+                    "id": 5,
+                    "nom": "Housse de chaise",
+                    "categorie": "Décoration",
+                    "quantite": 20,
+                    "prix_unitaire": 800.0,
+                    "prix_total": 16000.0,
+                    "raison": "Pour améliorer l'esthétique et le confort des chaises en plastique."
+                },
+                {
+                    "id": 8,
+                    "nom": "Enceinte JBL",
+                    "categorie": "Sonorisation",
+                    "quantite": 1,
+                    "prix_unitaire": 35000.0,
+                    "prix_total": 35000.0,
+                    "raison": "Pour diffuser de la musique d'ambiance pendant l'événement."
+                },
+                {
+                    "id": 7,
+                    "nom": "Micro HF",
+                    "categorie": "Sonorisation",
+                    "quantite": 1,
+                    "prix_unitaire": 15000.0,
+                    "prix_total": 15000.0,
+                    "raison": "Utile pour d'éventuels discours ou annonces."
+                },
+                {
+                    "id": 10,
+                    "nom": "Projecteur LED RGB",
+                    "categorie": "Éclairage",
+                    "quantite": 4,
+                    "prix_unitaire": 12000.0,
+                    "prix_total": 48000.0,
+                    "raison": "Pour créer une ambiance colorée et festive."
+                },
+                {
+                    "id": 13,
+                    "nom": "Assiette",
+                    "categorie": "Vaisselle",
+                    "quantite": 20,
+                    "prix_unitaire": 300.0,
+                    "prix_total": 6000.0,
+                    "raison": "Nécessaire pour le service des repas."
+                },
+                {
+                    "id": 14,
+                    "nom": "Verre",
+                    "categorie": "Vaisselle",
+                    "quantite": 20,
+                    "prix_unitaire": 200.0,
+                    "prix_total": 4000.0,
+                    "raison": "Pour le service des boissons."
+                },
+                {
+                    "id": 15,
+                    "nom": "Couvert",
+                    "categorie": "Vaisselle",
+                    "quantite": 20,
+                    "prix_unitaire": 150.0,
+                    "prix_total": 3000.0,
+                    "raison": "Pour que chaque invité dispose de couverts complets."
+                }
+            ],
+            "conseils": [
+                "Si l'événement se déroule en extérieur, considérez la location d'un Barnum (ID 19) pour abriter les invités en cas d'intempéries ou de soleil intense.",
+                "Envisagez l'ajout de quelques Projecteurs LED RGB supplémentaires (ID 10) si vous souhaitez une ambiance lumineuse plus dynamique ou couvrir une plus grande surface.",
+                "Si un service traiteur est prévu avec préparation sur place, des équipements de cuisine comme le Réchaud à gaz (ID 17) pourraient être nécessaires."
+            ]
+        },
+        "timestamp": "2026-06-26T14:14:42.061Z"
+    }
+},
+{
+    "model": "ai.messagehistory",
+    "pk": 9,
+    "fields": {
+        "user": 1,
+        "sender": "user",
+        "text": "anniversaire 20 personnes",
+        "recommendation": null,
+        "timestamp": "2026-06-26T14:16:14.999Z"
+    }
+},
+{
+    "model": "ai.messagehistory",
+    "pk": 10,
+    "fields": {
+        "user": 1,
+        "sender": "ai",
+        "text": "Proposition complète pour un anniversaire de 20 personnes, incluant le mobilier, la décoration, la sonorisation et la vaisselle pour assurer le confort et l'ambiance de vos invités.",
+        "recommendation": {
+            "resume": "Proposition complète pour un anniversaire de 20 personnes, incluant le mobilier, la décoration, la sonorisation et la vaisselle pour assurer le confort et l'ambiance de vos invités.",
+            "cout_total": 143000.0,
+            "materiels": [
+                {
+                    "id": 1,
+                    "nom": "Chaise en plastique",
+                    "categorie": "Mobilier",
+                    "quantite": 20,
+                    "prix_unitaire": 1500.0,
+                    "prix_total": 30000.0,
+                    "raison": "Une chaise par personne pour le confort de chaque invité."
+                },
+                {
+                    "id": 2,
+                    "nom": "Table ronde 8 places",
+                    "categorie": "Mobilier",
+                    "quantite": 3,
+                    "prix_unitaire": 12000.0,
+                    "prix_total": 36000.0,
+                    "raison": "Trois tables rondes de 8 places offrent un espace suffisant pour 20 personnes, favorisant la convivialité et la discussion."
+                },
+                {
+                    "id": 4,
+                    "nom": "Nappe blanche",
+                    "categorie": "Décoration",
+                    "quantite": 3,
+                    "prix_unitaire": 3000.0,
+                    "prix_total": 9000.0,
+                    "raison": "Une nappe par table pour une présentation soignée de l'espace repas."
+                },
+                {
+                    "id": 5,
+                    "nom": "Housse de chaise",
+                    "categorie": "Décoration",
+                    "quantite": 20,
+                    "prix_unitaire": 800.0,
+                    "prix_total": 16000.0,
+                    "raison": "Une housse par chaise pour améliorer l'esthétique et le confort de l'assise."
+                },
+                {
+                    "id": 8,
+                    "nom": "Enceinte JBL",
+                    "categorie": "Sonorisation",
+                    "quantite": 1,
+                    "prix_unitaire": 35000.0,
+                    "prix_total": 35000.0,
+                    "raison": "Pour la diffusion de musique d'ambiance, créant une atmosphère festive."
+                },
+                {
+                    "id": 13,
+                    "nom": "Assiette",
+                    "categorie": "Vaisselle",
+                    "quantite": 20,
+                    "prix_unitaire": 300.0,
+                    "prix_total": 6000.0,
+                    "raison": "Une assiette par invité pour le service du repas principal."
+                },
+                {
+                    "id": 14,
+                    "nom": "Verre",
+                    "categorie": "Vaisselle",
+                    "quantite": 40,
+                    "prix_unitaire": 200.0,
+                    "prix_total": 8000.0,
+                    "raison": "Deux verres par invité sont prévus pour gérer différents types de boissons ou les recharges, réduisant les allers-retours."
+                },
+                {
+                    "id": 15,
+                    "nom": "Couvert",
+                    "categorie": "Vaisselle",
+                    "quantite": 20,
+                    "prix_unitaire": 150.0,
+                    "prix_total": 3000.0,
+                    "raison": "Un set de couverts par invité pour le repas."
+                }
+            ],
+            "conseils": [
+                "Si l'anniversaire est prévu en extérieur, un Barnum 3x3m (ID 19) pourrait être judicieux pour abriter une zone spécifique (buffet, cadeaux, etc.) en cas d'intempéries ou de fort soleil.",
+                "Pour une ambiance visuelle renforcée, l'ajout de Projecteurs LED RGB (ID 10) permettrait de créer des jeux de lumière adaptés à l'événement.",
+                "Si vous prévoyez de cuisiner sur place ou de maintenir des plats chauds, la location d'un Réchaud à gaz (ID 17) de notre catégorie 'Cuisine' pourrait être très utile."
+            ]
+        },
+        "timestamp": "2026-06-26T14:16:32.243Z"
+    }
+}
+]

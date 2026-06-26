@@ -2,8 +2,8 @@ from rest_framework import viewsets, filters, status
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from .models import Materiel
-from .serializers import MaterielSerializer
+from .models import Categorie, Materiel
+from .serializers import CategorieSerializer, MaterielSerializer
 
 
 class MaterielViewSet(viewsets.ModelViewSet):
@@ -44,3 +44,8 @@ class MaterielViewSet(viewsets.ModelViewSet):
         materiel.statut = new_statut
         materiel.save()
         return Response(MaterielSerializer(materiel).data)
+    
+class CategorieViewSet(viewsets.ModelViewSet):
+    queryset = Categorie.objects.all()
+    serializer_class = CategorieSerializer
+    permission_classes = [IsAuthenticated]

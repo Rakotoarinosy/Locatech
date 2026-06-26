@@ -21,7 +21,10 @@
 
         <div class="col-12 col-md-6">
           <label class="form-label text-muted fw-semibold small mb-1">Catégorie *</label>
-          <input type="text" class="form-control rounded-3" [(ngModel)]="formModel.categorie" name="categorie" required placeholder="Ex: Sonorisation, Échafaudage...">
+          <select class="form-select rounded-3" [(ngModel)]="formModel.categorie_id" name="categorie_id" required>
+            <option [ngValue]="null" disabled>Sélectionner une catégorie</option>
+            <option *ngFor="let cat of categories" [value]="cat.id">{{ cat.nom }}</option>
+          </select>
         </div>
 
         <div class="col-12 col-md-6">
@@ -177,7 +180,7 @@
                 </div>
               </div>
             </td>
-            <td><span class="badge bg-secondary-subtle text-secondary rounded-pill px-3 py-2">{{ m.categorie }}</span></td>
+            <td><span class="badge bg-secondary-subtle text-secondary rounded-pill px-3 py-2">{{ m.categorie.nom }}</span></td>
             <td class="fw-bold text-slate">{{ m.prix_journalier | number:'1.0-2' }} Ar</td>
             <td>{{ m.quantite }}</td>
             <td>

@@ -18,6 +18,7 @@ export const routes: Routes = [
       { path: "factures", loadComponent: () => import("./components/pages/factures/factures.component").then(m => m.FacturesComponent) },
       { path: "analytics", loadComponent: () => import("./components/pages/analytics/analytics.component").then(m => m.AnalyticsComponent) },
       { path: "assistant-ia", loadComponent: () => import("./components/pages/assistant/assistant.component").then(m => m.AssistantComponent) },
+      { path: "parametres", loadComponent: () => import("./components/pages/parametres/parametres.component").then(m => m.ParametresComponent) },
       { path: "", redirectTo: "dashboard", pathMatch: "full" }
     ]
   },
