@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'apps.factures',
     'apps.materials',
     'apps.reservations',
+    'apps.ai',
 ]
 
 MIDDLEWARE = [
@@ -187,6 +188,8 @@ SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=50),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
 }
+
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"

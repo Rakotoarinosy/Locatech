@@ -1,184 +1,166 @@
-# 🚀 LocaTech SaaS
+# 🚀 LocaTech AI
 
-Plateforme intelligente de gestion et de location de matériels à Madagascar.
+> Plateforme SaaS intelligente de gestion et de location de matériels à Madagascar.
+
+![Angular](https://img.shields.io/badge/Angular-20-red)
+![Django](https://img.shields.io/badge/Django-5-green)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-17-blue)
+![Docker](https://img.shields.io/badge/Docker-Ready-2496ED)
+![GitHub Actions](https://img.shields.io/badge/CI/CD-GitHub%20Actions-success)
 
 ---
 
 # 📌 Présentation
 
-LocaTech est une plateforme SaaS moderne permettant aux entreprises de location de matériels de :
+LocaTech AI est une plateforme SaaS permettant aux entreprises de location de matériels de gérer l'ensemble de leurs activités depuis une seule interface.
 
-* gérer leurs équipements,
-* suivre les réservations,
-* automatiser la facturation,
-* analyser les performances,
-* centraliser les clients,
-* optimiser les disponibilités des matériels.
+Le projet combine :
 
-Le projet vise à digitaliser le secteur de la location de matériels à Madagascar grâce à une solution moderne, responsive et évolutive.
+* Gestion des matériels
+* Gestion des clients
+* Réservations intelligentes
+* Facturation automatique
+* Tableau de bord analytique
+* Assistant IA basé sur Gemini
+* Déploiement Cloud automatisé
 
----
-
-# 🎯 Objectifs du projet
-
-* Moderniser la gestion des locations
-* Réduire les erreurs de réservation
-* Centraliser les opérations métiers
-* Automatiser les tâches administratives
-* Fournir des tableaux de bord analytiques
-* Préparer une future architecture SaaS multi-entreprises
+L'objectif est de digitaliser le secteur de la location de matériels à Madagascar.
 
 ---
 
-# 🛠️ Stack Technique
+# ✨ Fonctionnalités
 
-## Frontend
+## Dashboard
 
-* Angular 17
-* TypeScript
-* SCSS
-* Bootstrap 5
-* Bootstrap Icons
-
-## Backend (prévision)
-
-* Django
-* Django REST Framework
-* PostgreSQL
-* JWT Authentication
-
-## DevOps / Déploiement
-
-* Docker
-* GitHub
-* Nginx
-* VPS Linux Ubuntu
+* KPI en temps réel
+* Revenus
+* Disponibilités
+* Réservations
+* Top matériels
+* Top clients
 
 ---
-
-# ✨ Fonctionnalités Actuelles
-
-## Landing Page
-
-* Présentation de l’entreprise
-* Présentation des matériels
-* Sections dynamiques
-* Navigation fluide
-* Responsive mobile
-* Formulaire de contact
-
-## Back-office
-
-* Dashboard analytique
-* Sidebar professionnelle
-* Topbar dynamique
-* Gestion responsive
-* UI moderne SaaS
-
----
-
-# 📊 Modules Prévus
 
 ## Gestion des matériels
 
-* Ajout / modification / suppression
-* Catégorisation
-* Gestion des disponibilités
-* Historique des locations
+* CRUD complet
+* Catégories
+* Photos
+* Disponibilité
+* Stock
+
+---
 
 ## Gestion des clients
 
-* CRM clients
-* Historique des réservations
-* Informations de contact
+* CRM
+* Historique
+* Coordonnées
+* Réservations
+
+---
 
 ## Réservations
 
-* Réservation intelligente
-* Vérification automatique des conflits
-* Calendrier des disponibilités
+* Création
+* Modification
+* Annulation
+* Vérification des conflits
+* Retour matériel
+* Disponibilité temps réel
+
+---
 
 ## Facturation
 
-* Génération automatique PDF
-* Gestion des paiements
-* Historique des factures
+* Génération PDF
+* Paiements
+* Historique
+* Téléchargement
+
+---
 
 ## Analytics
 
-* Revenus
-* Matériels les plus loués
+* Revenus mensuels
+* Statistiques
 * Taux de disponibilité
-* Statistiques avancées
-
-## Notifications
-
-* SMS
-* Email
-* Alertes retards
+* Dashboard dynamique
 
 ---
 
-# 🧠 Intelligence & Optimisation (Vision Future)
+## 🤖 Assistant IA
 
-Le projet pourra intégrer :
+LocaTech AI est capable de :
 
-* Algorithmes Monte Carlo
-* Programmation par contraintes
-* Prévision de disponibilité
-* Optimisation des réservations
-* Analyse prédictive des revenus
+* comprendre les besoins d'un client
+* analyser le catalogue disponible
+* recommander automatiquement le matériel
+* estimer les quantités
+* calculer le coût
+* proposer des alternatives selon les stocks
 
----
+Exemple :
 
-# 🗺️ Roadmap
+> Je prépare un mariage de 200 personnes.
 
-## ✅ Phase 1 — UI/UX
+↓
 
-* [x] Landing page
-* [x] Sidebar SaaS
-* [x] Dashboard
-* [x] Navigation dynamique
-* [x] Responsive mobile
-
-## 🔄 Phase 2 — Backend API
-
-* [ ] Authentification JWT
-* [ ] API REST Django
-* [ ] Gestion utilisateurs
-* [ ] CRUD matériels
-* [ ] CRUD clients
-
-## 🔄 Phase 3 — Réservations
-
-* [ ] Calendrier dynamique
-* [ ] Vérification conflits
-* [ ] Disponibilités temps réel
-
-## 🔄 Phase 4 — Facturation
-
-* [ ] Génération PDF
-* [ ] Paiements
-* [ ] Export Excel
-
-## 🔄 Phase 5 — Analytics & IA
-
-* [ ] Dashboard avancé
-* [ ] Prévisions
-* [ ] Optimisation intelligente
-
-## 🔄 Phase 6 — SaaS
-
-* [ ] Multi-entreprises
-* [ ] Gestion abonnements
-* [ ] Déploiement cloud
-* [ ] Nom de domaine professionnel
+L'IA génère automatiquement une proposition complète de location.
 
 ---
 
-# 📱 Responsive Design
+# 🛠 Stack Technique
 
-Le projet est conçu pour :
+## Frontend
+
+* Angular 20
+* TypeScript
+* SCSS
+* Angular Signals
+* Angular Material
+
+## Backend
+
+* Django 5
+* Django REST Framework
+* JWT Authentication
+
+## Base de données
+
+* PostgreSQL
+
+## IA
+
+* Google Gemini API
+
+## DevOps
+
+* Docker
+* Docker Compose
+* GitHub Actions
+* GitHub Container Registry
+* Nginx
+* VPS Ubuntu
+
+---
+
+# 🚀 Déploiement
+
+Le projet est entièrement automatisé.
+
+Chaque push sur la branche `main` :
+
+* Build Frontend
+* Build Backend
+* Publication des images Docker
+* Déploiement automatique sur le VPS
+
+Aucune intervention manuelle n'est nécessaire.
+
+---
+
+# 📱 Responsive
 
 * Desktop
 * Tablette
@@ -186,16 +168,21 @@ Le projet est conçu pour :
 
 ---
 
-# 🌍 Vision
+# 📖 Documentation
 
-Devenir la référence numérique de gestion de location de matériels à Madagascar.
+Voir :
+
+* ROADMAP.md
 
 ---
 
 # 👨‍💻 Auteur
 
-Développé par Fehizoro Rakotoarinosy
-Projet SaaS / Freelance / Innovation digitale Madagascar
+**Fehizoro Rakotoarinosy**
+
+Ingénieur en Informatique
+
+Madagascar
 
 ---
 

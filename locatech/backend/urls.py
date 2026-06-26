@@ -11,6 +11,7 @@ urlpatterns = [
     path('reservations/', include('apps.reservations.urls')),
     path('factures/', include('apps.factures.urls')),
     path('analytics/', include('apps.analytics.urls')),
+    path('assistant/', include('apps.ai.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 if settings.DEBUG:

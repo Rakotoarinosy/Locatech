@@ -17,8 +17,11 @@
           La plateforme intelligente tout-en-un pour gérer, réserver et optimiser vos parcs de matériels à Madagascar. Destinée aux professionnels, entreprises et organisateurs d'événements.
         </p>
         <div class="d-flex flex-column flex-sm-row justify-content-center justify-content-lg-start gap-3 animate-fade-in-up delay-2">
-          <a href="#produits" class="btn btn-primary btn-lg rounded-pill px-4 py-3 btn-glow">Voir les matériels</a>
-          <a href="#contact" class="btn btn-outline-secondary btn-lg rounded-pill px-4 py-3 bg-white">Demander un devis</a>
+          <!-- 🤖 BONUS : Redirection IA directement depuis le bouton secondaire du Hero -->
+          <a [routerLink]="['/assistant-ia']" class="btn btn-primary btn-lg rounded-pill px-4 py-3 btn-glow d-inline-flex align-items-center justify-content-center gap-2">
+            <i class="bi bi-chat-square-heart"></i> Planifier avec l'IA
+          </a>
+          <a href="#produits" class="btn btn-outline-secondary btn-lg rounded-pill px-4 py-3 bg-white">Voir les matériels</a>
         </div>
       </div>
       <div class="col-lg-6 animate-fade-in-up delay-1">
@@ -108,7 +111,6 @@
       </div>
       
       <div class="col-lg-7">
-        <!-- Mockup Analytics -->
         <div class="analytics-dashboard p-4 rounded-4 bg-blur border border-secondary-subtle shadow">
           <div class="d-flex justify-content-between align-items-center mb-4">
             <h5 class="mb-0 fw-bold font-sm text-white">Aperçu Général — Ce mois</h5>
@@ -204,7 +206,8 @@
 <!-- SECTION CONTACT -->
 <section id="contact" class="section-padding bg-light-subtle">
   <div class="container">
-    <div class="row g-4 align-items-stretch"> <div class="col-12 col-lg-5 d-flex flex-column justify-content-between">
+    <div class="row g-4 align-items-stretch"> 
+      <div class="col-12 col-lg-5 d-flex flex-column justify-content-between">
         <div>
           <h2 class="section-title text-start mb-3">Prêt à moderniser votre activité ?</h2>
           <p class="text-secondary mb-4">Contactez notre équipe pour une démonstration personnalisée ou posez vos questions directement.</p>
@@ -264,8 +267,18 @@
           </form>
         </div>
       </div>
-
     </div>
   </div>
 </section>
+
+<!-- ⚡ FLOATING ACTION BUTTON (FAB) DE L'ASSISTANT IA -->
+<div class="ai-floating-badge-box">
+  <a [routerLink]="['/assistant-ia']" class="ai-fab-btn shadow-lg" title="Discuter avec notre Assistant IA">
+    <div class="ai-icon-pulse">
+      <i class="bi bi-cpu-fill"></i>
+    </div>
+    <span class="ai-fab-text font-sm fw-bold">Assistant IA</span>
+  </a>
+</div>
+
 <app-footer></app-footer>

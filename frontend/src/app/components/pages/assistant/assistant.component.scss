@@ -1,0 +1,347 @@
+// Variables thématiques LocaTech
+$primary-color: #2563eb;    // Bleu moderne
+$primary-hover: #1d4ed8;
+$bg-app: #f8fafc;           // Gris très clair
+$bg-card: #ffffff;
+$text-dark: #0f172a;        // Ardoise sombre
+$text-muted: #64748b;
+$border-radius: 16px;
+$chat-max-width: 840px;
+
+.assistant-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background-color: $bg-app;
+  color: $text-dark;
+  font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+// 1. En-tête
+.assistant-header {
+  background-color: $bg-card;
+  border-bottom: 1px solid #e2e8f0;
+  padding: 1rem 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  z-index: 10;
+
+  .header-icon {
+    background: linear-gradient(135deg, #dbeafe, #bbf7d0);
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: $primary-color;
+  }
+
+  .header-text {
+    h1 {
+      font-size: 1.2rem;
+      font-weight: 700;
+      margin: 0;
+      color: $text-dark;
+    }
+    p {
+      font-size: 0.85rem;
+      color: $text-muted;
+      margin: 0;
+    }
+  }
+}
+
+// 2. Zone de discussion principale
+.chat-wrapper {
+  flex: 1;
+  overflow-y: auto;
+  padding: 2rem 1rem;
+  
+  .chat-history {
+    max-width: $chat-max-width;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1.75rem;
+  }
+}
+
+.max-w-chat {
+  max-width: $chat-max-width;
+  width: 100%;
+}
+
+// Structure de ligne de message
+.message-row {
+  display: flex;
+  gap: 1rem;
+  width: 100%;
+
+  .avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    i { font-size: 20px; }
+  }
+
+  .message-block {
+    display: flex;
+    flex-direction: column;
+    max-width: calc(100% - 60px);
+  }
+
+  .message-bubble {
+    padding: 0.85rem 1.25rem;
+    border-radius: $border-radius;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    
+    p {
+      margin: 0;
+      line-height: 1.5;
+      font-size: 0.95rem;
+      white-space: pre-line;
+    }
+  }
+
+  .timestamp {
+    font-size: 0.75rem;
+    color: $text-muted;
+    margin-top: 0.35rem;
+    padding: 0 0.25rem;
+  }
+
+  // Différenciation Gauche / Droite
+  &.ai {
+    align-self: flex-start;
+    .avatar { background-color: #eff6ff; color: $primary-color; border: 1px solid #dbeafe; }
+    .message-bubble { 
+      background-color: $bg-card; 
+      color: $text-dark;
+      border-top-left-radius: 4px;
+    }
+    .timestamp { align-self: flex-start; }
+  }
+
+  &.user {
+    align-self: flex-end;
+    flex-direction: row-reverse;
+    .avatar { background-color: $primary-color; color: white; }
+    .message-bubble { 
+      background-color: #f1f5f9;
+      color: $text-dark;
+      border-top-right-radius: 4px;
+    }
+    .timestamp { align-self: flex-end; }
+  }
+}
+
+// 4. Cartes de Recommandations & Composants Spécifiques
+.recommendation-box {
+  width: 100%;
+  
+  .card {
+    border-radius: $border-radius;
+    background-color: $bg-card;
+    
+    .card-title {
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-weight: 600;
+    }
+  }
+
+  .cost-card {
+    background: linear-gradient(135deg, #eff6ff, #f8fafc);
+    border: 1px solid #dbeafe !important;
+    .total-price {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: $primary-color;
+    }
+  }
+
+  // Tableau Stylisé LocaTech
+  .table-responsive-wrapper {
+    overflow-x: auto;
+    border: 1px solid #f1f5f9;
+  }
+  
+  .locatech-table {
+    font-size: 0.9rem;
+    th {
+      background-color: #f8fafc;
+      color: $text-muted;
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      padding: 0.75rem 1rem;
+      border-bottom: 2px solid #edf2f7;
+    }
+    td {
+      padding: 0.85rem 1rem;
+      border-bottom: 1px solid #f1f5f9;
+    }
+    tbody tr:hover {
+      background-color: #fafafa;
+      cursor: default;
+    }
+    .italic { font-style: italic; }
+  }
+
+  .advices-card {
+    border: 1px solid #dcfce7 !important;
+    .small-icon { font-size: 16px; }
+  }
+}
+
+// Spinner CSS élégant (Style bulle animée)
+.loading-bubble {
+  background-color: $bg-card;
+  padding: 1rem 1.5rem;
+  border-radius: $border-radius;
+  border-top-left-radius: 4px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+
+  .spinner-dot {
+    width: 8px;
+    height: 8px;
+    background-color: $text-muted;
+    border-radius: 50%;
+    display: inline-block;
+    animation: bounce 1.4s infinite ease-in-out both;
+    
+    &:nth-child(1) { animation-delay: -0.32s; }
+    &:nth-child(2) { animation-delay: -0.16s; }
+  }
+}
+
+@keyframes bounce {
+  0%, 80%, 100% { transform: scale(0); }
+  40% { transform: scale(1.0); }
+}
+
+// 3. Barre de saisie (Fixe en bas)
+.assistant-footer {
+  background-color: transparent;
+  padding: 1rem 1.5rem 2rem 1.5rem;
+  z-index: 10;
+
+  .input-container-box {
+    max-width: $chat-max-width;
+    margin: 0 auto;
+    background-color: $bg-card;
+    border: 1px solid #e2e8f0;
+    border-radius: 24px;
+    padding: 0.5rem 0.75rem 0.5rem 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    .chat-textarea {
+      flex: 1;
+      border: none;
+      resize: none;
+      outline: none;
+      font-size: 0.95rem;
+      color: $text-dark;
+      background: transparent;
+      padding: 0.5rem 0;
+      max-height: 120px;
+      
+      &:disabled { opacity: 0.7; }
+      &::placeholder { color: #94a3b8; }
+    }
+
+    .action-buttons-box {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+
+      button {
+        border: none;
+        background: transparent;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+        
+        i { font-size: 20px; }
+      }
+      
+      .btn-clear:hover {
+        background-color: #f1f5f9;
+        color: $text-dark !important;
+      }
+
+      .btn-send {
+        background-color: #e2e8f0;
+        color: #94a3b8;
+        cursor: not-allowed;
+
+        &.active {
+          background-color: $text-dark;
+          color: white;
+          cursor: pointer;
+          &:hover { background-color: #000000; }
+        }
+      }
+    }
+  }
+}
+
+// 6. Responsive design optimisé
+@media (max-width: 768px) {
+  .assistant-header {
+    padding: 0.75rem 1rem;
+    h1 { font-size: 1rem; }
+    p { font-size: 0.75rem; }
+  }
+
+  .chat-wrapper {
+    padding: 1rem 0.5rem;
+  }
+
+  .message-row {
+    gap: 0.5rem;
+    .message-bubble { padding: 0.75rem 1rem; }
+  }
+
+  .locatech-table {
+    th, td {
+      padding: 0.6rem 0.5rem !important;
+      font-size: 0.8rem !important;
+    }
+  }
+
+  .assistant-footer {
+    padding: 0.5rem 0.75rem 1rem 0.75rem;
+    .input-container-box { padding: 0.35rem 0.5rem 0.35rem 1rem; }
+  }
+}
+
+
+/* Ajustement pour que le contenu ne passe pas sous la navbar fixe du front */
+.public-ia-container {
+  margin-top: 100px; /* À ajuster selon la hauteur de ta navbar */
+  margin-bottom: 40px;
+  min-height: calc(100vh - 140px);
+  display: flex;
+  flex-direction: column;
+}
+
+/* Optionnel : si tu veux limiter la largeur sur grand écran pour que ça reste élégant comme un chat */
+@media (min-width: 992px) {
+  .public-ia-container {
+    max-width: 900px; 
+  }
+}

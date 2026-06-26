@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Materiel
+from .models import Materiel, Categorie
 
 @admin.register(Materiel)
 class MaterielAdmin(admin.ModelAdmin):
@@ -19,3 +19,7 @@ class MaterielAdmin(admin.ModelAdmin):
         'statut',
         'categorie'
     )
+    
+
+admin.site.register(Categorie)
+    

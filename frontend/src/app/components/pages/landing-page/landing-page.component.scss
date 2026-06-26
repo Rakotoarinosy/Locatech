@@ -231,3 +231,54 @@ $gray-500: #64748b;
 section {
   scroll-margin-top: 100px;
 }
+
+/* --- STYLE DU BOUTON FLOTTANT IA --- */
+.ai-floating-badge-box {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  z-index: 9999;
+}
+
+.ai-fab-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+  color: white !important;
+  text-decoration: none;
+  padding: 12px 20px;
+  border-radius: 50px;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+
+  &:hover {
+    transform: translateY(-5px) scale(1.03);
+    box-shadow: 0 10px 25px rgba(13, 110, 253, 0.4) !important;
+    background: linear-gradient(135deg, #0a58ca 0%, #0d6efd 100%);
+  }
+
+  .ai-icon-pulse {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+    animation: pulse-gear 2s infinite;
+  }
+}
+
+/* Animation douce de pulsation pour l'icône de l'IA */
+@keyframes pulse-gear {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.15);
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}

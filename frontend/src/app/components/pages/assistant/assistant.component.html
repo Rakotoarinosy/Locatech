@@ -1,0 +1,183 @@
+<app-navbar *ngIf="isPublicView"></app-navbar>
+
+<div [ngClass]="{'container public-ia-container': isPublicView, 'backoffice-ia-container': !isPublicView}">
+  <div class="assistant-container">
+    
+    <header class="assistant-header">
+      <div class="header-icon">
+        <i class="material-icons">psychology</i>
+      </div>
+      <div class="header-text">
+        <h1>Assistant IA LocaTech</h1>
+        <p>Décrivez votre événement et l'IA vous proposera automatiquement le matériel à louer.</p>
+        @if (isConnected()) {
+          <span class="badge bg-success-subtle text-success border border-success-subtle fw-normal px-2 mt-1" style="font-size: 11px;">
+            <i class="material-icons align-middle std-icon" style="font-size: 12px;">cloud_done</i> Historique synchronisé
+          </span>
+        } @else {
+          <span class="badge bg-light text-muted border fw-normal px-2 mt-1" style="font-size: 11px;">
+            <i class="material-icons align-middle std-icon" style="font-size: 12px;">visibility_off</i> Session temporaire B2C
+          </span>
+        }
+      </div>
+    </header>
+
+    <div class="chat-wrapper" #scrollContainer>
+      <div class="chat-history">
+        
+        @for (msg of messages(); track msg.id) {
+          <div class="message-row" [ngClass]="msg.sender" @messageAnimation>
+            
+            <div class="avatar shadow-sm">
+              <i class="material-icons">{{ msg.sender === 'ai' ? 'smart_toy' : 'person' }}</i>
+            </div>
+
+            <div class="message-block">
+              <div class="message-bubble">
+                <p class="message-text">{{ msg.text }}</p>
+              </div>
+              
+              @if (msg.recommendation) {
+                <div class="recommendation-box mt-3" @staggerCards>
+                  
+                  <div class="row g-3">
+                    <div class="col-md-8 d-flex animate-card">
+                      <div class="card item-card w-100 shadow-sm border-0">
+                        <div class="card-body">
+                          <h6 class="card-title text-muted d-flex align-items-center mb-2">
+                            <i class="material-icons me-2 text-primary">description</i> Résumé analytique
+                          </h6>
+                          <p class="card-text text-secondary">{{ msg.recommendation.resume }}</p>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div class="col-md-4 d-flex animate-card">
+                      <div class="card cost-card w-100 shadow-sm border-0">
+                        <div class="card-body d-flex flex-column justify-content-center align-items-center text-center">
+                          <h6 class="card-title text-muted mb-1">Coût Estimé Global</h6>
+                          <div class="total-price">{{ formatPrix(msg.recommendation.cout_total) }}</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="card mt-3 border-0 shadow-sm animate-card table-responsive-wrapper">
+                    <table class="table locatech-table align-middle mb-0">
+                      <thead>
+                        <tr>
+                          <th>Matériel</th>
+                          <th>Catégorie</th>
+                          <th class="text-center">Quantité</th>
+                          <th class="text-end">Prix Unitaire</th>
+                          <th class="text-end">Total</th>
+                          <th>Raison du choix</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        @for (item of msg.recommendation.materiels; track item.id) {
+                          <tr>
+                            <td class="fw-semibold text-dark">{{ item.nom }}</td>
+                            <td><span class="badge bg-light text-secondary border">{{ item.categorie }}</span></td>
+                            <td class="text-center fw-bold text-secondary">{{ item.quantite }}</td>
+                            <td class="text-end text-secondary">{{ formatPrix(item.prix_unitaire) }}</td>
+                            <td class="text-end fw-bold text-primary">{{ formatPrix(item.prix_total) }}</td>
+                            <td class="text-muted small italic">{{ item.raison }}</td>
+                          </tr>
+                        }
+                      </tbody>
+                    </table>
+                  </div>
+
+                  @if (msg.recommendation.conseils && msg.recommendation.conseils.length > 0) {
+                    <div class="card mt-3 border-0 shadow-sm animate-card advices-card">
+                      <div class="card-body">
+                        <h6 class="card-title text-success d-flex align-items-center mb-3">
+                          <i class="material-icons me-2">tips_and_updates</i> Conseils de notre expert IA
+                        </h6>
+                        <ul class="list-group list-group-flush">
+                          @for (conseil of msg.recommendation.conseils; track conseil) {
+                            <li class="list-group-item bg-transparent border-0 px-0 py-1 text-secondary d-flex align-items-start gap-2">
+                              <i class="material-icons text-success small-icon mt-1">check_circle</i>
+                              <span>{{ conseil }}</span>
+                            </li>
+                          }
+                        </ul>
+                      </div>
+                    </div>
+                  }
+
+                  <div class="actions-row mt-3 d-flex flex-wrap gap-2 animate-card">
+                    <button class="btn btn-primary d-flex align-items-center gap-1 shadow-sm" (click)="creerReservation(msg.recommendation)">
+                      <i class="material-icons">add_shopping_cart</i> Créer cette réservation
+                    </button>
+                    <button class="btn btn-outline-secondary d-flex align-items-center gap-1 bg-white" (click)="telechargerDevis(msg.recommendation)">
+                      <i class="material-icons">file_download</i> Télécharger le devis
+                    </button>
+                  </div>
+
+                </div>
+              }
+
+              <span class="timestamp">{{ msg.timestamp | date:'HH:mm' }}</span>
+            </div>
+
+          </div>
+        }
+
+        @if (isLoading()) {
+          <div class="message-row ai" @messageAnimation>
+            <div class="avatar shadow-sm">
+              <i class="material-icons">smart_toy</i>
+            </div>
+            <div class="message-block">
+              <div class="loading-bubble d-flex align-items-center gap-2">
+                <span class="spinner-dot"></span>
+                <span class="spinner-dot"></span>
+                <span class="spinner-dot"></span>
+              </div>
+            </div>
+          </div>
+        }
+
+        @if (errorMessage()) {
+          <div class="alert alert-danger shadow-sm border-0 mx-auto my-3 max-w-chat d-flex align-items-center gap-2">
+            <i class="material-icons">error_outline</i>
+            <span>{{ errorMessage() }}</span>
+          </div>
+        }
+
+      </div>
+    </div>
+
+    <footer class="assistant-footer">
+      <div class="input-container-box shadow-sm">
+        <textarea 
+          class="chat-textarea" 
+          [ngModel]="userInput()" 
+          (ngModelChange)="userInput.set($event)"
+          (keydown)="handleKeyDown($event)"
+          placeholder="Demandez par ex : 'Je veux organiser un cocktail de 50 personnes en extérieur pour juin...'"
+          [disabled]="isLoading()"
+          rows="1">
+        </textarea>
+        
+        <div class="action-buttons-box">
+          @if (messages().length > 1) {
+            <button class="btn-clear text-muted" (click)="nouvelleDemande()" title="Nouvelle demande">
+              <i class="material-icons">refresh</i>
+            </button>
+          }
+          <button 
+            class="btn-send" 
+            [class.active]="userInput().trim().length > 0 && !isLoading()"
+            [disabled]="userInput().trim().length === 0 || isLoading()" 
+            (click)="sendMessage()">
+            <i class="material-icons">{{ isLoading() ? 'hourglass_top' : 'arrow_upward' }}</i>
+          </button>
+        </div>
+      </div>
+    </footer>
+
+  </div>
+</div>

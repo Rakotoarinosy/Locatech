@@ -33,6 +33,13 @@
             </li>
 
             <li class="nav-item">
+                <a class="nav-link fw-semibold text-primary d-flex align-items-center gap-1" [routerLink]="['/assistant-ia']" (click)="closeNavbar()">
+                  <i class="bi bi-cpu"></i> Assistant IA 
+                  <span class="badge rounded-pill bg-danger-subtle text-danger font-xs ms-1 border border-danger-subtle px-1">Beta</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
                 <a
                 class="nav-link"
                 [routerLink]="['/']"

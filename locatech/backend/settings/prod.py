@@ -1,4 +1,10 @@
 import os
+from pathlib import Path
+from dotenv import load_dotenv
+
+# 1. On définit BASE_DIR ici temporairement pour trouver le chemin du .env.dev avant l'import global
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
+load_dotenv(BASE_DIR / '..' / '.env')
 from .base import *
 
 DEBUG = False
@@ -40,3 +46,5 @@ DATABASES = {
         "PORT": os.getenv("DB_PORT", "5432"),
     }
 }
+
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
