@@ -18,6 +18,7 @@ from reportlab.lib.units import cm
 import io
 from django.core.files.base import ContentFile
 from django.conf import settings
+from rest_framework.permissions import AllowAny
 
 def _generate_pdf(facture):
     """Génère un PDF professionnel pour la facture et le sauvegarde dans media/factures/."""
@@ -122,34 +123,33 @@ def _generate_pdf(facture):
         # En-têtes du tableau
         table_content = [
             [
-                Paragraph("Description du matériel", style_table_header), 
-                Paragraph("Période de location", style_table_header), 
-                Paragraph("Qté", style_table_header), 
-                Paragraph("Prix Unitaire", style_table_header), 
-                Paragraph("Total", style_table_header)
+                Paragraph("Matériel", style_table_header),
+                Paragraph("Période", style_table_header),
+                Paragraph("Qté", style_table_header),
+                Paragraph("Prix Unit./j", style_table_header),
+                Paragraph("Total", style_table_header),
             ]
         ]
         
         # Ligne de l'article principal
-        duree_jours = (r.date_fin - r.date_debut).days
-        duree_label = f"{duree_jours} jour(s)" if duree_jours > 0 else "1 jour"
-        
-        desc_materiel = f"<b>{r.materiel.nom}</b><br/><font color='#64748b' size='9'>Catégorie : {r.materiel.categorie}</font>"
-        periode_text = f"{r.date_debut.strftime('%d/%m/%Y')} au {r.date_fin.strftime('%d/%m/%Y')}<br/><font color='#64748b' size='9'>Durée : {duree_label}</font>"
-        px_unit = f"{IntlFormat(r.materiel.prix_journalier)} Ar"
-        total_ligne = f"{IntlFormat(r.prix_total)} Ar"
-        
-        table_content.append([
-            Paragraph(desc_materiel, style_body),
-            Paragraph(periode_text, style_body),
-            Paragraph(str(r.quantite), style_body),
-            Paragraph(px_unit, style_body),
-            Paragraph(total_ligne, style_body)
-        ])
-        
-        # Ajout d'une ligne pour les pénalités de retard si applicable
+        duree_jours = (r.date_fin - r.date_debut).days or 1
+        periode_text = f"{r.date_debut.strftime('%d/%m/%Y')} au {r.date_fin.strftime('%d/%m/%Y')}<br/><font color='#64748b' size='9'>Durée : {duree_jours} jour(s)</font>"
+
+        for ligne in r.lignes.all():
+            desc = f"<b>{ligne.materiel.nom}</b><br/><font color='#64748b' size='9'>Catégorie : {ligne.materiel.categorie.nom}</font>"
+            table_content.append([
+                Paragraph(desc, style_body),
+                Paragraph(periode_text, style_body),
+                Paragraph(str(ligne.quantite), style_body),
+                Paragraph(f"{IntlFormat(ligne.prix_unitaire)} Ar", style_body),
+                Paragraph(f"{IntlFormat(ligne.prix_total)} Ar", style_body),
+            ])
+
         if r.retard_jours > 0:
-            penalite = r.materiel.prix_journalier * Decimal(r.retard_jours) * Decimal('1.5')
+            penalite = sum(
+                l.prix_unitaire * l.quantite * Decimal('1.5') * Decimal(r.retard_jours)
+                for l in r.lignes.all()
+            )
             desc_retard = f"<b>Pénalités de retard</b><br/><font color='#dc2626' size='9'>Retard constaté de {r.retard_jours} jour(s) (Tarif majoré à 150%)</font>"
             table_content.append([
                 Paragraph(desc_retard, style_body),
@@ -313,33 +313,22 @@ class FactureViewSet(viewsets.ModelViewSet):
 
         facture.statut = 'payee'
         facture.save()
+
         reservation = facture.reservation
         aujourd_hui = date.today()
 
         if aujourd_hui <= reservation.date_fin:
-            # Paiement dans les temps → confirmee, matériel loué
+            # Paiement dans les temps → confirmee, matériels loués
             reservation.statut = 'confirmee'
-            reservation.materiel.statut = 'loue'
-            reservation.materiel.save()
+            for ligne in reservation.lignes.all():
+                ligne.materiel.statut = 'loue'
+                ligne.materiel.save()
         else:
-            # Paiement après date_fin → déjà en en_attente_retour ou retard
-            # On ne touche pas au statut, le get_queryset gère la transition
-            pass
-
-        # if aujourd_hui > reservation.date_fin:
-        #     # Paiement tardif : matériel déjà rentré (ou en retard)
-        #     reservation.statut = 'terminee'
-        #     reservation.materiel.statut = 'disponible'
-        #     reservation.materiel.save()
-        # else:
-        #     # Paiement normal : matériel encore chez le client
-        #     reservation.statut = 'confirmee'
-        #     reservation.materiel.statut = 'loue'
-        #     reservation.materiel.save()
+            # Paiement après date_fin → directement en_attente_retour
+            reservation.statut = 'en_attente_retour'
 
         reservation.save()
         return Response(FactureSerializer(facture).data)
-    
     
     @action(detail=True, methods=['patch'])
     def annuler(self, request, pk=None):
@@ -357,4 +346,143 @@ class FactureViewSet(viewsets.ModelViewSet):
 
         return Response(
             FactureSerializer(facture).data
+        )
+
+    # apps/factures/views.py
+    @action(detail=False, methods=['post'], url_path='devis-ia', permission_classes=[AllowAny])
+    def devis_ia(self, request):
+        """Génère un PDF de devis IA avec ReportLab et le retourne en téléchargement."""
+        data = request.data
+        resume = data.get('resume', '')
+        cout_total = data.get('cout_total', 0)
+        materiels = data.get('materiels', [])
+        conseils = data.get('conseils', [])
+
+        buffer = io.BytesIO()
+        doc = SimpleDocTemplate(buffer, pagesize=A4,
+                                rightMargin=2*cm, leftMargin=2*cm,
+                                topMargin=2*cm, bottomMargin=2*cm)
+
+        styles = getSampleStyleSheet()
+
+        style_company_name  = ParagraphStyle('CompName', parent=styles['Normal'], fontName='Helvetica-Bold', fontSize=22, leading=26)
+        style_company_details = ParagraphStyle('CompDet', parent=styles['Normal'], fontName='Helvetica', fontSize=9, leading=13, textColor=colors.HexColor('#64748b'))
+        style_devis_title   = ParagraphStyle('DevTitle', parent=styles['Normal'], fontName='Helvetica-Bold', fontSize=24, leading=28, textColor=colors.HexColor('#0f172a'), alignment=2)
+        style_devis_meta    = ParagraphStyle('DevMeta',  parent=styles['Normal'], fontName='Helvetica', fontSize=10, leading=14, textColor=colors.HexColor('#334155'), alignment=2)
+        style_section       = ParagraphStyle('SecHead',  parent=styles['Normal'], fontName='Helvetica-Bold', fontSize=12, leading=16, textColor=colors.HexColor('#1e293b'))
+        style_body          = ParagraphStyle('Body',     parent=styles['Normal'], fontName='Helvetica', fontSize=10, leading=14, textColor=colors.HexColor('#334155'))
+        style_body_bold     = ParagraphStyle('BodyBold', parent=styles['Normal'], fontName='Helvetica-Bold', fontSize=10, leading=14, textColor=colors.HexColor('#0f172a'))
+        style_table_header  = ParagraphStyle('TabHead',  parent=styles['Normal'], fontName='Helvetica-Bold', fontSize=10, leading=12, textColor=colors.white)
+        style_total_label   = ParagraphStyle('TotLabel', parent=styles['Normal'], fontName='Helvetica-Bold', fontSize=12, leading=16, textColor=colors.HexColor('#0f172a'), alignment=2)
+        style_total_val     = ParagraphStyle('TotVal',   parent=styles['Normal'], fontName='Helvetica-Bold', fontSize=14, leading=16, textColor=colors.HexColor('#2563eb'), alignment=2)
+        style_footer        = ParagraphStyle('Footer',   parent=styles['Normal'], fontName='Helvetica-Oblique', fontSize=8, leading=11, textColor=colors.HexColor('#94a3b8'), alignment=1)
+        style_conseil       = ParagraphStyle('Conseil',  parent=styles['Normal'], fontName='Helvetica', fontSize=10, leading=14, textColor=colors.HexColor('#334155'), leftIndent=12)
+
+        elements = []
+
+        # ── EN-TÊTE ──────────────────────────────────────────────────────
+        logo_html = '<font color="#2563eb">●</font> <font color="#0f172a">Loca</font><font color="#2563eb">Tech</font>'
+        company_info = [
+            Paragraph(logo_html, style_company_name),
+            Spacer(1, 0.2*cm),
+            Paragraph("Gestion intelligente de location de matériels", style_company_details),
+            Paragraph("Antananarivo, Madagascar", style_company_details),
+            Paragraph("Contact : locatech-mada@rakotoarinosy.com", style_company_details),
+        ]
+        devis_info = [
+            Paragraph("DEVIS", style_devis_title),
+            Spacer(1, 0.2*cm),
+            Paragraph(f"<b>Date :</b> {date.today().strftime('%d/%m/%Y')}", style_devis_meta),
+            Paragraph("<b>Statut :</b> ESTIMATION IA", style_devis_meta),
+            Paragraph("<b>Validité :</b> 30 jours", style_devis_meta),
+        ]
+        header_table = Table([[company_info, devis_info]], colWidths=[9.5*cm, 7.5*cm])
+        header_table.setStyle(TableStyle([
+            ('VALIGN',        (0,0), (-1,-1), 'TOP'),
+            ('LEFTPADDING',   (0,0), (-1,-1), 0),
+            ('RIGHTPADDING',  (0,0), (-1,-1), 0),
+            ('BOTTOMPADDING', (0,0), (-1,-1), 0),
+            ('TOPPADDING',    (0,0), (-1,-1), 0),
+        ]))
+        elements.append(header_table)
+
+        # Séparateur bleu
+        elements.append(Spacer(1, 0.6*cm))
+        sep = Table([[""]], colWidths=[17*cm], rowHeights=[2])
+        sep.setStyle(TableStyle([('BACKGROUND', (0,0), (-1,-1), colors.HexColor('#2563eb'))]))
+        elements.append(sep)
+        elements.append(Spacer(1, 0.6*cm))
+
+        # ── RÉSUMÉ ───────────────────────────────────────────────────────
+        elements.append(Paragraph("<b>Résumé de la proposition</b>", style_section))
+        elements.append(Spacer(1, 0.2*cm))
+        elements.append(Paragraph(resume, style_body))
+        elements.append(Spacer(1, 0.8*cm))
+
+        # ── TABLEAU MATÉRIELS ─────────────────────────────────────────────
+        table_content = [[
+            Paragraph("Matériel",     style_table_header),
+            Paragraph("Catégorie",    style_table_header),
+            Paragraph("Qté",          style_table_header),
+            Paragraph("Prix Unit.",   style_table_header),
+            Paragraph("Total",        style_table_header),
+        ]]
+        for m in materiels:
+            table_content.append([
+                Paragraph(f"<b>{m.get('nom','')}</b><br/><font color='#64748b' size='9'>{m.get('raison','')}</font>", style_body),
+                Paragraph(m.get('categorie', ''), style_body),
+                Paragraph(str(m.get('quantite', 0)), style_body),
+                Paragraph(f"{IntlFormat(m.get('prix_unitaire', 0))} Ar", style_body),
+                Paragraph(f"{IntlFormat(m.get('prix_total', 0))} Ar", style_body),
+            ])
+
+        item_table = Table(table_content, colWidths=[5.5*cm, 3.0*cm, 1.2*cm, 3.3*cm, 4.0*cm])
+        item_table.setStyle(TableStyle([
+            ('BACKGROUND',    (0,0), (-1,0),  colors.HexColor('#1e293b')),
+            ('VALIGN',        (0,0), (-1,-1), 'MIDDLE'),
+            ('TOPPADDING',    (0,0), (-1,-1), 10),
+            ('BOTTOMPADDING', (0,0), (-1,-1), 10),
+            ('LEFTPADDING',   (0,0), (-1,-1), 8),
+            ('RIGHTPADDING',  (0,0), (-1,-1), 8),
+            ('LINEBELOW',     (0,1), (-1,-1), 0.5, colors.HexColor('#e2e8f0')),
+        ]))
+        elements.append(item_table)
+        elements.append(Spacer(1, 0.6*cm))
+
+        # ── TOTAL ─────────────────────────────────────────────────────────
+        total_data = [[
+            Paragraph("COÛT TOTAL ESTIMÉ :", style_total_label),
+            Paragraph(f"{IntlFormat(cout_total)} Ar", style_total_val),
+        ]]
+        total_table = Table(total_data, colWidths=[12*cm, 5*cm])
+        total_table.setStyle(TableStyle([
+            ('VALIGN',        (0,0), (-1,-1), 'MIDDLE'),
+            ('TOPPADDING',    (0,0), (-1,-1), 4),
+            ('BOTTOMPADDING', (0,0), (-1,-1), 4),
+            ('RIGHTPADDING',  (1,0), (1,-1),  0),
+        ]))
+        elements.append(total_table)
+
+        # ── CONSEILS ──────────────────────────────────────────────────────
+        if conseils:
+            elements.append(Spacer(1, 0.8*cm))
+            elements.append(Paragraph("<b>Conseils de notre expert IA</b>", style_section))
+            elements.append(Spacer(1, 0.3*cm))
+            for conseil in conseils:
+                elements.append(Paragraph(f"✓  {conseil}", style_conseil))
+                elements.append(Spacer(1, 0.15*cm))
+
+        # ── FOOTER ────────────────────────────────────────────────────────
+        elements.append(Spacer(1, 1.5*cm))
+        elements.append(Paragraph("Ce devis est une estimation générée par l'IA LocaTech. Les prix sont indicatifs et basés sur le catalogue en vigueur.", style_footer))
+        elements.append(Paragraph("LocaTech Madagascar — locatech-mada.rakotoarinosy.com", style_footer))
+
+        doc.build(elements)
+        buffer.seek(0)
+
+        return FileResponse(
+            buffer,
+            as_attachment=True,
+            filename=f"devis-locatech-{date.today().strftime('%Y%m%d')}.pdf",
+            content_type='application/pdf'
         )

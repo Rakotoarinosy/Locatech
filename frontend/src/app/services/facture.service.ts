@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
 import { environment } from '../../environments/environment';
 import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { RecommendationIA } from '../models/interfaces';
 
 @Injectable({
   providedIn: 'root'
@@ -39,6 +41,14 @@ export class FactureService {
       {
         responseType: 'blob'
       }
+    );
+  }
+
+  genererDevisIA(recommendation: RecommendationIA): Observable<Blob> {
+    return this.http.post(
+      `${this.apiUrl}/devis-ia/`,
+      recommendation,
+      { responseType: 'blob' }
     );
   }
 }

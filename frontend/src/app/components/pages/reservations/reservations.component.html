@@ -12,7 +12,7 @@
     </button>
   </div>
 
-  <!-- Stats (6 statuts) -->
+  <!-- Stats -->
   <div class="row g-3 mb-4">
     <div class="col-6 col-md-2">
       <div class="card stat-mini border-0 p-3 shadow-sm bg-white rounded-3">
@@ -25,9 +25,9 @@
     </div>
     <div class="col-6 col-md-2">
       <div class="card stat-mini border-0 p-3 shadow-sm bg-white rounded-3">
-        <span class="text-muted font-xs d-block mb-1">En cours</span>
+        <span class="text-muted font-xs d-block mb-1">En attente</span>
         <div class="d-flex align-items-center justify-content-between">
-          <h4 class="fw-bold text-dark mb-0">{{ stats.par_statut['en cours'] || 0 }}</h4>
+          <h4 class="fw-bold text-dark mb-0">{{ stats.par_statut['en_attente'] || 0 }}</h4>
           <span class="badge bg-warning-subtle text-warning rounded-pill font-xs">⏳</span>
         </div>
       </div>
@@ -100,10 +100,9 @@
         <thead class="text-secondary font-xs text-uppercase fw-bold">
           <tr>
             <th class="ps-4 py-3">Client</th>
-            <th class="py-3">Matériel</th>
+            <th class="py-3">Matériels</th>
             <th class="py-3">Période</th>
             <th class="py-3">Durée</th>
-            <th class="py-3">Qté</th>
             <th class="py-3">Prix total</th>
             <th class="py-3">Statut</th>
             <th class="py-3 text-end pe-4">Actions</th>
@@ -120,9 +119,20 @@
               </div>
             </td>
             <td>
-              <div class="d-flex align-items-center gap-2">
-                <i class="bi bi-box-seam text-muted"></i>
-                <span>{{ r.materiel_detail?.nom || '—' }}</span>
+              <div class="d-flex align-items-start gap-2">
+                <div class="d-flex flex-column" style="gap: 2px;">
+                  <ng-container *ngFor="let l of r.lignes; let i = index">
+                    <span *ngIf="i < 4" class="font-xs text-truncate" style="max-width: 160px; color: var(--text-secondary);">
+                      <b style="color: var(--text-primary); font-weight: 500;">{{ l.materiel_detail?.nom }}</b>
+                      <span style="color: var(--text-muted);">×{{ l.quantite }}</span>
+                    </span>
+                  </ng-container>
+                  <span *ngIf="r.lignes && r.lignes.length > 4"
+                        class="badge rounded-pill font-xs mt-1"
+                        style="width: fit-content; background: var(--bg-accent); color: var(--text-accent); border: 0.5px solid var(--border-accent); font-size: 10px;">
+                    +{{ r.lignes.length - 4 }} autres
+                  </span>
+                </div>
               </div>
             </td>
             <td>
@@ -138,15 +148,12 @@
               </div>
             </td>
             <td><span class="fw-semibold text-dark">{{ getDuree(r) }} j</span></td>
-            <td><span class="fw-bold text-dark">{{ r.quantite || 0 }}</span></td>
             <td><span class="fw-bold text-dark">{{ formatPrix(r.prix_total || 0) }}</span></td>
             <td>
-              <!-- Badge statut dynamique -->
               <span class="badge rounded-pill px-2 py-1 font-xs fw-medium"
                     [ngClass]="'bg-' + getStatutCss(r.statut || '') + '-subtle text-' + getStatutCss(r.statut || '')">
                 {{ getStatutLabel(r.statut || '') }}
               </span>
-              <!-- Alerte retard -->
               <span *ngIf="r.retard_jours && r.retard_jours > 0"
                     class="badge bg-danger ms-1 font-xs">
                 +{{ r.retard_jours }}j
@@ -154,28 +161,25 @@
             </td>
             <td class="text-end pe-4">
               <div class="d-inline-flex gap-1 align-items-center">
-                <button *ngIf="r.statut === 'en cours' && !r.facture_id"
-                  (click)="genererFacture(r.id!)"
+                <button *ngIf="r.statut === 'en_attente' && !r.facture_id"
+                  (click)="genererFacture(r.id)"
                   class="btn btn-sm btn-warning rounded-pill px-2 py-1 font-xs">
                   <i class="bi bi-receipt me-1"></i>Facturer
                 </button>
-                <!-- Confirmer paiement (en_attente uniquement) -->
-                <button *ngIf="r.statut === 'en cours' && r.facture_id"
+
+                <button *ngIf="r.statut === 'en_attente' && r.facture_id"
                   (click)="openPaiementModal(r)"
                   class="btn btn-sm btn-success rounded-pill px-2 py-1 font-xs">
                   <i class="bi bi-cash-coin me-1"></i>Payer
                 </button>
 
-                <!-- Confirmer retour (en_attente_retour uniquement) -->
                 <button *ngIf="r.statut === 'confirmee' || r.statut === 'en_attente_retour'"
-                  (click)="confirmerRetour(r.id!)"
-                  class="btn btn-sm btn-outline-purple rounded-pill px-2 py-1 font-xs"
-                  style="color:#7c3aed;border-color:#7c3aed"
-                  title="Confirmer le retour du matériel">
+                  (click)="confirmerRetour(r.id)"
+                  class="btn btn-sm rounded-pill px-2 py-1 font-xs"
+                  style="color:#7c3aed;border:1px solid #7c3aed">
                   <i class="bi bi-box-arrow-in-left me-1"></i>Retour
                 </button>
 
-                <!-- Télécharger facture -->
                 <button *ngIf="r.facture_id"
                   (click)="download(r)"
                   class="btn btn-sm btn-icon-action text-success"
@@ -183,27 +187,23 @@
                   <i class="bi bi-file-earmark-pdf"></i>
                 </button>
 
-                <!-- Détails -->
                 <button (click)="openDetails(r)"
                   class="btn btn-sm btn-icon-action text-primary" title="Détails">
                   <i class="bi bi-eye"></i>
                 </button>
 
-                <!-- Modifier (sauf si terminée/annulée) -->
                 <button *ngIf="r.statut !== 'terminee' && r.statut !== 'annulee'"
                   (click)="openEdit(r)"
                   class="btn btn-sm btn-icon-action" title="Modifier">
                   <i class="bi bi-pencil"></i>
                 </button>
 
-                <!-- Annuler (sauf si déjà terminée/annulée) -->
                 <button *ngIf="r.statut !== 'terminee' && r.statut !== 'annulee'"
                   (click)="annuler(r.id!)"
                   class="btn btn-sm btn-icon-action text-danger" title="Annuler">
                   <i class="bi bi-x-circle"></i>
                 </button>
 
-                <!-- Supprimer -->
                 <button (click)="onDelete(r.id!)"
                   class="btn btn-sm btn-icon-action text-danger" title="Supprimer">
                   <i class="bi bi-trash"></i>
@@ -213,7 +213,7 @@
             </td>
           </tr>
           <tr *ngIf="reservations.length === 0">
-            <td colspan="8" class="text-center py-5 text-muted">
+            <td colspan="7" class="text-center py-5 text-muted">
               <i class="bi bi-calendar-x d-block mb-2" style="font-size:2rem"></i>
               Aucune réservation enregistrée
             </td>
@@ -226,9 +226,7 @@
     </div>
   </div>
 
-  <!-- ══════════════════════════════════════════════════════════════ -->
-  <!-- Modal Création / Édition                                      -->
-  <!-- ══════════════════════════════════════════════════════════════ -->
+  <!-- Modal Création / Édition -->
   <div class="modal fade show" [ngClass]="{'d-block modern-backdrop': showModal}" *ngIf="showModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered modern-modal-dialog">
       <div class="modal-content border-0 modern-modal-content">
@@ -255,8 +253,10 @@
           </div>
 
           <form #resaForm="ngForm" (ngSubmit)="saveReservation()">
+
+            <!-- Client -->
             <div class="mb-3">
-              <label class="form-label-modern">Client</label>
+              <label class="form-label-modern">Client *</label>
               <div class="modern-input-group">
                 <i class="bi bi-person modern-field-icon"></i>
                 <select class="form-select modern-input modern-select"
@@ -267,24 +267,10 @@
               </div>
             </div>
 
-            <div class="mb-3">
-              <label class="form-label-modern">Matériel</label>
-              <div class="modern-input-group">
-                <i class="bi bi-box-seam modern-field-icon"></i>
-                <select class="form-select modern-input modern-select"
-                        [(ngModel)]="newReservation.materiel" name="materiel" required
-                        (change)="onDatesOrMaterielChange()">
-                  <option [ngValue]="undefined">Sélectionner un matériel...</option>
-                  <option *ngFor="let m of materiels" [value]="m.id">
-                    {{ m.nom }} — {{ formatPrix(m.prix_journalier) }}/jour
-                  </option>
-                </select>
-              </div>
-            </div>
-
+            <!-- Dates -->
             <div class="row g-3 mb-3">
               <div class="col-6">
-                <label class="form-label-modern">Date début</label>
+                <label class="form-label-modern">Date début *</label>
                 <div class="modern-input-group">
                   <i class="bi bi-calendar modern-field-icon"></i>
                   <input type="date" class="form-control modern-input"
@@ -293,7 +279,7 @@
                 </div>
               </div>
               <div class="col-6">
-                <label class="form-label-modern">Date fin</label>
+                <label class="form-label-modern">Date fin *</label>
                 <div class="modern-input-group">
                   <i class="bi bi-calendar-check modern-field-icon"></i>
                   <input type="date" class="form-control modern-input"
@@ -304,22 +290,56 @@
               </div>
             </div>
 
+            <!-- Lignes matériels -->
+            <div class="mb-3">
+              <label class="form-label-modern">Matériels *</label>
+
+              <div *ngFor="let ligne of lignesForm; let i = index"
+                   class="d-flex gap-2 align-items-center mb-2 p-2 bg-light rounded-3">
+
+                <select class="form-select form-select-sm flex-grow-1"
+                        [(ngModel)]="ligne.materiel"
+                        [name]="'materiel_' + i"
+                        (change)="onMaterielLigneChange(i)" required>
+                  <option [ngValue]="0" disabled>Choisir un matériel...</option>
+                  <option *ngFor="let m of materiels" [value]="m.id">
+                    {{ m.nom }} — {{ m.prix_journalier | number:'1.0-0' }} Ar/j
+                  </option>
+                </select>
+
+                <input type="number" class="form-control form-control-sm"
+                       style="width:80px"
+                       [(ngModel)]="ligne.quantite"
+                       [name]="'quantite_' + i"
+                       min="1" placeholder="Qté"
+                       (change)="calculerPrixTotal()">
+
+                <span class="text-muted small text-nowrap" style="min-width:80px; font-size:11px">
+                  {{ ligne.prix_unitaire | number:'1.0-0' }} Ar/j
+                </span>
+
+                <button class="btn btn-sm btn-light text-danger"
+                        (click)="supprimerLigne(i)"
+                        [disabled]="lignesForm.length === 1"
+                        type="button" title="Supprimer">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </div>
+
+              <button class="btn btn-sm btn-outline-primary rounded-3 mt-1"
+                      type="button" (click)="ajouterLigne()">
+                <i class="bi bi-plus-lg me-1"></i> Ajouter un matériel
+              </button>
+            </div>
+
+            <!-- Prix estimé -->
             <div *ngIf="prixEstime > 0" class="prix-estime mb-3">
               <i class="bi bi-calculator me-2"></i>
-              <span>{{ nbJours }} jour(s) × tarif = </span>
+              <span>{{ nbJours }} jour(s) — Estimation : </span>
               <strong>{{ formatPrix(prixEstime) }}</strong>
             </div>
 
-            <div class="mb-3">
-              <label class="form-label-modern">Quantité</label>
-              <div class="modern-input-group">
-                <i class="bi bi-hash modern-field-icon"></i>
-                <input type="number" class="form-control modern-input"
-                       [(ngModel)]="newReservation.quantite" name="quantite"
-                       min="1" required (input)="onDatesOrMaterielChange()">
-              </div>
-            </div>
-
+            <!-- Notes -->
             <div class="mb-4">
               <label class="form-label-modern">Notes (optionnel)</label>
               <textarea class="form-control modern-textarea"
@@ -329,7 +349,7 @@
 
             <div class="modal-footer border-top-0 p-0 d-flex gap-2 justify-content-end">
               <button type="button" class="btn modern-btn-secondary" (click)="closeModal()">Annuler</button>
-              <button type="submit" class="btn modern-btn-primary" [disabled]="!resaForm.form.valid">
+              <button type="submit" class="btn modern-btn-primary">
                 {{ isEditMode ? 'Mettre à jour' : 'Enregistrer' }}
               </button>
             </div>
@@ -339,10 +359,7 @@
     </div>
   </div>
 
-  <!-- ══════════════════════════════════════════════════════════════ -->
-  <!-- Modal Détails                                                  -->
-  <!-- ══════════════════════════════════════════════════════════════ -->
-   
+  <!-- Modal Détails -->
   <div class="modal fade show" *ngIf="showDetailsModal"
        [ngClass]="{'d-block modern-backdrop': showDetailsModal}">
     <div class="modal-dialog modal-dialog-centered">
@@ -356,30 +373,41 @@
         <div class="modal-body">
           <div class="mb-3">
             <strong>Client</strong>
-            <p>{{ selectedReservation?.client_detail?.nom }}</p>
+            <p class="mb-0 mt-1">{{ selectedReservation?.client_detail?.nom }}</p>
           </div>
+
           <div class="mb-3">
-            <strong>Matériel</strong>
-            <p>{{ selectedReservation?.materiel_detail?.nom }}</p>
+            <strong>Matériels</strong>
+            <div class="mt-2 d-flex flex-column gap-2">
+              <div *ngFor="let l of selectedReservation?.lignes"
+                   class="d-flex justify-content-between align-items-center p-2 bg-light rounded-3">
+                <span class="fw-semibold">{{ l.materiel_detail?.nom }}</span>
+                <div class="text-end text-muted small">
+                  <span>×{{ l.quantite }}</span> ·
+                  <span>{{ formatPrix(l.prix_unitaire) }}/j</span> ·
+                  <span class="fw-bold text-dark">{{ formatPrix(l.prix_total || 0) }}</span>
+                </div>
+              </div>
+            </div>
           </div>
-          <div class="mb-3">
-            <strong>Quantité</strong>
-            <p>{{ selectedReservation?.quantite }}</p>
-          </div>
+
           <div class="mb-3">
             <strong>Période</strong>
-            <p>
+            <p class="mb-0 mt-1">
               {{ selectedReservation?.date_debut | date:'dd/MM/yyyy' }}
               → {{ selectedReservation?.date_fin | date:'dd/MM/yyyy' }}
+              ({{ getDuree(selectedReservation!) }} j)
             </p>
           </div>
+
           <div class="mb-3">
             <strong>Prix total</strong>
-            <p>{{ formatPrix(selectedReservation?.prix_total || 0) }}</p>
+            <p class="mb-0 mt-1 fw-bold text-primary">{{ formatPrix(selectedReservation?.prix_total || 0) }}</p>
           </div>
+
           <div class="mb-3">
             <strong>Statut</strong><br>
-            <span class="badge rounded-pill px-3 py-2"
+            <span class="badge rounded-pill px-3 py-2 mt-1"
                   [ngClass]="'bg-' + getStatutCss(selectedReservation?.statut || '') + '-subtle text-' + getStatutCss(selectedReservation?.statut || '')">
               {{ getStatutLabel(selectedReservation?.statut || '') }}
             </span>
@@ -388,70 +416,68 @@
               Retard : {{ selectedReservation?.retard_jours }} jour(s)
             </span>
           </div>
+
+          <div *ngIf="selectedReservation?.notes" class="mb-3">
+            <strong>Notes</strong>
+            <p class="mb-0 mt-1 text-muted">{{ selectedReservation?.notes }}</p>
+          </div>
+
           <div *ngIf="selectedReservation?.mode_paiement" class="mb-3">
             <strong>Mode de paiement</strong>
-            <p>{{ selectedReservation?.mode_paiement }}</p>
+            <p class="mb-0 mt-1">{{ selectedReservation?.mode_paiement }}</p>
           </div>
         </div>
 
-        <div class="modal-footer gap-2">
-          <!-- EN COURS sans facture → Générer -->
-          <ng-container *ngIf="selectedReservation?.statut === 'en cours' 
-                              && !selectedReservation?.facture_id">
-            <div class="alert alert-primary border-0 rounded-3 py-2 px-3 mb-0 small w-100">
+        <div class="modal-footer gap-2 flex-wrap">
+
+          <!-- EN_ATTENTE sans facture → Facturer -->
+          <ng-container *ngIf="selectedReservation?.statut === 'en_attente' && !selectedReservation?.facture_id">
+            <div class="alert alert-info border-0 rounded-3 py-2 px-3 mb-0 small w-100">
               <i class="bi bi-info-circle me-1"></i>
               Générez la facture pour encaisser le paiement.
             </div>
-            <button class="btn btn-warning"
-              (click)="genererFacture(selectedReservation!.id!)">
+            <button class="btn btn-warning" (click)="genererFacture(selectedReservation!.id)">
               <i class="bi bi-receipt me-1"></i>Générer la facture
             </button>
-            <button class="btn btn-danger btn-sm"
-              (click)="annuler(selectedReservation!.id!)">Annuler</button>
-          </ng-container>
-
-          <!-- EN COURS avec facture → Payer -->
-          <ng-container *ngIf="selectedReservation?.statut === 'en cours' 
-                              && selectedReservation?.facture_id">
-            <div class="alert alert-warning border-0 rounded-3 py-2 px-3 mb-0 small w-100">
-              <i class="bi bi-clock me-1"></i>
-              Facture générée — en attente de paiement.
-            </div>
-            <button class="btn btn-success"
-              (click)="openPaiementModal(selectedReservation!)">
-              <i class="bi bi-cash-coin me-1"></i>Payer la facture
-            </button>
-          </ng-container>
-
-          <!-- CONFIRMÉE → matériel sorti, facture payée -->
-          <ng-container *ngIf="selectedReservation?.statut === 'confirmee'">
-            <span class="text-success fw-semibold">
-              <i class="bi bi-check-circle me-1"></i>Payée — Matériel sorti
-            </span>
-            <!-- Pas de bouton Payer ici -->
-          </ng-container>
-
-          <!-- CONFIRMEE → matériel sorti, attendre retour -->
-          <ng-container *ngIf="selectedReservation?.statut === 'confirmee'">
-            <span class="text-success fw-semibold">
-              <i class="bi bi-check-circle me-1"></i>Matériel sorti — en location
-            </span>
-            <button class="btn btn-danger btn-sm" (click)="annuler(selectedReservation!.id!)">
+            <button class="btn btn-outline-danger btn-sm" (click)="annuler(selectedReservation!.id)">
               Annuler
             </button>
           </ng-container>
 
-          <!-- EN_ATTENTE_RETOUR → bouton confirmer retour -->
+          <!-- EN_ATTENTE avec facture → Payer -->
+          <ng-container *ngIf="selectedReservation?.statut === 'en_attente' && selectedReservation?.facture_id">
+            <div class="alert alert-warning border-0 rounded-3 py-2 px-3 mb-0 small w-100">
+              <i class="bi bi-clock me-1"></i>
+              Facture générée — en attente de paiement.
+            </div>
+            <button class="btn btn-success" (click)="openPaiementModal(selectedReservation!)">
+              <i class="bi bi-cash-coin me-1"></i>Payer la facture
+            </button>
+          </ng-container>
+
+          <!-- CONFIRMEE → matériels sortis, en attente retour -->
+          <ng-container *ngIf="selectedReservation?.statut === 'confirmee'">
+            <div class="alert alert-success border-0 rounded-3 py-2 px-3 mb-0 small w-100">
+              <i class="bi bi-check-circle me-1"></i>
+              Payée — Matériels sortis. En attente de retour.
+            </div>
+            <button class="btn btn-outline-secondary btn-sm"
+              (click)="confirmerRetour(selectedReservation!.id)">
+              <i class="bi bi-box-arrow-in-left me-1"></i>Retour anticipé
+            </button>
+          </ng-container>
+
+          <!-- EN_ATTENTE_RETOUR → confirmer retour -->
           <ng-container *ngIf="selectedReservation?.statut === 'en_attente_retour'">
+            <div class="alert alert-warning border-0 rounded-3 py-2 px-3 mb-0 small w-100"
+                *ngIf="selectedReservation?.retard_jours && selectedReservation!.retard_jours! > 0">
+              <i class="bi bi-exclamation-triangle me-1"></i>
+              Retard de {{ selectedReservation?.retard_jours }} jour(s) — pénalités applicables.
+            </div>
             <button class="btn btn-primary"
-              (click)="confirmerRetour(selectedReservation!.id!)">
+              (click)="confirmerRetour(selectedReservation!.id)">
               <i class="bi bi-box-arrow-in-left me-1"></i>Confirmer le retour
             </button>
-            <span *ngIf="selectedReservation?.retard_jours && selectedReservation!.retard_jours! > 0"
-                  class="text-danger small">
-              <i class="bi bi-exclamation-triangle me-1"></i>
-              Retard de {{ selectedReservation?.retard_jours }} jour(s) — pénalités applicables
-            </span>
           </ng-container>
 
           <!-- TERMINEE -->
@@ -459,36 +485,32 @@
             <span class="fw-bold text-success">
               <i class="bi bi-check2-all me-1"></i>Réservation clôturée
             </span>
+            <button *ngIf="selectedReservation?.facture_id"
+              class="btn btn-sm btn-outline-success"
+              (click)="download(selectedReservation!)">
+              <i class="bi bi-file-earmark-pdf me-1"></i>Télécharger facture
+            </button>
           </ng-container>
 
           <!-- ANNULEE -->
           <ng-container *ngIf="selectedReservation?.statut === 'annulee'">
-            <span class="fw-bold text-danger">Réservation annulée</span>
+            <span class="fw-bold text-danger">
+              <i class="bi bi-x-circle me-1"></i>Réservation annulée
+            </span>
           </ng-container>
 
+          <button class="btn btn-light ms-auto" (click)="closeDetailsModal()">Fermer</button>
         </div>
       </div>
     </div>
-    <!-- CONFIRMÉE → Payée, matériel sorti, peut rentrer avant date fin -->
-    <ng-container *ngIf="selectedReservation?.statut === 'confirmee'">
-      <span class="text-success fw-semibold">
-        <i class="bi bi-check-circle me-1"></i>Payée — Matériel sorti
-      </span>
-      <button class="btn btn-outline-secondary btn-sm"
-        (click)="confirmerRetour(selectedReservation!.id!)">
-        <i class="bi bi-box-arrow-in-left me-1"></i>Retour anticipé
-      </button>
-    </ng-container>
   </div>
 
-  <!-- ══════════════════════════════════════════════════════════════ -->
-  <!-- Modal Confirmation Paiement                                    -->
-  <!-- ══════════════════════════════════════════════════════════════ -->
+  <!-- Modal Paiement -->
   <app-modal-payement
-  [visible]="showPaiementModal"
-  [montantFacture]="reservationSelectionnee?.prix_total ?? 0"
-  (close)="showPaiementModal = false"
-  (confirmer)="confirmerPaiement($event)">
+    [visible]="showPaiementModal"
+    [montantFacture]="reservationSelectionnee?.prix_total ?? 0"
+    (close)="showPaiementModal = false"
+    (confirmer)="confirmerPaiement($event)">
   </app-modal-payement>
 
 </div>

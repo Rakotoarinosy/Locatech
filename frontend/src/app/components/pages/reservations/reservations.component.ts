@@ -1,75 +1,78 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ReservationService, ReservationStats } from '../../../services/reservation.service';
-import { ClientService } from '../../../services/client.service';
-import { MaterielService } from '../../../services/materiel.service';
-import { FactureService } from '../../../services/facture.service';
-import { Materiel } from '../../../models/materiel.model';
-import { Reservation } from '../../../models/reservation.models';
-import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../../environments/environment';
 import { ModalPayementComponent } from '../modal-payement/modal-payement.component';
-import { AnalyticsStore } from '../../../stores/analytics.store';
+import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
+
+interface LigneForm {
+  id?: number;
+  materiel: number;
+  quantite: number;
+  prix_unitaire: number;
+}
 
 @Component({
   selector: 'app-reservations',
   standalone: true,
-  imports: [CommonModule, FormsModule,ModalPayementComponent],
+  imports: [CommonModule, FormsModule, ModalPayementComponent],
   templateUrl: './reservations.component.html',
   styleUrl: './reservations.component.scss'
 })
 export class ReservationsComponent implements OnInit {
-
-  // reservationSelectionnee!: Reservation;
-  reservationSelectionnee: Reservation | null = null;
-  reservations: Reservation[] = [];
-  stats: ReservationStats = { total: 0, par_statut: {} };
-  clients: any[] = [];
-  materiels: Materiel[] = [];
-
-  // Filtres
-  searchTerm = '';
-  selectedStatut = '';
+  private http = inject(HttpClient);
   private searchSubject = new Subject<string>();
 
-  // Modal création/édition
+  // ── Données ───────────────────────────────────────────────────────
+  reservations: any[] = [];
+  clients: any[] = [];
+  materiels: any[] = [];
+  stats = { total: 0, par_statut: {} as any };
+
+  // ── Filtres ───────────────────────────────────────────────────────
+  searchTerm = '';
+  selectedStatut = '';
+
+  // ── Modals ────────────────────────────────────────────────────────
   showModal = false;
+  showDetailsModal = false;
+  showPaiementModal = false;
   isEditMode = false;
   errorMessage = '';
-  newReservation: Partial<Reservation> = this.empty();
+  selectedReservation: any = null;
+  reservationSelectionnee: any = null;
+
+  // ── Formulaire réservation ────────────────────────────────────────
+  newReservation: any = {
+    id: undefined, client: undefined,
+    date_debut: '', date_fin: '', notes: ''
+  };
+  lignesForm: LigneForm[] = [];
   prixEstime = 0;
-  nbJours = 0;
+  nbJours = 1;
 
-  // Modal détails
-  showDetailsModal = false;
-  selectedReservation: Reservation | null = null;
-
-  // ── NOUVEAU : Modal confirmation paiement ────────────────────────
-  showPaiementModal = false;
-  paiementReservationId: number | null = null;
-  paiementMontant: number = 0;
-  paiementMode: string = 'especes';
-  paiementError: string = '';
-  paiementLoading = false;
-
-  // ── NOUVEAU : statuts complets avec couleurs ──────────────────────
+  // ── Statuts ───────────────────────────────────────────────────────
   readonly STATUTS = [
-    { value: 'en_attente',        label: 'En attente',     css: 'warning'   },
-    { value: 'en cours',          label: 'En cours',       css: 'primary'   },
-    { value: 'confirmee',         label: 'Confirmée',      css: 'success'   },
-    { value: 'en_attente_retour', label: 'Retour attendu', css: 'purple'    },
-    { value: 'terminee',          label: 'Terminée',       css: 'secondary' },
-    { value: 'annulee',           label: 'Annulée',        css: 'danger'    },
+    { value: 'en_attente',        label: 'En attente',        css: 'warning'   },
+    { value: 'confirmee',         label: 'Confirmée',         css: 'success'   },
+    { value: 'en_attente_retour', label: 'Retour attendu',    css: 'purple'    },
+    { value: 'terminee',          label: 'Terminée',          css: 'secondary' },
+    { value: 'annulee',           label: 'Annulée',           css: 'danger'    },
   ];
 
-  constructor(
-    private reservationService: ReservationService,
-    private clientService: ClientService,
-    private materielService: MaterielService,
-    private factureService: FactureService,
-    private analyticsStore: AnalyticsStore
-  ) {}
+  readonly MODES_PAIEMENT = [
+    { value: 'especes',  label: 'Espèces'      },
+    { value: 'mvola',    label: 'MVola'         },
+    { value: 'orange',   label: 'Orange Money'  },
+    { value: 'virement', label: 'Virement'      },
+  ];
 
+  // ── URLs API ──────────────────────────────────────────────────────
+  private get apiResa() { return `${environment.apiUrl}/reservations/reservations/`; }
+  private get apiFactures() { return `${environment.apiUrl}/factures/factures/`; }
+
+  // ─────────────────────────────────────────────────────────────────
   ngOnInit(): void {
     this.loadAll();
     this.searchSubject.pipe(debounceTime(300), distinctUntilChanged())
@@ -78,73 +81,208 @@ export class ReservationsComponent implements OnInit {
 
   loadAll(): void {
     this.loadReservations();
-    this.loadStats();
-    this.clientService.getClients().subscribe(d => this.clients = d);
-    this.materielService.getMateriels().subscribe(d => this.materiels = d);
+    this.http.get<any[]>(`${environment.apiUrl}/clients/clients/`)
+      .subscribe(d => this.clients = d);
+    this.http.get<any[]>(`${environment.apiUrl}/materiels/materiels/`)
+      .subscribe(d => this.materiels = d);
   }
 
   loadReservations(): void {
-    this.reservationService.getAll({
-      statut: this.selectedStatut,
-      search: this.searchTerm
-    }).subscribe({
-      next: d => this.reservations = d,
-      error: e => console.error(e)
+    let url = `${this.apiResa}`;
+    const params: string[] = [];
+    if (this.selectedStatut) params.push(`statut=${this.selectedStatut}`);
+    if (this.searchTerm)     params.push(`search=${this.searchTerm}`);
+    if (params.length)       url += '?' + params.join('&');
+
+    this.http.get<any[]>(url).subscribe({
+      next: d => { this.reservations = d; this.calculerStats(); },
+      error: e => console.error('Erreur chargement réservations', e)
     });
   }
 
-  loadStats(): void {
-    this.reservationService.getStats().subscribe({
-      next: d => this.stats = d,
-      error: e => console.error(e)
+  calculerStats(): void {
+    this.stats.total = this.reservations.length;
+    this.stats.par_statut = {};
+    this.reservations.forEach(r => {
+      this.stats.par_statut[r.statut] = (this.stats.par_statut[r.statut] || 0) + 1;
     });
   }
 
-  onSearch(): void { this.searchSubject.next(this.searchTerm); }
+  // ── Filtres ───────────────────────────────────────────────────────
+  onSearch(): void   { this.searchSubject.next(this.searchTerm); }
   onFilterChange(): void { this.loadReservations(); }
 
-  // ── Calcul prix estimé ────────────────────────────────────────────
-  onDatesOrMaterielChange(): void {
-    const { date_debut, date_fin, materiel, quantite } = this.newReservation;
-    if (date_debut && date_fin && materiel) {
-      const d1 = new Date(date_debut);
-      const d2 = new Date(date_fin);
-      this.nbJours = Math.max(0, Math.ceil((d2.getTime() - d1.getTime()) / (1000 * 60 * 60 * 24)));
-      const mat = this.materiels.find(m => m.id === Number(materiel));
-      this.prixEstime = mat ? this.nbJours * mat.prix_journalier * (quantite || 1) : 0;
-    } else {
-      this.nbJours = 0;
-      this.prixEstime = 0;
-    }
-  }
-
-  // ── Modals création/édition ───────────────────────────────────────
+  // ── Création / Édition ────────────────────────────────────────────
   openCreate(): void {
     this.isEditMode = false;
-    this.newReservation = this.empty();
-    this.prixEstime = 0;
-    this.nbJours = 0;
     this.errorMessage = '';
+    this.newReservation = {
+      id: undefined, client: undefined,
+      date_debut: this.today(), date_fin: this.today(), notes: ''
+    };
+    this.lignesForm = [{ materiel: 0, quantite: 1, prix_unitaire: 0 }];
+    this.prixEstime = 0;
+    this.nbJours = 1;
     this.showModal = true;
   }
 
-  openEdit(r: Reservation): void {
+  openEdit(r: any): void {
     this.isEditMode = true;
-    this.newReservation = {
-      ...r,
-      client:   r.client_detail?.id ?? r.client,
-      materiel: r.materiel_detail?.id ?? r.materiel,
-    };
-    this.onDatesOrMaterielChange();
     this.errorMessage = '';
+    this.newReservation = {
+      id: r.id, client: r.client,
+      date_debut: r.date_debut, date_fin: r.date_fin, notes: r.notes
+    };
+    this.lignesForm = (r.lignes || []).map((l: any) => ({
+      id: l.id,
+      materiel: l.materiel,
+      quantite: l.quantite,
+      prix_unitaire: parseFloat(l.prix_unitaire)
+    }));
+    this.onDatesOrMaterielChange();
     this.showModal = true;
   }
 
   closeModal(): void { this.showModal = false; }
 
-  // ── Modal détails ─────────────────────────────────────────────────
-  openDetails(reservation: Reservation): void {
-    this.selectedReservation = reservation;
+  ajouterLigne(): void {
+    this.lignesForm.push({ materiel: 0, quantite: 1, prix_unitaire: 0 });
+  }
+
+  supprimerLigne(i: number): void {
+    if (this.lignesForm.length > 1) {
+      this.lignesForm.splice(i, 1);
+      this.calculerPrixTotal();
+    }
+  }
+
+  onMaterielLigneChange(i: number): void {
+    const ligne = this.lignesForm[i];
+    const mat = this.materiels.find(m => m.id == ligne.materiel);
+    if (mat) ligne.prix_unitaire = parseFloat(mat.prix_journalier);
+    this.calculerPrixTotal();
+  }
+
+  onDatesOrMaterielChange(): void {
+    if (this.newReservation.date_debut && this.newReservation.date_fin) {
+      const d1 = new Date(this.newReservation.date_debut);
+      const d2 = new Date(this.newReservation.date_fin);
+      this.nbJours = Math.ceil(Math.abs(d2.getTime() - d1.getTime()) / 86400000) || 1;
+    }
+    this.calculerPrixTotal();
+  }
+
+  calculerPrixTotal(): void {
+    this.prixEstime = this.lignesForm.reduce(
+      (sum, l) => sum + l.prix_unitaire * l.quantite * this.nbJours, 0
+    );
+  }
+
+  saveReservation(): void {
+    this.errorMessage = '';
+    const ligneInvalide = this.lignesForm.some(l => !l.materiel || l.quantite <= 0);
+    if (ligneInvalide) {
+      this.errorMessage = 'Veuillez sélectionner un matériel valide et une quantité pour chaque ligne.';
+      return;
+    }
+    const payload = { ...this.newReservation, lignes: this.lignesForm };
+    const req = this.isEditMode
+      ? this.http.put(`${this.apiResa}${payload.id}/`, payload)
+      : this.http.post(this.apiResa, payload);
+
+    req.subscribe({
+      next: () => { this.closeModal(); this.loadReservations(); },
+      error: e => {
+        this.errorMessage = e.error?.detail
+          || e.error?.non_field_errors?.[0]
+          || JSON.stringify(e.error)
+          || 'Erreur lors de la sauvegarde.';
+      }
+    });
+  }
+
+  onDelete(id: number): void {
+    if (!confirm('Supprimer cette réservation ?')) return;
+    this.http.delete(`${this.apiResa}${id}/`).subscribe({
+      next: () => this.loadReservations(),
+      error: () => alert('Erreur lors de la suppression.')
+    });
+  }
+
+  // ── Actions métier ────────────────────────────────────────────────
+
+  /** en_attente → confirmee + génère facture */
+  genererFacture(id: number): void {
+    this.http.patch(`${this.apiResa}${id}/statut/`, { statut: 'confirmee' }).subscribe({
+      next: () => { this.closeDetailsModal(); this.loadReservations(); },
+      error: e => alert(e.error?.error ?? 'Erreur lors de la confirmation.')
+    });
+  }
+
+  /** Ouvre le modal de paiement */
+  openPaiementModal(r: any): void {
+    this.reservationSelectionnee = r;
+    this.showPaiementModal = true;
+  }
+
+  /** Appelé par (confirmer) du modal-payement */
+  confirmerPaiement(event: { montant: number; mode: string }): void {
+    const factureId = this.reservationSelectionnee?.facture_id;
+    if (!factureId) {
+      alert('Aucune facture trouvée. Confirmez d\'abord la réservation.');
+      return;
+    }
+    this.http.patch(`${this.apiFactures}${factureId}/payer/`, {}).subscribe({
+      next: () => {
+        this.showPaiementModal = false;
+        this.closeDetailsModal();
+        this.loadReservations();
+      },
+      error: e => alert(e.error?.error ?? 'Erreur lors du paiement.')
+    });
+  }
+
+  /** confirmee / en_attente_retour → terminee */
+  confirmerRetour(id: number): void {
+    if (!confirm('Confirmer le retour du matériel ?')) return;
+    this.http.patch(`${this.apiResa}${id}/confirmer-retour/`, {}).subscribe({
+      next: () => { this.closeDetailsModal(); this.loadReservations(); },
+      error: e => alert(e.error?.error ?? 'Erreur lors du retour.')
+    });
+  }
+
+  /** Annuler une réservation */
+  annuler(id: number): void {
+    if (!confirm('Annuler cette réservation ?')) return;
+    this.http.patch(`${this.apiResa}${id}/statut/`, { statut: 'annulee' }).subscribe({
+      next: () => { this.closeDetailsModal(); this.loadReservations(); },
+      error: e => alert(e.error?.error ?? 'Erreur lors de l\'annulation.')
+    });
+  }
+
+  /** Télécharger le PDF de la facture */
+  download(r: any): void {
+    if (!r.facture_id) {
+      alert('Aucune facture disponible.');
+      return;
+    }
+    this.http.get(`${this.apiFactures}${r.facture_id}/download/`, { responseType: 'blob' })
+      .subscribe({
+        next: (blob: Blob) => {
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `facture-reservation-${r.id}.pdf`;
+          a.click();
+          window.URL.revokeObjectURL(url);
+        },
+        error: () => alert('Erreur lors du téléchargement du PDF.')
+      });
+  }
+
+  // ── Modal Détails ─────────────────────────────────────────────────
+  openDetails(r: any): void {
+    this.selectedReservation = r;
     this.showDetailsModal = true;
   }
 
@@ -153,198 +291,25 @@ export class ReservationsComponent implements OnInit {
     this.selectedReservation = null;
   }
 
-  // ── NOUVEAU : Modal confirmation paiement ─────────────────────────
-  openPaiementModal(reservation: Reservation): void {
-    this.paiementReservationId = reservation.id!;
-    this.paiementMontant = reservation.prix_total || 0;
-    this.paiementMode = 'especes';
-    this.paiementError = '';
-    this.paiementLoading = false;
-    this.reservationSelectionnee = reservation;
-    this.showPaiementModal = true;
-  }
-
-  closePaiementModal(): void {
-    this.showPaiementModal = false;
-    this.paiementReservationId = null;
-  }
-
-  validerPaiement(): void {
-    if (!this.paiementReservationId || !this.paiementMontant) return;
-    this.paiementLoading = true;
-    this.paiementError = '';
-
-    // Trouver la réservation pour récupérer facture_id
-    const reservation = this.reservations.find(
-      r => r.id === this.paiementReservationId
-    );
-
-    if (!reservation?.facture_id) {
-      this.paiementError = 'Aucune facture trouvée. Générez d\'abord la facture.';
-      this.paiementLoading = false;
-      return;
-    }
-
-    // ✅ Appel sur la FACTURE, pas sur la réservation
-    this.factureService.payer(reservation.facture_id).subscribe({
-      next: () => {
-        this.closePaiementModal();
-        this.closeDetailsModal();
-        this.loadAll();
-      },
-      error: (err) => {
-        this.paiementLoading = false;
-        this.paiementError = err.error?.error ?? 'Erreur lors du paiement.';
-      }
-    });
-  }
-
-  // ── Confirmation retour matériel ──────────────────────────────────
-  confirmerRetour(id: number): void {
-    if (!confirm('Confirmer le retour du matériel ?')) return;
-    this.reservationService.confirmerRetour(id).subscribe({
-      next: () => { this.closeDetailsModal(); this.loadAll(); this.analyticsStore.refresh(); },
-      error: (err) => alert(err.error?.error ?? 'Erreur lors du retour.')
-    });
-  }
-
-  // ── Annulation ────────────────────────────────────────────────────
-  annuler(id: number): void {
-    if (!confirm('Annuler cette réservation ?')) return;
-    this.reservationService.annulerReservation(id).subscribe({
-      next: () => { this.closeDetailsModal(); this.loadAll(); this.analyticsStore.refresh();},
-      error: (err) => alert(err.error?.error ?? 'Erreur lors de l\'annulation.')
-    });
-  }
-
-  // ── Save ──────────────────────────────────────────────────────────
-  saveReservation(): void {
-    this.errorMessage = '';
-    const payload: Partial<Reservation> = {
-      client:     Number(this.newReservation.client),
-      materiel:   Number(this.newReservation.materiel),
-      date_debut: this.newReservation.date_debut,
-      date_fin:   this.newReservation.date_fin,
-      quantite:   this.newReservation.quantite ?? 1,
-      notes:      this.newReservation.notes ?? '',
-    };
-
-    if (this.isEditMode && this.newReservation.id) {
-      this.reservationService.update(this.newReservation.id, payload).subscribe({
-        next: () => { 
-          this.closeModal(); 
-          this.loadAll();
-          this.analyticsStore.refresh();
-        },
-        error: e => this.errorMessage = e.error?.non_field_errors?.[0] ?? 'Erreur lors de la modification.'
-      });
-    } else {
-      this.reservationService.create(payload).subscribe({
-        next: () => { this.closeModal(); this.loadAll(); this.analyticsStore.refresh();},
-        error: e => this.errorMessage = e.error?.non_field_errors?.[0] ?? 'Erreur lors de la création.'
-      });
-    }
-  }
-
-  onDelete(id: number): void {
-    if (!confirm('Supprimer cette réservation ?')) return;
-    this.reservationService.delete(id).subscribe({
-      next: () => this.loadAll(),
-      error: e => console.error(e)
-    });
-  }
-
-  // ── Download facture ──────────────────────────────────────────────
-  download(reservation: Reservation): void {
-    if (!reservation.facture_id) {
-      alert("Facture non disponible. Confirmez d'abord le paiement.");
-      return;
-    }
-    this.factureService.download(reservation.facture_id).subscribe({
-      next: (blob) => {
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `facture-reservation-${reservation.id}.pdf`;
-        a.click();
-        window.URL.revokeObjectURL(url);
-      },
-      error: () => alert("Erreur lors du téléchargement du PDF.")
-    });
-  }
-
   // ── Helpers ───────────────────────────────────────────────────────
   getStatutConfig(s: string) {
     return this.STATUTS.find(x => x.value === s) ?? { label: s, css: 'secondary' };
   }
+  getStatutCss(s: string): string   { return this.getStatutConfig(s).css; }
+  getStatutLabel(s: string): string { return this.getStatutConfig(s).label; }
 
-  getStatutCss(s: string): string {
-    return this.getStatutConfig(s).css;
-  }
-
-  getStatutLabel(s: string): string {
-    return this.getStatutConfig(s).label;
-  }
-
-  formatPrix(p: number): string {
-    return new Intl.NumberFormat('fr-MG').format(p) + ' Ar';
+  formatPrix(v: number): string {
+    return new Intl.NumberFormat('fr-MG').format(v) + ' Ar';
   }
 
   today(): string {
     return new Date().toISOString().split('T')[0];
   }
 
-  getDuree(r: Reservation): number {
-    if (!r.date_debut || !r.date_fin) return 0;
-    const d1 = new Date(r.date_debut);
-    const d2 = new Date(r.date_fin);
-    return Math.max(0, Math.ceil((d2.getTime() - d1.getTime()) / (1000 * 60 * 60 * 24)));
-  }
-
-  private empty(): Partial<Reservation> {
-    return { client: undefined, materiel: undefined, date_debut: '', date_fin: '', quantite: 1, notes: '' };
-  }
-
-  // Dans reservations.component.ts
-  genererFacture(id: number): void {
-    this.reservationService.updateStatut(id, 'confirmee').subscribe({
-      next: () => {
-        this.loadAll();
-        this.analyticsStore.refresh();
-      },
-      error: (err) => alert(err.error?.error ?? 'Erreur')
-    });
-  }
-
-  
-
-  // ouvrirPaiement(reservation: Reservation) {
-  //   this.reservationSelectionnee = reservation;
-  //   this.showPaiementModal = true;
-  // }
-
-  confirmerPaiement(event: { montant: number; mode: string }) {
-    const factureId = this.reservationSelectionnee?.facture_id;
-    if (!factureId) {
-      this.paiementError = 'Aucune facture disponible pour ce paiement.';
-      return;
-    }
-    this.paiementLoading = true;
-    this.paiementError = '';
-
-    this.factureService
-        .payer(factureId)
-        .subscribe({
-          next: () => {
-            this.paiementLoading = false;
-            this.showPaiementModal = false;
-            this.loadAll();
-            this.analyticsStore.refresh();
-          },
-          error: (err) => {
-            this.paiementLoading = false;
-            this.paiementError = err.error?.error ?? 'Erreur lors du paiement.';
-          }
-        });
+  getDuree(r: any): number {
+    if (!r?.date_debut || !r?.date_fin) return 0;
+    return Math.ceil(
+      Math.abs(new Date(r.date_fin).getTime() - new Date(r.date_debut).getTime()) / 86400000
+    ) || 1;
   }
 }

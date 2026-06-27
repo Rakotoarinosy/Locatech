@@ -149,7 +149,6 @@
 
       </div>
     </div>
-
     <footer class="assistant-footer">
       <div class="input-container-box shadow-sm">
         <textarea 
@@ -179,5 +178,227 @@
       </div>
     </footer>
 
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- Modal Réservation B2C — EN DEHORS du container principal  -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<div *ngIf="showReservationForm()"
+     class="modal-overlay-backdrop"
+     (click)="closeReservationForm()">
+</div>
+
+<div *ngIf="showReservationForm()"
+     class="modal d-block"
+     style="z-index:1055"
+     @messageAnimation>
+
+  <div class="modal-dialog modal-dialog-centered modal-lg"
+       (click)="$event.stopPropagation()">
+    <div class="modal-content border-0 rounded-4 shadow-lg overflow-hidden">
+
+      <!-- Header bleu -->
+      <div class="modal-header border-0 px-4 pt-4 pb-3"
+           style="background: linear-gradient(135deg, #1A56DB 0%, #1d4ed8 100%);">
+        <div class="d-flex align-items-center gap-3">
+          <div class="rounded-3 bg-white bg-opacity-25 p-2 d-flex">
+            <i class="material-icons text-white">event_available</i>
+          </div>
+          <div>
+            <h5 class="fw-bold text-white mb-0">Créer votre réservation</h5>
+            <p class="text-white mb-0" style="opacity:.8; font-size:13px">
+              Basé sur la recommandation IA — ajustez les quantités si besoin
+            </p>
+          </div>
+        </div>
+        <button type="button"
+                class="btn-close btn-close-white ms-auto"
+                (click)="closeReservationForm()">
+        </button>
+      </div>
+
+      <div class="modal-body p-4">
+
+        <!-- Succès -->
+        @if (reservationSuccess()) {
+          <div class="alert alert-success rounded-3 border-0 d-flex align-items-center gap-2">
+            <i class="material-icons">check_circle</i>
+            <span>
+              Réservation créée avec succès !
+              Notre équipe vous contactera pour confirmer.
+            </span>
+          </div>
+        }
+
+        <div class="row g-4">
+
+          <!-- ── Colonne gauche : client + dates ── -->
+          <div class="col-12 col-md-5">
+            <h6 class="fw-bold text-dark mb-3 d-flex align-items-center gap-2">
+              <i class="material-icons text-primary" style="font-size:18px">person</i>
+              Vos informations
+            </h6>
+            <div class="mb-3">
+              <label class="form-label small fw-semibold text-muted">Nom complet *</label>
+              <input type="text" class="form-control rounded-3"
+                     [(ngModel)]="reservationForm.client_nom"
+                     placeholder="Jean Dupont">
+            </div>
+            <div class="mb-3">
+              <label class="form-label small fw-semibold text-muted">Email *</label>
+              <input type="email" class="form-control rounded-3"
+                     [(ngModel)]="reservationForm.client_email"
+                     placeholder="jean@email.com">
+            </div>
+            <div class="mb-3">
+              <label class="form-label small fw-semibold text-muted">Téléphone</label>
+              <input type="text" class="form-control rounded-3"
+                     [(ngModel)]="reservationForm.client_telephone"
+                     placeholder="+261 34 00 000 00">
+            </div>
+
+            <h6 class="fw-bold text-dark mb-3 mt-4 d-flex align-items-center gap-2">
+              <i class="material-icons text-primary" style="font-size:18px">date_range</i>
+              Période de location
+            </h6>
+            <div class="mb-3">
+              <label class="form-label small fw-semibold text-muted">Date de début *</label>
+              <input type="date" class="form-control rounded-3"
+                     [(ngModel)]="reservationForm.date_debut"
+                     (change)="calculerDureeB2C()"
+                     [min]="today">
+            </div>
+            <div class="mb-3">
+              <label class="form-label small fw-semibold text-muted">Date de fin *</label>
+              <input type="date" class="form-control rounded-3"
+                     [(ngModel)]="reservationForm.date_fin"
+                     (change)="calculerDureeB2C()"
+                     [min]="today">
+            </div>
+
+            <!-- Badge durée + total -->
+            <div *ngIf="dureeB2C > 0"
+                 class="alert alert-primary border-0 rounded-3 py-2 px-3
+                        d-flex align-items-center gap-2">
+              <i class="material-icons" style="font-size:16px">schedule</i>
+              <span class="small fw-semibold">{{ dureeB2C }} jour(s)</span>
+              <span class="ms-auto small fw-bold text-primary">
+                {{ formatPrix(totalEstimeB2C()) }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Séparateur vertical -->
+          <div class="col-md-1 d-none d-md-flex justify-content-center">
+            <div class="border-start h-100"></div>
+          </div>
+
+          <!-- ── Colonne droite : matériels ── -->
+          <div class="col-12 col-md-6">
+            <h6 class="fw-bold text-dark mb-3 d-flex align-items-center gap-2">
+              <i class="material-icons text-primary" style="font-size:18px">inventory_2</i>
+              Matériels
+              <span class="badge bg-primary-subtle text-primary ms-1">
+                {{ lignesB2C.length }}
+              </span>
+            </h6>
+
+            <!-- Liste scrollable -->
+            <div class="d-flex flex-column gap-2"
+                 style="max-height:340px; overflow-y:auto; padding-right:4px">
+
+              <div *ngFor="let ligne of lignesB2C; let i = index"
+                   class="d-flex align-items-center gap-2 p-3 bg-light rounded-3">
+
+                <!-- Infos matériel -->
+                <div class="flex-grow-1 min-w-0">
+                  <div class="fw-semibold text-dark small text-truncate">
+                    {{ ligne.nom }}
+                  </div>
+                  <div class="text-muted" style="font-size:11px">
+                    <span class="badge bg-white border text-secondary me-1">
+                      {{ ligne.categorie }}
+                    </span>
+                    {{ formatPrix(ligne.prix_unitaire) }}/j
+                  </div>
+                </div>
+
+                <!-- Contrôle quantité -->
+                <div class="d-flex align-items-center gap-1 flex-shrink-0">
+                  <button class="btn btn-sm btn-white border rounded-circle
+                                 d-flex align-items-center justify-content-center"
+                          style="width:28px;height:28px;padding:0"
+                          (click)="ligne.quantite = ligne.quantite > 1
+                                   ? ligne.quantite - 1 : 1">
+                    <i class="material-icons" style="font-size:14px">remove</i>
+                  </button>
+                  <input type="number"
+                         class="form-control form-control-sm text-center fw-bold"
+                         style="width:52px;height:28px;padding:2px 4px;font-size:13px"
+                         [(ngModel)]="ligne.quantite" min="1">
+                  <button class="btn btn-sm btn-white border rounded-circle
+                                 d-flex align-items-center justify-content-center"
+                          style="width:28px;height:28px;padding:0"
+                          (click)="ligne.quantite = ligne.quantite + 1">
+                    <i class="material-icons" style="font-size:14px">add</i>
+                  </button>
+                </div>
+
+                <!-- Prix ligne -->
+                <div class="text-end flex-shrink-0" style="min-width:70px">
+                  <div class="fw-bold text-primary small">
+                    {{ dureeB2C > 0
+                       ? formatPrix(ligne.prix_unitaire * ligne.quantite * dureeB2C)
+                       : '—' }}
+                  </div>
+                </div>
+
+                <!-- Supprimer -->
+                <button class="btn btn-sm text-danger p-0 flex-shrink-0"
+                        [disabled]="lignesB2C.length === 1"
+                        (click)="supprimerLigneB2C(i)"
+                        title="Retirer">
+                  <i class="material-icons" style="font-size:18px">close</i>
+                </button>
+
+              </div>
+            </div>
+
+            <!-- Total -->
+            <div class="mt-3 p-3 rounded-3 border border-primary-subtle
+                        bg-primary-subtle d-flex justify-content-between align-items-center">
+              <span class="fw-semibold text-dark">Total estimé</span>
+              <span class="fw-bold text-primary fs-5">
+                {{ formatPrix(totalEstimeB2C()) }}
+              </span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="modal-footer border-0 px-4 pb-4 pt-0 gap-2">
+        <button class="btn btn-light rounded-3 px-4"
+                (click)="closeReservationForm()">
+          Annuler
+        </button>
+        <button class="btn btn-primary rounded-3 px-4
+                       d-flex align-items-center gap-2"
+                (click)="submitReservationB2C()"
+                [disabled]="reservationSubmitting()">
+          <span *ngIf="reservationSubmitting()"
+                class="spinner-border spinner-border-sm">
+          </span>
+          <i *ngIf="!reservationSubmitting()"
+             class="material-icons" style="font-size:18px">
+            check_circle
+          </i>
+          Confirmer la réservation
+        </button>
+      </div>
+
+    </div>
   </div>
 </div>
