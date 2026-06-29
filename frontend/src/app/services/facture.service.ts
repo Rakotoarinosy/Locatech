@@ -21,10 +21,13 @@ export class FactureService {
     return this.http.get<any>(`${this.apiUrl}/${id}/`);
   }
 
-  payer(id: number) {
+  payer(id: number, montantRecu?: number, modePaiement?: string) {
     return this.http.patch(
       `${this.apiUrl}/${id}/payer/`,
-      {}
+      {
+        montant_recu:  montantRecu,
+        mode_paiement: modePaiement
+      }
     );
   }
 

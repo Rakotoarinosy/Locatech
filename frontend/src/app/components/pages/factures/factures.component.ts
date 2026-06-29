@@ -82,7 +82,7 @@ export class FacturesComponent implements OnInit {
     if (!this.selectedFacture) return;
     this.paiementLoading = true;
 
-    this.factureService.payer(this.selectedFacture.id).subscribe({
+    this.factureService.payer(this.selectedFacture.id, event.montant, event.mode).subscribe({
       next: () => {
         this.paiementLoading = false;
         this.closePaiementModal();

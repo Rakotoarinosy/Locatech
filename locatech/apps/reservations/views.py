@@ -58,12 +58,15 @@ class ReservationViewSet(viewsets.ModelViewSet):
         # ── Facturer : génère la facture, reste en_attente ───────────────
         if new_statut == 'confirmee':
             if not hasattr(reservation, 'facture'):
-                Facture.objects.create(
+                facture = Facture.objects.create(
                     reservation=reservation,
                     montant=reservation.prix_total,
                     statut='en_attente'
                 )
+            else:
+                facture = reservation.facture
                 # Note: _generate_pdf appelé séparément si besoin
+            _generate_pdf(facture)
             # Le statut reste 'en_attente' — c'est le paiement qui confirmera
             reservation.save()
             return Response({

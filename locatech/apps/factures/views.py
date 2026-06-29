@@ -316,6 +316,11 @@ class FactureViewSet(viewsets.ModelViewSet):
 
         reservation = facture.reservation
         aujourd_hui = date.today()
+        
+        # ← Enregistrer les infos de paiement sur la réservation
+        reservation.montant_recu  = request.data.get('montant_recu') or facture.montant
+        reservation.mode_paiement = request.data.get('mode_paiement') or 'especes'
+        reservation.date_paiement = aujourd_hui
 
         if aujourd_hui <= reservation.date_fin:
             # Paiement dans les temps → confirmee, matériels loués
@@ -328,6 +333,8 @@ class FactureViewSet(viewsets.ModelViewSet):
             reservation.statut = 'en_attente_retour'
 
         reservation.save()
+        _generate_pdf(facture)
+        
         return Response(FactureSerializer(facture).data)
     
     @action(detail=True, methods=['patch'])

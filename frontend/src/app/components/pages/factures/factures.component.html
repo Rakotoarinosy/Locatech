@@ -67,7 +67,7 @@
           <tr>
             <th class="px-4 py-3">N° Facture</th>
             <th class="py-3">Client</th>
-            <th class="py-3">Matériel</th>
+            <th class="py-3">Matériels</th>
             <th class="py-3">Date</th>
             <th class="py-3">Montant</th>
             <th class="py-3">Statut</th>
@@ -88,8 +88,21 @@
                   {{ facture.reservation_detail?.client_detail?.email || '' }}
                 </div>
               </td>
-              <td class="py-3 text-muted small">
-                {{ facture.reservation_detail?.materiel_detail?.nom || '—' }}
+              <td class="py-3">
+                <div class="d-flex flex-column" style="gap: 2px;">
+                  <ng-container *ngFor="let l of facture.reservation_detail?.lignes; let i = index">
+                    <span *ngIf="i < 4" class="small text-truncate" style="max-width: 160px; color: var(--text-secondary);">
+                      <b style="color: var(--text-primary); font-weight: 500;">{{ l.materiel_detail?.nom }}</b>
+                      <span style="color: var(--text-muted);">×{{ l.quantite }}</span>
+                    </span>
+                  </ng-container>
+                  <span *ngIf="facture.reservation_detail?.lignes?.length > 4"
+                        class="badge rounded-pill mt-1"
+                        style="width: fit-content; background: var(--bg-accent); color: var(--text-accent); border: 0.5px solid var(--border-accent); font-size: 10px;">
+                    +{{ facture.reservation_detail.lignes.length - 4 }} autres
+                  </span>
+                  <span *ngIf="!facture.reservation_detail?.lignes?.length" class="text-muted small">—</span>
+                </div>
               </td>
               <td class="py-3 text-muted">
                 {{ facture.created_at | date:'dd/MM/yyyy' }}

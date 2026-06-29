@@ -232,7 +232,10 @@ export class ReservationsComponent implements OnInit {
       alert('Aucune facture trouvée. Confirmez d\'abord la réservation.');
       return;
     }
-    this.http.patch(`${this.apiFactures}${factureId}/payer/`, {}).subscribe({
+    this.http.patch(`${this.apiFactures}${factureId}/payer/`, {
+      montant_recu:  event.montant,   // ← clés correctes
+      mode_paiement: event.mode
+    }).subscribe({
       next: () => {
         this.showPaiementModal = false;
         this.closeDetailsModal();
