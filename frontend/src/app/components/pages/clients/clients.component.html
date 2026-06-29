@@ -34,7 +34,7 @@
       <div class="card stat-mini border-0 p-3 shadow-sm bg-white rounded-3">
         <span class="text-muted font-xs d-block mb-1">Nouveaux (7 derniers jours)</span>
         <div class="d-flex align-items-center justify-content-between">
-          <h4 class="fw-bold text-dark mb-0">28</h4>
+          <h4 class="fw-bold text-dark mb-0">{{ nouveauxClients }}</h4>
           <span class="badge bg-info-subtle text-info rounded-pill font-xs">Mada / Internat.</span>
         </div>
       </div>
@@ -106,7 +106,11 @@
                 <small class="text-secondary font-xs text-truncate" style="max-width: 200px;">{{ client.adresse }}</small>
               </div>
             </td>
-            <td><span class="fw-semibold text-dark">-</span></td>
+            <td>
+              <span class="fw-semibold text-dark">
+                {{ reservationsParClient[client.id!] || 0 }}
+              </span>
+            </td>
             <td>
               <span class="badge rounded-pill px-2 py-1 font-xs fw-medium text-capitalize"
                     [ngClass]="{

@@ -5,6 +5,7 @@ from .views import (
     MaterielsStatsView,
     ReservationsParMoisView,
     TopClientsView,
+    TopMaterielsView,
 )
 
 urlpatterns = [
@@ -13,4 +14,5 @@ urlpatterns = [
     path('materiels/', MaterielsStatsView.as_view(), name='analytics-materiels'),
     path('reservations-par-mois/', ReservationsParMoisView.as_view(), name='analytics-reservations'),
     path('top-clients/', TopClientsView.as_view(), name='analytics-top-clients'),
+    path('top-materiels/', TopMaterielsView.as_view(), name='analytics-top-materiels'),
 ]

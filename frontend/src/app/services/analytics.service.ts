@@ -42,16 +42,6 @@ export class AnalyticsService {
 
   // Transforme l'objet materiels en tableau pour le dashboard
   getTopMateriels(): Observable<any[]> {
-    return this.getMaterielsStats().pipe(
-      map((data: any) => {
-        const parCategorie: any[] = data.par_categorie || [];
-        const total = parCategorie.reduce((s: number, c: any) => s + c.total, 0) || 1;
-        return parCategorie.map((c: any) => ({
-          nom: c.categorie,
-          count: c.total,
-          pct: Math.round((c.total / total) * 100)
-        }));
-      })
-    );
+    return this.http.get<any[]>(`${this.base}/analytics/top-materiels/`);
   }
 }

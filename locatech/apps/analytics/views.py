@@ -129,3 +129,34 @@ class TopClientsView(APIView):
             .order_by('-nb_reservations')[:5]
         )
         return Response(list(top))
+
+class TopMaterielsView(APIView):
+    """Top 5 matériels les plus loués — par nombre de réservations distinctes."""
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request):
+        from apps.reservations.models import LigneReservation
+
+        top = (
+            LigneReservation.objects
+            .values('materiel__id', 'materiel__nom')
+            .annotate(
+                nb_reservations=Count('reservation', distinct=True),  # ← nb de réservations
+                total_quantite=Sum('quantite')                         # ← info bonus
+            )
+            .order_by('-nb_reservations')[:5]
+        )
+
+        resultats = list(top)
+        max_count = resultats[0]['nb_reservations'] if resultats else 1
+
+        return Response([
+            {
+                'id':              item['materiel__id'],
+                'nom':             item['materiel__nom'],
+                'count':           item['nb_reservations'],   # ← nombre de réservations
+                'total_quantite':  item['total_quantite'],    # ← quantité totale (bonus)
+                'pct':             round(item['nb_reservations'] / max_count * 100),
+            }
+            for item in resultats
+        ])
