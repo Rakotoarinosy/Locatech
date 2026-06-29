@@ -84,10 +84,38 @@ export class DashboardComponent implements OnInit, OnDestroy {
       const s = statutMap[r.statut] || { label: r.statut, statut: 'pending', color: 'blue' };
       const nom = r.client_detail?.nom || `Client #${r.client}`;
       const initiales = nom.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2);
+
+      let labelMateriel = 'Matériel inconnu';
+
+      // On récupère le tableau de lignes, peu importe son nom (lignes, items, ou materiels)
+      const lignes = r.lignes || r.items || r.lignes_reservation || r.materiels;
+
+      if (lignes && lignes.length > 0) {
+        // 1. On prend la première ligne de réservation
+        const premiereLigne = lignes[0];
+        
+        // 2. On extrait le nom (il peut être dans materiel_detail.nom ou directement nom)
+        const nomPremier = premiereLigne.materiel_detail?.nom || 
+                          premiereLigne.materiel?.nom || 
+                          premiereLigne.nom || 
+                          'Matériel';
+        
+        // 3. On applique la règle d'affichage (+ n)
+        if (lignes.length > 1) {
+          labelMateriel = `${nomPremier} +${lignes.length - 1}`;
+        } else {
+          labelMateriel = nomPremier;
+        }
+      } else if (r.materiel_detail?.nom) {
+        // Sécurité fallback si l'objet est plat
+        labelMateriel = r.materiel_detail.nom;
+      }
+      // -------------------------------------------
+
       return {
         initiales,
         nom,
-        materiel: r.materiel_detail?.nom || `Matériel #${r.materiel}`,
+        materiel: labelMateriel, // On utilise notre variable calculée ici
         duree: `${this.nbJours(r.date_debut, r.date_fin)}j`,
         statut: s.statut,
         statusLabel: s.label,
