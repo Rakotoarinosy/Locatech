@@ -8,6 +8,7 @@ from .models import Reservation, LigneReservation
 from .serializers import ReservationSerializer
 from apps.factures.models import Facture
 from apps.factures.views import _generate_pdf
+from apps.notifications.services.email_service import EmailService
 
 
 class ReservationViewSet(viewsets.ModelViewSet):
@@ -63,6 +64,7 @@ class ReservationViewSet(viewsets.ModelViewSet):
                     montant=reservation.prix_total,
                     statut='en_attente'
                 )
+                EmailService.nouvelle_reservation(reservation)
             else:
                 facture = reservation.facture
                 # Note: _generate_pdf appelé séparément si besoin
@@ -95,32 +97,52 @@ class ReservationViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['patch'], url_path='confirmer-retour')
     def confirmer_retour(self, request, pk=None):
         reservation = self.get_object()
+
         if reservation.statut not in ['confirmee', 'en_attente_retour']:
             return Response(
-                {'error': 'La réservation n\'est pas en attente de retour.'},
+                {'error': "La réservation n'est pas en attente de retour."},
                 status=status.HTTP_400_BAD_REQUEST
             )
-        aujourd_hui  = date.today()
-        retard       = max(0, (aujourd_hui - reservation.date_fin).days)
+
+        aujourd_hui = date.today()
+        retard = max(0, (aujourd_hui - reservation.date_fin).days)
+
         reservation.retard_jours = retard
-        reservation.statut       = 'terminee'
+        reservation.statut = 'terminee'
+
         for ligne in reservation.lignes.all():
             ligne.materiel.statut = 'disponible'
             ligne.materiel.save()
+
         reservation.save()
 
         if hasattr(reservation, 'facture'):
-            facture  = reservation.facture
-            penalite = Decimal(0)
+            facture = reservation.facture
+
             if retard > 0:
                 penalite = sum(
-                    l.prix_unitaire * l.quantite * Decimal('1.5') * Decimal(retard)
+                    l.prix_unitaire * l.quantite * Decimal("1.5") * Decimal(retard)
                     for l in reservation.lignes.all()
                 )
-            facture.montant = reservation.prix_total + penalite
-            facture.statut  = 'payee'
+
+                facture.montant = reservation.prix_total + penalite
+                facture.statut = "a_payer"
+
+            else:
+                facture.statut = "payee"
+
             facture.save()
             _generate_pdf(facture)
+
+        # Envoi de l'email UNE SEULE FOIS
+        try:
+            if retard > 0:
+                EmailService.retard_constate(reservation)
+            else:
+                EmailService.reservation_terminee(reservation)
+        except Exception as e:
+            import logging
+            logging.getLogger(__name__).error(f"Erreur email : {e}")
 
         return Response(ReservationSerializer(reservation).data)
 
@@ -186,5 +208,12 @@ class ReservationViewSet(viewsets.ModelViewSet):
                 quantite      = ligne.get('quantite', 1),
                 prix_unitaire = materiel.prix_journalier
             )
+            
+        reservation.refresh_from_db()
+        try:
+            EmailService.nouvelle_reservation(reservation)
+        except Exception as e:
+            import logging
+            logging.getLogger(__name__).error(f"Email B2C échoué: {e}")
 
         return Response(ReservationSerializer(reservation).data, status=status.HTTP_201_CREATED)

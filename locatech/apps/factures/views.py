@@ -335,6 +335,14 @@ class FactureViewSet(viewsets.ModelViewSet):
         reservation.save()
         _generate_pdf(facture)
         
+        try:
+            from apps.notifications.services.email_service import EmailService
+            EmailService.reservation_confirmee(reservation)
+        except Exception as e:
+            import logging
+            logging.getLogger(__name__).error(f"Email reservation_confirmee échoué: {e}")
+
+
         return Response(FactureSerializer(facture).data)
     
     @action(detail=True, methods=['patch'])

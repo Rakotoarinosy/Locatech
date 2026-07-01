@@ -12,10 +12,16 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from pathlib import Path
 from datetime import timedelta
+from dotenv import load_dotenv
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+
+# Load environment variables from .env file
+PROJECT_ROOT = BASE_DIR.parent
+load_dotenv(PROJECT_ROOT.parent / ".env")
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
@@ -49,6 +55,7 @@ INSTALLED_APPS = [
     'apps.materials',
     'apps.reservations',
     'apps.ai',
+    'apps.notifications',
 ]
 
 MIDDLEWARE = [
@@ -190,6 +197,21 @@ SIMPLE_JWT = {
 }
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+
+EMAIL_HOST = os.getenv('EMAIL_HOST', default='mail31.lwspanel.com')
+EMAIL_PORT = os.getenv('EMAIL_PORT', default=587)
+
+EMAIL_USE_TLS = True
+EMAIL_USE_SSL = False
+
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+DEFAULT_FROM_EMAIL = os.getenv(
+    'DEFAULT_FROM_EMAIL',
+    'LocaTech <locatech-mada@rakotoarinosy.com>'
+)
 
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
