@@ -12,6 +12,12 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U locatech -d locatech"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
     restart: unless-stopped
 
   frontend:
@@ -51,13 +57,29 @@ services:
       - .env.dev
 
     depends_on:
-      - db
+      db:
+        condition: service_healthy
 
     ports:
       - "8045:8045"
+
+    restart: unless-stopped
+  
+  n8n:
+    image: docker.n8n.io/n8nio/n8n:latest
+    container_name: locatech-n8n
+
+    ports:
+      - "5678:5678"
+
+    env_file:
+      - .env.dev
+    volumes:
+    - n8n_data:/home/node/.n8n
 
     restart: unless-stopped
 
 volumes:
   postgres_data:
   media_data:
+  n8n_data:

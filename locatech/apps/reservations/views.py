@@ -1,15 +1,23 @@
+
+import logging
+
 from datetime import date
 from decimal import Decimal
+
 from rest_framework import viewsets, filters, status
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
+
 from .models import Reservation, LigneReservation
 from .serializers import ReservationSerializer
+
 from apps.factures.models import Facture
 from apps.factures.views import _generate_pdf
 from apps.notifications.services.email_service import EmailService
+from apps.automation.n8n_service import N8nService
 
+logger = logging.getLogger(__name__)
 
 class ReservationViewSet(viewsets.ModelViewSet):
     queryset = Reservation.objects.all().order_by('-id')
@@ -141,7 +149,6 @@ class ReservationViewSet(viewsets.ModelViewSet):
             else:
                 EmailService.reservation_terminee(reservation)
         except Exception as e:
-            import logging
             logging.getLogger(__name__).error(f"Erreur email : {e}")
 
         return Response(ReservationSerializer(reservation).data)
@@ -210,10 +217,17 @@ class ReservationViewSet(viewsets.ModelViewSet):
             )
             
         reservation.refresh_from_db()
+        
+        workflow_triggered = N8nService.reservation_created(reservation)
+
+        if not workflow_triggered:
+            logger.warning(
+                f"Workflow n8n non déclenché pour la réservation {reservation.id}"
+            )
+
         try:
             EmailService.nouvelle_reservation(reservation)
         except Exception as e:
-            import logging
-            logging.getLogger(__name__).error(f"Email B2C échoué: {e}")
+            logger.error(f"Email B2C échoué: {e}")
 
         return Response(ReservationSerializer(reservation).data, status=status.HTTP_201_CREATED)

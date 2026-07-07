@@ -213,5 +213,8 @@ DEFAULT_FROM_EMAIL = os.getenv(
     'LocaTech <locatech-mada@rakotoarinosy.com>'
 )
 
+
+EMAIL_TIMEOUT = 10
+
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
