@@ -1,0 +1,90 @@
+<div class="calendar-page-container">
+
+  <!-- En-tête de la page -->
+  <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+    <div>
+      <h3 class="fw-bold text-dark mb-1">Planning des réservations</h3>
+      <p class="text-muted font-sm mb-0">Visualisez les périodes de location et gérez la planification des retours.</p>
+    </div>
+  </div>
+
+  <!-- Zone de Contenu Principale -->
+  <div class="calendar-layout">
+    
+    <!-- Carte du Calendrier FullCalendar -->
+    <div class="card border-0 shadow-sm bg-white rounded-4 p-4 calendar-main-card">
+      <full-calendar [options]="calendarOptions"></full-calendar>
+    </div>
+
+    <!-- Panneau de détails contextuel à droite -->
+    <div class="calendar-sidebar" [class.active]="selectedEvent">
+      @if (selectedEvent) {
+        <div class="card border-0 shadow-sm bg-white rounded-4 h-100 overflow-hidden">
+          
+          <div class="sidebar-header p-4 border-bottom d-flex align-items-center justify-content-between bg-light-subtle">
+            <div class="d-flex align-items-center gap-2">
+              <div class="avatar-initials bg-primary-subtle text-primary fw-bold rounded-circle d-flex align-items-center justify-content-center">
+                {{ (selectedEvent.client?.nom || '?')[0].toUpperCase() }}
+              </div>
+              <div>
+                <h5 class="fw-bold text-dark mb-0 font-sm">{{ selectedEvent.client?.nom }}</h5>
+                <span class="badge rounded-pill px-2 py-1 font-xxs mt-1"
+                      [ngClass]="'bg-' + getStatutCss(selectedEvent.statut) + '-subtle text-' + getStatutCss(selectedEvent.statut)">
+                  {{ getStatutLabel(selectedEvent.statut) }}
+                </span>
+              </div>
+            </div>
+            <button type="button" class="btn-close-modern-sm" (click)="selectedEvent = null">
+              <i class="bi bi-x-lg"></i>
+            </button>
+          </div>
+
+          <div class="sidebar-body p-4 scrollable-content">
+            <div class="info-block mb-4">
+              <span class="text-muted font-xs d-block mb-2 text-uppercase fw-semibold tracking-wider">Période de location</span>
+              <div class="d-flex align-items-center gap-3 p-3 bg-light rounded-3">
+                <div class="text-center">
+                  <span class="font-xxs text-muted text-uppercase d-block">Début</span>
+                  <span class="fw-bold font-sm text-dark">{{ selectedEvent.start | date:'dd MMM yyyy' : undefined : 'fr' }}</span>
+                </div>
+                <div class="flex-grow-1 text-center text-muted">
+                  <i class="bi bi-arrow-right font-md"></i>
+                </div>
+                <div class="text-center">
+                  <span class="font-xxs text-muted text-uppercase d-block">Fin</span>
+                  <span class="fw-bold font-sm text-dark">{{ selectedEvent.end | date:'dd MMM yyyy' : undefined : 'fr' }}</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="info-block">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <span class="text-muted font-xs text-uppercase fw-semibold tracking-wider">Matériels Réservés</span>
+                <span class="badge bg-secondary-subtle text-secondary rounded-pill font-xxs">{{ selectedEvent.materiels?.length || 0 }} réf</span>
+              </div>
+              
+              <div class="d-flex flex-column gap-2">
+                @for (m of selectedEvent.materiels; track m.id) {
+                  <div class="d-flex align-items-center justify-content-between p-2.5 border rounded-3 bg-white font-xs shadow-none">
+                    <div class="d-flex align-items-center gap-2 text-truncate me-2">
+                      <i class="bi bi-box-seam text-muted"></i>
+                      <span class="text-dark fw-medium text-truncate">{{ m.nom }}</span>
+                    </div>
+                    <span class="badge bg-light text-dark border fw-bold font-xs">×{{ m.quantite }}</span>
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+
+        </div>
+      } @else {
+        <div class="sidebar-empty card border-0 shadow-sm bg-white rounded-4 h-100 d-flex flex-column align-items-center justify-content-center p-4 text-center text-muted">
+          <i class="bi bi-calendar2-week mb-2" style="font-size: 2rem; color: #cbd5e1;"></i>
+          <p class="font-xs mb-0 px-2">Sélectionnez une réservation sur le planning pour inspecter ses détails.</p>
+        </div>
+      }
+    </div>
+
+  </div>
+</div>

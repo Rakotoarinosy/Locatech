@@ -1,7 +1,7 @@
 
 import logging
 
-from datetime import date
+from datetime import date, timedelta
 from decimal import Decimal
 
 from rest_framework import viewsets, filters, status
@@ -231,3 +231,45 @@ class ReservationViewSet(viewsets.ModelViewSet):
             logger.error(f"Email B2C échoué: {e}")
 
         return Response(ReservationSerializer(reservation).data, status=status.HTTP_201_CREATED)
+    
+    @action(detail=False, methods=['get'], url_path='calendar', permission_classes=[AllowAny])
+    def calendrier(self, request):
+        """Retourne les réservations pour un calendrier."""
+        reservations = Reservation.objects.select_related('client').prefetch_related('lignes__materiel').exclude(statut='annulee')
+        events = []
+        for reservation in reservations:
+            materiels = [
+                ligne.materiel.nom for ligne in reservation.lignes.all()
+            ]
+            
+            events.append({
+                "id": reservation.id,
+
+                "title": f"{reservation.client.nom} - {materiels}",
+
+                "start": reservation.date_debut.isoformat(),
+
+                # Date exclusive pour le calendrier
+                "end": (
+                    reservation.date_fin + timedelta(days=1)
+                ).isoformat(),
+
+                "statut": reservation.statut,
+
+                "client": {
+                    "id": reservation.client.id,
+                    "nom": reservation.client.nom,
+                    "email": reservation.client.email,
+                },
+
+                "materiels": [
+                    {
+                        "id": ligne.materiel.id,
+                        "nom": ligne.materiel.nom,
+                        "quantite": ligne.quantite,
+                    }
+                    for ligne in reservation.lignes.all()
+                ]
+            })
+
+        return Response(events)

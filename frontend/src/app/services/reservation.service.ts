@@ -4,6 +4,7 @@ import { Observable, BehaviorSubject, tap } from 'rxjs';
 import { isPlatformBrowser } from '@angular/common';
 import { environment } from '../../environments/environment';
 import { Reservation } from '../models/reservation.models';
+import { CalendarEvent } from '../models/calendar.models';
 
 export interface ReservationStats {
   total: number;
@@ -150,5 +151,12 @@ terminerReservation(id: number) {
       {},
       { headers: this.headers() }
     ).pipe(tap(() => this.refreshPendingCount()));
+  }
+
+  getCalendarEvents(): Observable<CalendarEvent[]> {
+    return this.http.get<CalendarEvent[]>(
+      `${this.base}/calendar/`,
+      { headers: this.headers() }
+    );
   }
 }

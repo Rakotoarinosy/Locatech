@@ -19,6 +19,7 @@ export const routes: Routes = [
       { path: "analytics", loadComponent: () => import("./components/pages/analytics/analytics.component").then(m => m.AnalyticsComponent) },
       { path: "assistant-ia", loadComponent: () => import("./components/pages/assistant/assistant.component").then(m => m.AssistantComponent) },
       { path: "parametres", loadComponent: () => import("./components/pages/parametres/parametres.component").then(m => m.ParametresComponent) },
+      { path: 'calendar', loadComponent: () => import('./components/pages/calendar/calendar.component').then(m => m.CalendarComponent)},
       { path: "", redirectTo: "dashboard", pathMatch: "full" }
     ]
   },

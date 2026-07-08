@@ -1,0 +1,161 @@
+// Structures de pages et Grid moderne
+.calendar-page-container {
+  font-family: 'Inter', sans-serif;
+}
+
+.calendar-layout {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+}
+
+.calendar-main-card {
+  display: table-cell;
+  width: 70%;
+  vertical-align: top;
+  background: #ffffff;
+}
+
+.calendar-sidebar {
+  display: table-cell;
+  width: 30%;
+  vertical-align: top;
+  padding-left: 20px;
+  transition: all 0.25s ease-in-out;
+}
+
+// Bouton de fermeture modernisé
+.btn-close-modern-sm {
+  background: none;
+  border: none;
+  color: #94a3b8;
+  font-size: 0.85rem;
+  padding: 5px;
+  border-radius: 6px;
+  transition: all 0.15s;
+  &:hover { background: #f1f5f9; color: #334155; }
+}
+
+// Surcharge complète FullCalendar (Thème CSS LocaTech)
+::ng-deep {
+  .fc {
+    --fc-border-color: #f1f5f9 !important;
+    --fc-daygrid-event-dot-width: 7px;
+    
+    // Titre Principal du Mois
+    .fc-toolbar-title {
+      font-size: 1.15rem !important;
+      font-weight: 700 !important;
+      color: #1e293b !important;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    // Boutons de navigation et filtres d'en-tête
+    .fc-button-primary {
+      background-color: #ffffff !important;
+      border: 1px solid #e2e8f0 !important;
+      color: #475569 !important;
+      font-size: 0.8rem !important;
+      font-weight: 500 !important;
+      padding: 0.45rem 0.85rem !important;
+      border-radius: 20px !important; // Effet pilule moderne
+      box-shadow: none !important;
+      text-transform: capitalize;
+      transition: all 0.2s ease;
+
+      &:hover {
+        background-color: #f8fafc !important;
+        border-color: #cbd5e1 !important;
+        color: #1e293b !important;
+      }
+
+      &:disabled {
+        background-color: #ffffff !important;
+        opacity: 0.4;
+      }
+      
+      &.fc-button-active {
+        background-color: #3b82f6 !important; // Couleur d'accentuation principale
+        border-color: #3b82f6 !important;
+        color: #ffffff !important;
+      }
+    }
+    
+    .fc-toolbar-chunk .btn-group {
+      gap: 2px;
+    }
+
+    // En-têtes des colonnes de jours (lun., mar...)
+    th.fc-col-header-cell {
+      padding: 10px 0 !important;
+      background-color: #f8fafc !important;
+      border-bottom: 2px solid #e2e8f0 !important;
+      
+      .fc-col-header-cell-cushion {
+        color: #64748b !important;
+        font-size: 0.75rem !important;
+        font-weight: 600 !important;
+        text-transform: uppercase;
+        text-decoration: none !important;
+      }
+    }
+
+    // Cases journalières du calendrier
+    .fc-daygrid-day {
+      transition: background-color 0.15s ease;
+      &:hover { background-color: #fafafa; }
+    }
+
+    .fc-day-today {
+      background-color: #eff6ff !important; // Couleur douce de suivi de la date du jour
+    }
+
+    .fc-daygrid-day-number {
+      font-size: 0.75rem !important;
+      font-weight: 500 !important;
+      color: #475569 !important;
+      padding: 6px 8px !important;
+      text-decoration: none !important;
+    }
+
+    // Cartouches des événements / Réservations
+    .fc-v-event, .fc-h-event {
+      border-width: 0 0 0 3px !important; // Liseré coloré élégant à gauche
+      border-style: solid !important;
+      padding: 3px 6px !important;
+      margin-top: 2px !important;
+      margin-bottom: 2px !important;
+      border-radius: 4px !important;
+      cursor: pointer;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+    }
+
+    .fc-event-title {
+      font-size: 0.7rem !important;
+      font-weight: 600 !important;
+      white-space: nowrap;
+      overflow: text-truncate;
+    }
+  }
+}
+
+// Utilitaires de police de tailles et structures complémentaires
+.font-sm { font-size: 0.85rem; }
+.font-xs { font-size: 0.78rem; }
+.font-xxs { font-size: 0.68rem; font-weight: 600; }
+.tracking-wider { letter-spacing: 0.05em; }
+
+.bg-purple-subtle { background-color: #f3e8ff !important; }
+.text-purple { color: #7c3aed !important; }
+
+.avatar-initials {
+  width: 36px;
+  height: 36px;
+  font-size: 0.9rem;
+}
+.scrollable-content {
+  max-height: calc(100vh - 280px);
+  overflow-y: auto;
+}
+.p-2\.5 { padding: 0.6rem !important; }
