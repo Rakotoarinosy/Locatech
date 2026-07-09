@@ -16,15 +16,16 @@ ALLOWED_HOSTS = os.getenv(
 
 CORS_ALLOW_ALL_ORIGINS = False
 
-CORS_ALLOWED_ORIGINS = os.getenv(
-    "CORS_ALLOWED_ORIGINS",
-    ""
-).split(",")
 
-CSRF_TRUSTED_ORIGINS = os.getenv(
-    "CSRF_TRUSTED_ORIGINS",
-    ""
-).split(",")
+CORS_ALLOWED_ORIGINS = [
+    "https://locatech-mada.online", 
+    "https://admin.locatech-mada.online"
+]
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://locatech-mada.online", 
+    "https://admin.locatech-mada.online"
+]
 
 USE_X_FORWARDED_HOST = True
 
