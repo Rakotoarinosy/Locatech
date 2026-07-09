@@ -4,24 +4,30 @@
 }
 
 .calendar-layout {
-  display: table;
+  display: grid;
+  grid-template-columns: 1fr; // Par défaut sur mobile : tout prend 100% de large et s'empile
+  gap: 20px;
   width: 100%;
-  table-layout: fixed;
+
+  // Dès qu'on passe sur un écran de taille PC/Tablette paysage (>= 992px)
+  @media (min-width: 992px) {
+    grid-template-columns: 7fr 3fr; // Le calendrier prend 70% et la sidebar 30%
+  }
 }
 
 .calendar-main-card {
-  display: table-cell;
-  width: 70%;
-  vertical-align: top;
+  width: 100%;
   background: #ffffff;
 }
 
 .calendar-sidebar {
-  display: table-cell;
-  width: 30%;
-  vertical-align: top;
-  padding-left: 20px;
+  width: 100%;
   transition: all 0.25s ease-in-out;
+  
+  // Supprime le padding gauche inutile sur mobile car les blocs sont empilés
+  @media (min-width: 992px) {
+    padding-left: 10px;
+  }
 }
 
 // Bouton de fermeture modernisé
@@ -41,6 +47,14 @@
   .fc {
     --fc-border-color: #f1f5f9 !important;
     --fc-daygrid-event-dot-width: 7px;
+    .fc-toolbar {
+      flex-direction: column;
+      gap: 12px;
+
+      @media (min-width: 576px) {
+        flex-direction: row;
+      }
+    }
     
     // Titre Principal du Mois
     .fc-toolbar-title {

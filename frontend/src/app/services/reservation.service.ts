@@ -117,9 +117,9 @@ terminerReservation(id: number) {
       next: (reservations) => {
         // Ajout du support pour 'En cours' avec une majuscule comme vu sur l'interface
         const count = reservations.filter(r => 
-          r.statut === 'en cours' || 
-          r.statut === 'en_cours' || 
-          r.statut?.toLowerCase() === 'en cours'
+          r.statut === 'en attente' || 
+          r.statut === 'en_attente' || 
+          r.statut?.toLowerCase() === 'en attente'
         ).length;
         
         this.pendingCountSubject.next(count);
