@@ -9,6 +9,9 @@ services:
       POSTGRES_USER: locatech
       POSTGRES_PASSWORD: locatech123
 
+    ports:
+      - "127.0.0.1:5433:5432"
+
     volumes:
       - postgres_data:/var/lib/postgresql/data
 

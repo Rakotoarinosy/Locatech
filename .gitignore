@@ -1,5 +1,6 @@
 .env
 .env.*
+!.env.dev.example
 locatech/.env.prod
 locatech/backend/media/materiels/
 locatech/backend/media/**
