@@ -62,6 +62,10 @@ export class LandingPageComponent implements OnInit {
 
   contactForm = { name: '', email: '', message: '' };
 
+  get categoryCount(): number {
+    return new Set(this.products.map((product) => product.category)).size;
+  }
+
   ngOnInit(): void {
     this.loadCatalogue();
   }

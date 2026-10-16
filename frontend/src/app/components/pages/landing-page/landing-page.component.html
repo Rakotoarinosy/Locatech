@@ -118,12 +118,12 @@
         <p class="text-gray-400 mb-4">Ne perdez plus de temps sur des fichiers Excel obsolètes. LocaTech vous fournit des graphiques clairs pour optimiser la rentabilité de votre parc.</p>
         <div class="row g-3">
           <div class="col-6">
-            <h3 class="fw-bold text-cyan mb-0">99.8%</h3>
-            <p class="text-gray-500 font-sm">Disponibilité garantie</p>
+            <h3 class="fw-bold text-cyan mb-0">{{ products.length }}</h3>
+            <p class="text-gray-500 font-sm">Matériels disponibles</p>
           </div>
           <div class="col-6">
-            <h3 class="fw-bold text-primary-light mb-0">+45%</h3>
-            <p class="text-gray-500 font-sm">De croissance moyenne</p>
+            <h3 class="fw-bold text-primary-light mb-0">{{ categoryCount }}</h3>
+            <p class="text-gray-500 font-sm">Catégories disponibles</p>
           </div>
         </div>
       </div>
@@ -131,29 +131,35 @@
       <div class="col-lg-7">
         <div class="analytics-dashboard p-4 rounded-4 bg-blur border border-secondary-subtle shadow">
           <div class="d-flex justify-content-between align-items-center mb-4">
-            <h5 class="mb-0 fw-bold font-sm text-white">Aperçu Général — Ce mois</h5>
-            <span class="badge bg-secondary rounded-pill font-xs">Live</span>
+            <h5 class="mb-0 fw-bold font-sm text-white">Catalogue disponible</h5>
+            <span class="badge bg-secondary rounded-pill font-xs" *ngIf="!productsLoading && !productsError">Actualisé</span>
+            <span class="badge bg-secondary rounded-pill font-xs" *ngIf="productsLoading">Chargement...</span>
           </div>
           <div class="row g-3">
             <div class="col-12 col-sm-6">
               <div class="stat-box p-3 rounded-3 bg-dark-subtle border border-secondary-subtle">
-                <span class="text-gray-400 font-xs d-block">Revenus Mensuels</span>
-                <span class="fs-4 fw-bold text-success">+ 18,450,000 Ar</span>
+                <span class="text-gray-400 font-xs d-block">Matériels disponibles</span>
+                <span class="fs-4 fw-bold text-success">{{ products.length }}</span>
               </div>
             </div>
             <div class="col-12 col-sm-6">
               <div class="stat-box p-3 rounded-3 bg-dark-subtle border border-secondary-subtle">
-                <span class="text-gray-400 font-xs d-block">Réservations Actives</span>
-                <span class="fs-4 fw-bold text-cyan">142 Actives</span>
+                <span class="text-gray-400 font-xs d-block">Catégories</span>
+                <span class="fs-4 fw-bold text-cyan">{{ categoryCount }}</span>
               </div>
             </div>
             <div class="col-12">
               <div class="stat-box p-3 rounded-3 bg-dark-subtle border border-secondary-subtle">
-                <span class="text-gray-400 font-xs d-block mb-2">Top Matériels Loués</span>
-                <div class="d-flex justify-content-between font-sm mb-1 text-white"><span>1. Sonorisation Line Array</span> <span class="fw-bold text-cyan">72%</span></div>
-                <div class="progress bg-secondary" style="height: 6px;"><div class="progress-bar bg-cyan" style="width: 72%"></div></div>
-                <div class="d-flex justify-content-between font-sm mb-1 mt-2 text-white"><span>2. Chaise Napoléon</span> <span class="fw-bold text-primary-light">58%</span></div>
-                <div class="progress bg-secondary" style="height: 6px;"><div class="progress-bar bg-primary-light" style="width: 58%"></div></div>
+                <span class="text-gray-400 font-xs d-block mb-2">Aperçu des matériels</span>
+                <div *ngFor="let product of products | slice:0:3; let i = index"
+                     class="d-flex justify-content-between align-items-center gap-3 font-sm text-white"
+                     [class.mt-2]="i > 0">
+                  <span class="text-truncate">{{ product.name }}</span>
+                  <span class="fw-bold text-cyan text-nowrap">{{ product.price | number:'1.0-0' }} Ar/j</span>
+                </div>
+                <span *ngIf="!productsLoading && !productsError && products.length === 0" class="text-gray-400 font-sm">
+                  Aucun matériel disponible actuellement.
+                </span>
               </div>
             </div>
           </div>

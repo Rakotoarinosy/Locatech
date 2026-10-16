@@ -21,7 +21,7 @@ export class LandingPageService {
     return this.http.get<Materiel[]>(`${this.apiUrl}/materiels/materiels/catalogue/`);
   }
 
-  submitContact(request: ContactRequest): Observable<void> {
-    return this.http.post<void>(`${this.apiUrl}/notifications/contact/`, request);
+  submitContact(request: ContactRequest): Observable<unknown> {
+    return this.http.post<unknown>(`${this.apiUrl}/notifications/contact/`, request);
   }
 }

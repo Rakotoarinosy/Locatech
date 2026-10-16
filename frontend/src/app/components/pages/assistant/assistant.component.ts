@@ -5,8 +5,7 @@ import { trigger, style, transition, animate, query, stagger } from '@angular/an
 import { AssistantService } from '../../../services/assistant.service';
 import { Message, RecommendationIA } from '../../../models/interfaces';
 import { LigneB2C } from '../../../models/ligne.models';
-import { Router } from '@angular/router';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { NavbarComponent } from "../../layout/navbar/navbar.component";
 import { ReservationService } from '../../../services/reservation.service';
 import { FactureService } from '../../../services/facture.service';
