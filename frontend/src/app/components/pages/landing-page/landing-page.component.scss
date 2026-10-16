@@ -135,7 +135,17 @@ $gray-500: #64748b;
     transform: translateY(-6px);
     box-shadow: 0 20px 40px -10px rgba($dark, 0.08) !important;
   }
-  
+
+  .product-image-placeholder {
+    height: 200px;
+    background: linear-gradient(135deg, #eff6ff, #f1f5f9);
+    color: #94a3b8;
+
+    i {
+      font-size: 3rem;
+    }
+  }
+
   .product-img-wrapper {
     overflow: hidden;
     img {

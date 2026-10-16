@@ -1,9 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { NavbarComponent } from '../../layout/navbar/navbar.component';
 import { FooterComponent } from '../../layout/footer/footer.component';
+import { Materiel } from '../../../models/materiel.model';
+import { LandingPageService } from '../../../services/landing-page.service';
 
 interface Product {
   id: number;
@@ -35,16 +37,13 @@ interface Testimonial {
   styleUrls: ['./landing-page.component.scss']
 })
 export class LandingPageComponent implements OnInit {
-  products: Product[] = [
-    { id: 1, name: 'Pack Verrerie Cristal', category: 'Arts de la table', price: 45000, image: 'https://images.unsplash.com/photo-1574926053821-79c5e338a933?auto=format&fit=crop&w=600&q=80' },
-    { id: 2, name: 'Chaise Napoléon Transparente', category: 'Mobilier', price: 15000, image: 'https://images.unsplash.com/photo-1567538096630-e0c55bd6374c?auto=format&fit=crop&w=600&q=80' },
-    { id: 3, name: 'Table Banquet Ronde', category: 'Mobilier', price: 35000, image: 'https://images.unsplash.com/photo-1461151304267-38535e780c79?auto=format&fit=crop&w=600&q=80' },
-    { id: 4, name: 'Nappe Lin Premium', category: 'Linge de table', price: 12000, image: 'https://images.unsplash.com/photo-1620735565314-b1cb027fa1bd?auto=format&fit=crop&w=600&q=80' },
-    { id: 5, name: 'Tente Événementielle Cristal 10x15m', category: 'Structures', price: 1200000, image: 'https://images.unsplash.com/photo-1517457373958-b7bdd4587205?auto=format&fit=crop&w=600&q=80' },
-    { id: 6, name: 'Système Sonorisation Line Array', category: 'Audiovisuel', price: 450000, image: 'https://images.unsplash.com/photo-1545128485-c400e7702796?auto=format&fit=crop&w=600&q=80' },
-    { id: 7, name: 'Vidéoprojecteur Laser 4K', category: 'Audiovisuel', price: 150000, image: 'https://images.unsplash.com/photo-1535016120720-40c646be5580?auto=format&fit=crop&w=600&q=80' },
-    { id: 8, name: 'Pack MacBook Pro & Bornes Wi-Fi', category: 'Informatique', price: 250000, image: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=600&q=80' }
-  ];
+  private landingPageService = inject(LandingPageService);
+  products: Product[] = [];
+  productsLoading = false;
+  productsError = '';
+  contactSubmitting = false;
+  contactSuccess = '';
+  contactError = '';
 
   features: Feature[] = [
     { icon: 'bi-calendar-check', title: 'Réservation intelligente', description: 'Algorithme d\'optimisation des stocks en temps réel pour éviter les surréservations.' },
@@ -63,13 +62,49 @@ export class LandingPageComponent implements OnInit {
 
   contactForm = { name: '', email: '', message: '' };
 
-  constructor() {}
+  ngOnInit(): void {
+    this.loadCatalogue();
+  }
 
-  ngOnInit(): void {}
+  loadCatalogue(): void {
+    this.productsLoading = true;
+    this.productsError = '';
+    this.landingPageService.getCatalogue().subscribe({
+      next: (materiels) => {
+        this.products = materiels.map((materiel: Materiel) => ({
+          id: materiel.id,
+          name: materiel.nom,
+          category: materiel.categorie.nom,
+          price: Number(materiel.prix_journalier),
+          image: materiel.photo ?? '',
+        }));
+        this.productsLoading = false;
+      },
+      error: () => {
+        this.productsError = 'Le catalogue est momentanément indisponible. Réessayez dans quelques instants.';
+        this.productsLoading = false;
+      }
+    });
+  }
 
-  onSubmitContact() {
-    console.log('Formulaire envoyé :', this.contactForm);
-    alert('Merci ! Votre message a bien été envoyé.');
-    this.contactForm = { name: '', email: '', message: '' };
+  onSubmitContact(): void {
+    if (this.contactSubmitting) {
+      return;
+    }
+
+    this.contactSubmitting = true;
+    this.contactSuccess = '';
+    this.contactError = '';
+    this.landingPageService.submitContact(this.contactForm).subscribe({
+      next: () => {
+        this.contactSuccess = 'Merci ! Votre demande a bien été envoyée. Notre équipe vous recontactera.';
+        this.contactForm = { name: '', email: '', message: '' };
+        this.contactSubmitting = false;
+      },
+      error: () => {
+        this.contactError = 'Votre demande n’a pas pu être envoyée. Réessayez ou contactez-nous par téléphone.';
+        this.contactSubmitting = false;
+      }
+    });
   }
 }

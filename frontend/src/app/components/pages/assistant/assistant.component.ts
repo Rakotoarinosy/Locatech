@@ -6,6 +6,7 @@ import { AssistantService } from '../../../services/assistant.service';
 import { Message, RecommendationIA } from '../../../models/interfaces';
 import { LigneB2C } from '../../../models/ligne.models';
 import { Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { NavbarComponent } from "../../layout/navbar/navbar.component";
 import { ReservationService } from '../../../services/reservation.service';
 import { FactureService } from '../../../services/facture.service';
@@ -62,10 +63,18 @@ export class AssistantComponent implements OnInit, AfterViewChecked {
   private factureService = inject(FactureService);
   today = new Date().toISOString().split('T')[0];
 
-  constructor(private router: Router, private http: HttpClient) {}
+  constructor(
+    private router: Router,
+    private http: HttpClient,
+    private activatedRoute: ActivatedRoute
+  ) {}
 
   ngOnInit(): void {
     this.isPublicView = !this.router.url.includes('back-office');
+    const selectedMaterial = this.activatedRoute.snapshot.queryParamMap.get('materiel');
+    if (selectedMaterial) {
+      this.userInput.set(`Je souhaite réserver le matériel « ${selectedMaterial} ». Peux-tu m’aider à préparer ma demande ?`);
+    }
     // 1. Vérifier le statut de connexion
     const loggedIn = this.assistantService.isUserLoggedIn();
     this.isConnected.set(loggedIn);

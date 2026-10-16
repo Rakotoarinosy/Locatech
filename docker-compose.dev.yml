@@ -54,7 +54,7 @@ services:
 
     volumes:
       - ./locatech:/app
-      - ./locatech/media:/app/media 
+      - ./locatech/media:/app/backend/media
 
     env_file:
       - .env.dev

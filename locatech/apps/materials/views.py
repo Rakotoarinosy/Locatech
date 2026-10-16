@@ -1,9 +1,13 @@
 from rest_framework import viewsets, filters, status
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from .models import Categorie, Materiel
-from .serializers import CategorieSerializer, MaterielSerializer
+from .serializers import (
+    CategorieSerializer,
+    MaterielSerializer,
+    PublicMaterielSerializer,
+)
 
 
 class MaterielViewSet(viewsets.ModelViewSet):
@@ -22,6 +26,21 @@ class MaterielViewSet(viewsets.ModelViewSet):
         if categorie:
             queryset = queryset.filter(categorie__icontains=categorie)
         return queryset
+
+    @action(
+        detail=False,
+        methods=['get'],
+        url_path='catalogue',
+        permission_classes=[AllowAny],
+    )
+    def catalogue(self, request):
+        materiels = self.get_queryset().filter(statut='disponible', quantite__gt=0)
+        serializer = PublicMaterielSerializer(
+            materiels,
+            many=True,
+            context=self.get_serializer_context(),
+        )
+        return Response(serializer.data)
 
     @action(detail=False, methods=['get'], url_path='stats')
     def stats(self, request):

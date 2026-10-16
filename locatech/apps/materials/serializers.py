@@ -21,3 +21,11 @@ class MaterielSerializer(serializers.ModelSerializer):
             'prix_journalier', 'statut', 'photo',
             'description', 'quantite', 'created_at'
         ]
+
+
+class PublicMaterielSerializer(serializers.ModelSerializer):
+    categorie = CategorieSerializer(read_only=True)
+
+    class Meta:
+        model = Materiel
+        fields = ['id', 'nom', 'categorie', 'prix_journalier', 'photo', 'description']

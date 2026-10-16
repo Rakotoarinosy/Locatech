@@ -45,10 +45,26 @@
     </div>
     
     <div class="row g-4">
+      <div class="col-12 text-center py-4" *ngIf="productsLoading" role="status">
+        <span class="spinner-border spinner-border-sm text-primary me-2" aria-hidden="true"></span>
+        Chargement du catalogue...
+      </div>
+      <div class="col-12" *ngIf="productsError" role="alert">
+        <div class="alert alert-warning d-flex flex-column flex-sm-row align-items-sm-center justify-content-between gap-3 mb-0">
+          <span>{{ productsError }}</span>
+          <button type="button" class="btn btn-outline-primary btn-sm" (click)="loadCatalogue()">Réessayer</button>
+        </div>
+      </div>
+      <div class="col-12 text-center py-4 text-secondary" *ngIf="!productsLoading && !productsError && products.length === 0">
+        Aucun matériel n’est disponible à la location pour le moment.
+      </div>
       <div class="col-12 col-md-6 col-lg-3" *ngFor="let p of products">
         <div class="card product-card border-0 h-100 shadow-sm">
           <div class="product-img-wrapper position-relative">
-            <img [src]="p.image" class="card-img-top object-fit-cover" [alt]="p.name" style="height: 200px;">
+            <img *ngIf="p.image" [src]="p.image" class="card-img-top object-fit-cover" [alt]="p.name" style="height: 200px;">
+            <div *ngIf="!p.image" class="product-image-placeholder d-flex align-items-center justify-content-center" role="img" [attr.aria-label]="'Image indisponible pour ' + p.name">
+              <i class="bi bi-box-seam" aria-hidden="true"></i>
+            </div>
             <span class="badge bg-white text-dark position-absolute top-0 start-0 m-3 shadow-sm rounded-pill font-sm fw-semibold">{{ p.category }}</span>
           </div>
           <div class="card-body d-flex flex-column p-4">
@@ -58,7 +74,9 @@
                 <span class="text-muted font-sm d-block">Tarif journalier</span>
                 <span class="fw-bold text-primary font-lg">{{ p.price | number:'1.0-0' }} Ar</span>
               </div>
-              <button class="btn btn-sm btn-outline-primary rounded-pill px-3">Réserver</button>
+              <a class="btn btn-sm btn-outline-primary rounded-pill px-3"
+                 [routerLink]="['/assistant-ia']"
+                 [queryParams]="{ materiel: p.name }">Réserver</a>
             </div>
           </div>
         </div>
@@ -263,7 +281,12 @@
               <label class="form-label font-sm fw-medium text-dark">Votre message</label>
               <textarea [(ngModel)]="contactForm.message" name="message" class="form-control custom-input" rows="4" placeholder="Décrivez votre besoin..." required></textarea>
             </div>
-            <button type="submit" class="btn btn-primary w-100 rounded-pill py-3 btn-glow">Envoyer la demande</button>
+            <div *ngIf="contactSuccess" class="alert alert-success" role="status">{{ contactSuccess }}</div>
+            <div *ngIf="contactError" class="alert alert-danger" role="alert">{{ contactError }}</div>
+            <button type="submit" class="btn btn-primary w-100 rounded-pill py-3 btn-glow" [disabled]="contactSubmitting">
+              <span *ngIf="contactSubmitting" class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+              {{ contactSubmitting ? 'Envoi en cours...' : 'Envoyer la demande' }}
+            </button>
           </form>
         </div>
       </div>
