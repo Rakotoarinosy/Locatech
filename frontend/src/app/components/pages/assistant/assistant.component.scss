@@ -339,10 +339,63 @@ $chat-max-width: 840px;
   flex-direction: column;
 }
 
+.backoffice-ia-container {
+  height: calc(100vh - 110px);
+  height: calc(100dvh - 110px);
+  min-height: 360px;
+  display: flex;
+  flex-direction: column;
+
+  .assistant-container {
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
+    border: 1px solid #e2e8f0;
+    border-radius: 20px;
+    background: $bg-app;
+    box-shadow: 0 12px 32px rgba(15, 23, 42, 0.06);
+  }
+
+  .assistant-header {
+    flex-shrink: 0;
+  }
+
+  .chat-wrapper {
+    min-height: 0;
+    padding: 1.25rem 1rem;
+  }
+
+  .assistant-footer {
+    flex-shrink: 0;
+    padding: 0.75rem 1rem 1rem;
+    background: $bg-app;
+  }
+}
+
 /* Optionnel : si tu veux limiter la largeur sur grand écran pour que ça reste élégant comme un chat */
 @media (min-width: 992px) {
   .public-ia-container {
     max-width: 900px; 
+  }
+}
+
+@media (max-width: 768px) {
+  .backoffice-ia-container {
+    height: calc(100vh - 162px);
+    height: calc(100dvh - 162px);
+    min-height: 320px;
+
+    .assistant-container {
+      border-radius: 16px;
+    }
+
+    .chat-wrapper {
+      padding: 0.75rem 0.5rem;
+    }
+
+    .assistant-footer {
+      padding: 0.5rem 0.5rem 0.75rem;
+    }
   }
 }
 
