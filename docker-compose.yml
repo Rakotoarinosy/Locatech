@@ -10,10 +10,10 @@ services:
       POSTGRES_PASSWORD: locatech123
 
     # Le backend joint la base par le réseau Docker (DB_HOST=db) : ce port ne sert qu'à pgAdmin
-    # via un tunnel SSH. 5433 car le 5432 du serveur est pris par le PostgreSQL de l'hôte ;
+    # via un tunnel SSH. Choisir dans le .env un port libre du serveur (DB_TUNNEL_PORT) ;
     # 127.0.0.1 = jamais exposé sur internet.
     ports:
-      - "127.0.0.1:5433:5432"
+      - "127.0.0.1:${DB_TUNNEL_PORT:-5433}:5432"
 
     volumes:
       - postgres_data:/var/lib/postgresql/data
