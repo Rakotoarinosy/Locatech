@@ -1,14 +1,17 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterModule } from '@angular/router';
+import { PanierService } from '../../../services/panier.service';
+import { PanierDrawerComponent } from '../panier-drawer/panier-drawer.component';
 
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [RouterModule],
+  imports: [RouterModule, PanierDrawerComponent],
   templateUrl: './navbar.component.html',
   styleUrl: './navbar.component.scss'
 })
 export class NavbarComponent {
+  readonly panier = inject(PanierService);
 
 
   closeNavbar() {

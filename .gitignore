@@ -6,3 +6,6 @@ locatech/backend/media/materiels/
 locatech/backend/media/**
 locatech/backend/staticfiles/
 locatech/backend/backend/**
+
+# Fichiers uploadés : propres à chaque environnement (volume Docker en prod)
+locatech/media/

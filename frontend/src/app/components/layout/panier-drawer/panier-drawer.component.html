@@ -1,0 +1,149 @@
+<!-- Toast d'ajout au panier -->
+<div class="panier-toast shadow" *ngIf="panier.dernierAjout() as nom" role="status">
+  <i class="bi bi-check-circle-fill text-success" aria-hidden="true"></i>
+  <span><strong>{{ nom }}</strong> ajouté au panier</span>
+  <button type="button" class="btn btn-link btn-sm p-0 ms-2" (click)="panier.ouvert.set(true)">Voir</button>
+</div>
+
+<ng-container *ngIf="panier.ouvert()">
+  <div class="panier-backdrop" (click)="fermer()"></div>
+
+  <aside class="panier-drawer" role="dialog" aria-modal="true" aria-labelledby="panier-titre">
+    <div class="panier-header">
+      <button *ngIf="etape() === 'infos'" type="button" class="btn btn-light btn-sm rounded-circle me-2" aria-label="Retour au panier" (click)="etape.set('panier')">
+        <i class="bi bi-arrow-left"></i>
+      </button>
+      <h2 id="panier-titre" class="h5 fw-bold mb-0 me-auto">
+        <ng-container [ngSwitch]="etape()">
+          <span *ngSwitchCase="'infos'">Votre réservation</span>
+          <span *ngSwitchCase="'confirmation'">Demande envoyée</span>
+          <span *ngSwitchDefault>Votre panier <span class="text-secondary fw-normal">({{ panier.nombre() }})</span></span>
+        </ng-container>
+      </h2>
+      <button type="button" class="btn btn-light btn-sm rounded-circle" aria-label="Fermer le panier" (click)="fermer()">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+
+    <!-- ÉTAPE 1 : PANIER -->
+    <ng-container *ngIf="etape() === 'panier'">
+      <ng-container *ngIf="panier.nombre(); else panierVide">
+        <div class="panier-liste">
+          <div class="panier-ligne" *ngFor="let l of panier.lignes(); let i = index; trackBy: trackById">
+            <img *ngIf="l.produit.photo" [src]="l.produit.photo" [alt]="l.produit.nom">
+            <div *ngIf="!l.produit.photo" class="panier-ligne-placeholder" aria-hidden="true"><i class="bi bi-box-seam"></i></div>
+            <div class="flex-grow-1 min-w-0">
+              <div class="fw-semibold text-dark text-truncate">{{ l.produit.nom }}</div>
+              <div class="text-muted font-sm">{{ l.produit.prix | number:'1.0-0' }} Ar / jour</div>
+              <div class="quantite mt-2">
+                <button type="button" [attr.aria-label]="'Diminuer la quantité de ' + l.produit.nom" (click)="panier.changerQuantite(i, -1)"><i class="bi bi-dash"></i></button>
+                <span>{{ l.quantite }}</span>
+                <button type="button" [attr.aria-label]="'Augmenter la quantité de ' + l.produit.nom" [disabled]="l.produit.stock > 0 && l.quantite >= l.produit.stock" (click)="panier.changerQuantite(i, 1)"><i class="bi bi-plus"></i></button>
+              </div>
+            </div>
+            <div class="text-end">
+              <div class="fw-bold text-dark">{{ l.produit.prix * l.quantite | number:'1.0-0' }} Ar</div>
+              <button type="button" class="btn btn-link text-danger btn-sm p-0 mt-2" [attr.aria-label]="'Retirer ' + l.produit.nom" (click)="panier.retirer(i)">
+                <i class="bi bi-trash"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="panier-footer">
+          <div class="d-flex justify-content-between align-items-baseline mb-1">
+            <span class="text-secondary">Total par jour</span>
+            <strong class="fs-5 text-primary">{{ panier.totalJournalier() | number:'1.0-0' }} Ar</strong>
+          </div>
+          <p class="text-muted font-sm mb-3">Choisissez vos dates à l’étape suivante. Aucun paiement n’est demandé en ligne.</p>
+          <button type="button" class="btn btn-primary w-100 rounded-pill py-2" (click)="continuer()">
+            Choisir les dates <i class="bi bi-arrow-right ms-1"></i>
+          </button>
+        </div>
+      </ng-container>
+
+      <ng-template #panierVide>
+        <div class="panier-vide">
+          <i class="bi bi-bag" aria-hidden="true"></i>
+          <strong class="text-dark">Votre panier est vide</strong>
+          <p class="text-secondary font-sm">Ajoutez des matériels depuis le catalogue pour préparer votre réservation.</p>
+          <button type="button" class="btn btn-outline-primary rounded-pill px-4" (click)="fermer()">Voir les matériels</button>
+        </div>
+      </ng-template>
+    </ng-container>
+
+    <!-- ÉTAPE 2 : DATES + COORDONNÉES -->
+    <form *ngIf="etape() === 'infos'" #f="ngForm" class="panier-form" (ngSubmit)="envoyer(f)" novalidate>
+      <div class="panier-liste">
+        <fieldset class="mb-4">
+          <legend class="font-sm fw-semibold text-uppercase text-secondary mb-2">Période de location</legend>
+          <div class="row g-2">
+            <div class="col-6">
+              <label for="date_debut" class="form-label font-sm">Début</label>
+              <input id="date_debut" name="date_debut" type="date" class="form-control" required
+                     [min]="aujourdHui" [(ngModel)]="form.date_debut" (ngModelChange)="majDates()" #dd="ngModel"
+                     [class.is-invalid]="dd.invalid && dd.touched">
+            </div>
+            <div class="col-6">
+              <label for="date_fin" class="form-label font-sm">Fin</label>
+              <input id="date_fin" name="date_fin" type="date" class="form-control" required
+                     [min]="form.date_debut || aujourdHui" [(ngModel)]="form.date_fin" (ngModelChange)="majDates()" #df="ngModel"
+                     [class.is-invalid]="df.invalid && df.touched">
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend class="font-sm fw-semibold text-uppercase text-secondary mb-2">Vos coordonnées</legend>
+          <div class="mb-2">
+            <label for="client_nom" class="form-label font-sm">Nom complet ou société</label>
+            <input id="client_nom" name="client_nom" class="form-control" required autocomplete="name"
+                   [(ngModel)]="form.client_nom" #nom="ngModel" [class.is-invalid]="nom.invalid && nom.touched">
+          </div>
+          <div class="mb-2">
+            <label for="client_email" class="form-label font-sm">Email</label>
+            <input id="client_email" name="client_email" type="email" class="form-control" required email autocomplete="email"
+                   [(ngModel)]="form.client_email" #email="ngModel" [class.is-invalid]="email.invalid && email.touched">
+            <div class="invalid-feedback">Saisissez un email valide.</div>
+          </div>
+          <div class="mb-2">
+            <label for="client_telephone" class="form-label font-sm">Téléphone</label>
+            <input id="client_telephone" name="client_telephone" type="tel" class="form-control" required autocomplete="tel"
+                   placeholder="034 00 000 00" [(ngModel)]="form.client_telephone" #tel="ngModel"
+                   [class.is-invalid]="tel.invalid && tel.touched">
+          </div>
+          <div>
+            <label for="notes" class="form-label font-sm">Précisions <span class="text-muted">(facultatif)</span></label>
+            <textarea id="notes" name="notes" class="form-control" rows="2"
+                      placeholder="Lieu de l’événement, livraison, horaires…" [(ngModel)]="form.notes"></textarea>
+          </div>
+        </fieldset>
+      </div>
+
+      <div class="panier-footer">
+        <div class="d-flex justify-content-between font-sm text-secondary mb-1">
+          <span>{{ panier.nombre() }} matériel(s) × {{ duree() || '–' }} jour(s)</span>
+          <span>{{ panier.totalJournalier() | number:'1.0-0' }} Ar / jour</span>
+        </div>
+        <div class="d-flex justify-content-between align-items-baseline mb-3">
+          <span class="text-secondary">Total estimé</span>
+          <strong class="fs-5 text-primary">{{ duree() ? (totalEstime() | number:'1.0-0') + ' Ar' : '–' }}</strong>
+        </div>
+        <div class="alert alert-danger py-2 font-sm" *ngIf="erreur()" role="alert">{{ erreur() }}</div>
+        <button type="submit" class="btn btn-primary w-100 rounded-pill py-2" [disabled]="envoiEnCours()">
+          <span *ngIf="envoiEnCours()" class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+          {{ envoiEnCours() ? 'Envoi en cours…' : 'Envoyer la demande de réservation' }}
+        </button>
+        <p class="text-muted font-xs text-center mt-2 mb-0">Notre équipe confirme la disponibilité et vous recontacte.</p>
+      </div>
+    </form>
+
+    <!-- ÉTAPE 3 : CONFIRMATION -->
+    <div *ngIf="etape() === 'confirmation'" class="panier-vide">
+      <i class="bi bi-check-circle text-success" aria-hidden="true"></i>
+      <strong class="text-dark">Merci, votre demande est bien reçue !</strong>
+      <p class="text-secondary font-sm">Vous allez recevoir un email récapitulatif. Notre équipe vous recontacte pour confirmer la disponibilité et la livraison.</p>
+      <button type="button" class="btn btn-primary rounded-pill px-4" (click)="fermer()">Fermer</button>
+    </div>
+  </aside>
+</ng-container>

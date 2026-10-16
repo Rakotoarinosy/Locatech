@@ -10,6 +10,16 @@ export interface ContactRequest {
   message: string;
 }
 
+export interface ReservationB2CRequest {
+  client_nom: string;
+  client_email: string;
+  client_telephone: string;
+  date_debut: string;
+  date_fin: string;
+  notes: string;
+  lignes: { materiel_id: number; quantite: number }[];
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -23,5 +33,9 @@ export class LandingPageService {
 
   submitContact(request: ContactRequest): Observable<unknown> {
     return this.http.post<unknown>(`${this.apiUrl}/notifications/contact/`, request);
+  }
+
+  creerReservation(request: ReservationB2CRequest): Observable<unknown> {
+    return this.http.post<unknown>(`${this.apiUrl}/reservations/reservations/b2c/`, request);
   }
 }

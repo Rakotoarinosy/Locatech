@@ -74,9 +74,11 @@
                 <span class="text-muted font-sm d-block">Tarif journalier</span>
                 <span class="fw-bold text-primary font-lg">{{ p.price | number:'1.0-0' }} Ar</span>
               </div>
-              <a class="btn btn-sm btn-outline-primary rounded-pill px-3"
-                 [routerLink]="['/assistant-ia']"
-                 [queryParams]="{ materiel: p.name }">Réserver</a>
+              <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-3 d-inline-flex align-items-center gap-1"
+                      [attr.aria-label]="'Ajouter ' + p.name + ' au panier'"
+                      (click)="ajouterAuPanier(p)">
+                <i class="bi bi-bag-plus" aria-hidden="true"></i> Réserver
+              </button>
             </div>
           </div>
         </div>

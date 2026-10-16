@@ -72,6 +72,20 @@
                 </a>
             </li>
 
+            <li class="nav-item ms-lg-2">
+                <button
+                type="button"
+                class="btn btn-light rounded-circle panier-btn position-relative"
+                [attr.aria-label]="'Ouvrir le panier, ' + panier.nombre() + ' matériel(s)'"
+                (click)="closeNavbar(); panier.ouvert.set(true)"
+                >
+                <i class="bi bi-bag" aria-hidden="true"></i>
+                @if (panier.nombre()) {
+                  <span class="panier-count">{{ panier.nombre() }}</span>
+                }
+                </button>
+            </li>
+
             <li class="nav-item ms-lg-3">
                 <a
                 [routerLink]="['/']"
@@ -87,3 +101,5 @@
     </div>
   </div>
 </nav>
+
+<app-panier-drawer></app-panier-drawer>

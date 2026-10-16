@@ -6,6 +6,7 @@ import { NavbarComponent } from '../../layout/navbar/navbar.component';
 import { FooterComponent } from '../../layout/footer/footer.component';
 import { Materiel } from '../../../models/materiel.model';
 import { LandingPageService } from '../../../services/landing-page.service';
+import { PanierService } from '../../../services/panier.service';
 
 interface Product {
   id: number;
@@ -13,6 +14,7 @@ interface Product {
   category: string;
   price: number;
   image: string;
+  stock: number;
 }
 
 interface Feature {
@@ -38,6 +40,7 @@ interface Testimonial {
 })
 export class LandingPageComponent implements OnInit {
   private landingPageService = inject(LandingPageService);
+  private panier = inject(PanierService);
   products: Product[] = [];
   productsLoading = false;
   productsError = '';
@@ -81,6 +84,7 @@ export class LandingPageComponent implements OnInit {
           category: materiel.categorie.nom,
           price: Number(materiel.prix_journalier),
           image: materiel.photo ?? '',
+          stock: Number(materiel.quantite) || 0,
         }));
         this.productsLoading = false;
       },
@@ -89,6 +93,10 @@ export class LandingPageComponent implements OnInit {
         this.productsLoading = false;
       }
     });
+  }
+
+  ajouterAuPanier(p: Product): void {
+    this.panier.ajouter({ id: p.id, nom: p.name, categorie: p.category, prix: p.price, photo: p.image, stock: p.stock });
   }
 
   onSubmitContact(): void {

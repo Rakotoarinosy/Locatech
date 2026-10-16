@@ -1,0 +1,146 @@
+.panier-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1040;
+  background: rgb(16 25 42 / 42%);
+}
+
+.panier-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  z-index: 1045;
+  width: min(460px, 100vw);
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  box-shadow: -12px 0 40px rgb(23 39 68 / 12%);
+  animation: glisser 0.2s ease-out;
+}
+
+@keyframes glisser {
+  from { transform: translateX(24px); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .panier-drawer { animation: none; }
+}
+
+.panier-header {
+  display: flex;
+  align-items: center;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.panier-form {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.panier-liste {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem 1.5rem;
+}
+
+.panier-ligne {
+  display: flex;
+  gap: 0.875rem;
+  align-items: flex-start;
+  padding: 0.875rem 0;
+  border-bottom: 1px solid #f1f5f9;
+
+  img,
+  .panier-ligne-placeholder {
+    flex: none;
+    width: 64px;
+    height: 64px;
+    border-radius: 0.75rem;
+    object-fit: cover;
+    background: #f3f4f6;
+  }
+
+  .panier-ligne-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #94a3b8;
+    font-size: 1.5rem;
+  }
+}
+
+.min-w-0 {
+  min-width: 0;
+}
+
+.quantite {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid #e2e8f0;
+  border-radius: 999px;
+
+  button {
+    width: 30px;
+    height: 30px;
+    border: 0;
+    background: transparent;
+    color: #334155;
+    border-radius: 999px;
+
+    &:hover:not(:disabled) { background: #f1f5f9; }
+    &:disabled { opacity: 0.35; }
+  }
+
+  span {
+    min-width: 28px;
+    text-align: center;
+    font-weight: 600;
+  }
+}
+
+.panier-footer {
+  padding: 1.25rem 1.5rem;
+  border-top: 1px solid #f1f5f9;
+  background: #fafbfc;
+}
+
+.panier-vide {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 0.5rem;
+  padding: 2rem;
+
+  > i {
+    font-size: 2.75rem;
+    color: #94a3b8;
+    margin-bottom: 0.5rem;
+  }
+
+  p { max-width: 300px; }
+}
+
+.panier-toast {
+  position: fixed;
+  top: 88px;
+  right: 1.5rem;
+  z-index: 1050;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: #fff;
+  border-radius: 0.75rem;
+  border: 1px solid #e2e8f0;
+  font-size: 0.9rem;
+}
+
+.font-xs { font-size: 0.75rem; }
