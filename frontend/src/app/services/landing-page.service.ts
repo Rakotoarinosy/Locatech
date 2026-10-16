@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { Materiel } from '../models/materiel.model';
@@ -35,7 +35,8 @@ export class LandingPageService {
     return this.http.post<unknown>(`${this.apiUrl}/notifications/contact/`, request);
   }
 
-  creerReservation(request: ReservationB2CRequest): Observable<unknown> {
-    return this.http.post<unknown>(`${this.apiUrl}/reservations/reservations/b2c/`, request);
+  /** `headers` : jeton de l'espace client, pour rattacher la réservation au compte connecté. */
+  creerReservation(request: ReservationB2CRequest, headers?: HttpHeaders): Observable<unknown> {
+    return this.http.post<unknown>(`${this.apiUrl}/reservations/reservations/b2c/`, request, { headers });
   }
 }

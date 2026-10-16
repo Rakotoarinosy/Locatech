@@ -1,5 +1,6 @@
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
+from apps.users.permissions import IsStaffUser
 from rest_framework.response import Response
 from django.db.models import Sum, Count
 from django.db.models.functions import TruncMonth
@@ -13,7 +14,7 @@ from django.utils import timezone
 
 class DashboardStatsView(APIView):
     """Stats globales pour les 4 cartes du dashboard."""
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsStaffUser,)
 
     def get(self, request):
         aujourd_hui = timezone.now()
@@ -54,7 +55,7 @@ class DashboardStatsView(APIView):
 
 class RevenusParMoisView(APIView):
     """Revenus agrégés par mois — pour le graphique line/bar du dashboard."""
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsStaffUser,)
 
     def get(self, request):
         data = (
@@ -76,7 +77,7 @@ class RevenusParMoisView(APIView):
 
 class MaterielsStatsView(APIView):
     """Répartition des matériels par statut et par catégorie."""
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsStaffUser,)
 
     def get(self, request):
         par_statut = {}
@@ -98,7 +99,7 @@ class MaterielsStatsView(APIView):
 
 class ReservationsParMoisView(APIView):
     """Nombre de réservations par mois — pour graphique."""
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsStaffUser,)
 
     def get(self, request):
         data = (
@@ -119,7 +120,7 @@ class ReservationsParMoisView(APIView):
 
 class TopClientsView(APIView):
     """Top 5 clients par nombre de réservations."""
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsStaffUser,)
 
     def get(self, request):
         top = (
@@ -132,7 +133,7 @@ class TopClientsView(APIView):
 
 class TopMaterielsView(APIView):
     """Top 5 matériels les plus loués — par nombre de réservations distinctes."""
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsStaffUser,)
 
     def get(self, request):
         from apps.reservations.models import LigneReservation

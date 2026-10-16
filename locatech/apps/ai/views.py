@@ -1,7 +1,8 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from apps.users.permissions import IsStaffUser
 from .services.gemini_service import ask_gemini
 from .models import MessageHistory
 import json
@@ -9,6 +10,7 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 
 class AssistantAPIView(APIView):
     authentication_classes = [JWTAuthentication]
+    permission_classes = [AllowAny]
 
     def post(self, request):
         question = request.data.get("question")
@@ -44,7 +46,7 @@ class AssistantAPIView(APIView):
 
 class AssistantHistoryAPIView(APIView):
     # Seuls les utilisateurs authentifiés (B2B) ont accès à l'historique persistent
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsStaffUser]
 
     def get(self, request):
         # Récupération de tous les messages de l'utilisateur connecté

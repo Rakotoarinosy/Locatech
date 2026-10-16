@@ -40,3 +40,6 @@ testem.log
 # System files
 .DS_Store
 Thumbs.db
+
+# Identifiant Google de dev (surcharge locale de runtime-config.json)
+/src/runtime-config.local.json

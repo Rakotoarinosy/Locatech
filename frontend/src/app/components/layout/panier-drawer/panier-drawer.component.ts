@@ -1,20 +1,23 @@
 import { Component, HostListener, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, NgForm } from '@angular/forms';
+import { RouterModule } from '@angular/router';
 import { PanierService } from '../../../services/panier.service';
 import { LandingPageService } from '../../../services/landing-page.service';
+import { CompteService } from '../../../services/compte.service';
 
 type Etape = 'panier' | 'infos' | 'confirmation';
 
 @Component({
   selector: 'app-panier-drawer',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './panier-drawer.component.html',
   styleUrl: './panier-drawer.component.scss'
 })
 export class PanierDrawerComponent {
   readonly panier = inject(PanierService);
+  readonly compte = inject(CompteService);
   private landingPageService = inject(LandingPageService);
 
   readonly etape = signal<Etape>('panier');
@@ -72,6 +75,11 @@ export class PanierDrawerComponent {
 
   continuer(): void {
     this.erreur.set('');
+    const u = this.compte.utilisateur();
+    if (u) {
+      this.form.client_nom ||= this.compte.nomAffiche();
+      this.form.client_email ||= u.email;
+    }
     this.etape.set('infos');
   }
 
@@ -86,7 +94,7 @@ export class PanierDrawerComponent {
     this.landingPageService.creerReservation({
       ...this.form,
       lignes: this.panier.lignes().map((l) => ({ materiel_id: l.produit.id, quantite: l.quantite }))
-    }).subscribe({
+    }, this.compte.enTetes()).subscribe({
       next: () => {
         this.panier.vider();
         this.form = { date_debut: '', date_fin: '', client_nom: '', client_email: '', client_telephone: '', notes: '' };

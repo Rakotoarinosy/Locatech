@@ -4,3 +4,5 @@ dist
 .angular
 .vscode
 coverage
+# Identifiant Google de dev (surcharge locale de runtime-config.json)
+src/runtime-config.local.json

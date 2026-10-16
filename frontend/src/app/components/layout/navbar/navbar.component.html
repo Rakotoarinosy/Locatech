@@ -73,6 +73,18 @@
             </li>
 
             <li class="nav-item ms-lg-2">
+                @if (compte.connecte()) {
+                  <a class="nav-link d-flex align-items-center gap-1" routerLink="/mes-reservations" (click)="closeNavbar()">
+                    <i class="bi bi-person-circle" aria-hidden="true"></i> Mes réservations
+                  </a>
+                } @else {
+                  <a class="nav-link d-flex align-items-center gap-1" routerLink="/connexion" (click)="closeNavbar()">
+                    <i class="bi bi-person" aria-hidden="true"></i> Se connecter
+                  </a>
+                }
+            </li>
+
+            <li class="nav-item ms-lg-2">
                 <button
                 type="button"
                 class="btn btn-light rounded-circle panier-btn position-relative"

@@ -51,3 +51,32 @@ class ReservationSerializer(serializers.ModelSerializer):
             for ligne in lignes_data:
                 LigneReservation.objects.create(reservation=instance, **ligne)
         return instance   
+
+class MaLigneReservationSerializer(serializers.ModelSerializer):
+    """Ligne vue par le client : uniquement ce qui le concerne."""
+    nom        = serializers.CharField(source='materiel.nom', read_only=True)
+    photo      = serializers.ImageField(source='materiel.photo', read_only=True)
+    prix_total = serializers.ReadOnlyField()
+
+    class Meta:
+        model  = LigneReservation
+        fields = ['id', 'nom', 'photo', 'quantite', 'prix_unitaire', 'prix_total']
+
+
+class MaReservationSerializer(serializers.ModelSerializer):
+    """Réservation vue depuis l'espace client (sans notes internes ni fiche client)."""
+    lignes       = MaLigneReservationSerializer(many=True, read_only=True)
+    statut_label = serializers.CharField(source='get_statut_display', read_only=True)
+    prix_total   = serializers.ReadOnlyField()
+    facture      = serializers.SerializerMethodField()
+
+    class Meta:
+        model  = Reservation
+        fields = [
+            'id', 'date_debut', 'date_fin', 'statut', 'statut_label',
+            'prix_total', 'montant_recu', 'created_at', 'lignes', 'facture'
+        ]
+
+    def get_facture(self, obj):
+        facture = getattr(obj, 'facture', None)
+        return {'numero': facture.numero, 'statut': facture.statut} if facture else None

@@ -1,0 +1,46 @@
+.mes-reservations-page {
+  min-height: 100vh;
+  padding: 120px 0 64px;
+  background: #f8fafc;
+}
+
+.reservation,
+.vide {
+  border-radius: 1.25rem;
+}
+
+.vide {
+  display: flex;
+  flex-direction: column;
+
+  > i {
+    font-size: 2.75rem;
+    color: #94a3b8;
+    margin-bottom: 0.75rem;
+  }
+}
+
+.ligne {
+  border-bottom: 1px solid #f1f5f9;
+
+  &:last-child { border-bottom: 0; }
+
+  img,
+  .ligne-placeholder {
+    flex: none;
+    width: 48px;
+    height: 48px;
+    border-radius: 0.625rem;
+    object-fit: cover;
+    background: #f3f4f6;
+  }
+
+  .ligne-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #94a3b8;
+  }
+}
+
+.font-sm { font-size: 0.875rem; }

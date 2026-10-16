@@ -30,6 +30,10 @@ services:
     ports:
       - "42000:80"
 
+    # Seul l'identifiant Google (public) est transmis au conteneur nginx, pas tout le .env
+    environment:
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+
     restart: unless-stopped
 
     depends_on:

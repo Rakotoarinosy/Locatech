@@ -9,6 +9,12 @@ from .base import *
 
 DEBUG = False
 
+from django.core.exceptions import ImproperlyConfigured
+
+if not os.getenv("SECRET_KEY"):
+    # Les jetons JWT sont signés avec cette clé : elle ne doit jamais être celle du dépôt
+    raise ImproperlyConfigured("SECRET_KEY doit être défini dans le .env de production.")
+
 ALLOWED_HOSTS = os.getenv(
     "DJANGO_ALLOWED_HOSTS",
     "api.locatech-mada.com"

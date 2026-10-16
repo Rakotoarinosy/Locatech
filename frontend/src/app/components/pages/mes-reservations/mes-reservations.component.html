@@ -1,0 +1,71 @@
+<app-navbar></app-navbar>
+
+<main class="mes-reservations-page">
+  <div class="container">
+    <div class="d-flex flex-column flex-sm-row align-items-sm-end justify-content-between gap-3 mb-4">
+      <div>
+        <p class="text-secondary mb-1">Bonjour {{ compte.nomAffiche() }}</p>
+        <h1 class="h3 fw-bold text-dark mb-0">Mes réservations</h1>
+      </div>
+      <div class="d-flex gap-2">
+        <a routerLink="/home" fragment="produits" class="btn btn-primary rounded-pill px-4">
+          <i class="bi bi-plus-lg me-1" aria-hidden="true"></i> Nouvelle réservation
+        </a>
+        <button type="button" class="btn btn-outline-secondary rounded-pill" (click)="deconnexion()">Se déconnecter</button>
+      </div>
+    </div>
+
+    <div *ngIf="chargement()" class="text-center text-secondary py-5" role="status">
+      <span class="spinner-border spinner-border-sm text-primary me-2" aria-hidden="true"></span>Chargement de vos réservations…
+    </div>
+
+    <div *ngIf="erreur()" class="alert alert-warning d-flex flex-column flex-sm-row align-items-sm-center justify-content-between gap-3" role="alert">
+      <span>{{ erreur() }}</span>
+      <button type="button" class="btn btn-outline-primary btn-sm" (click)="charger()">Réessayer</button>
+    </div>
+
+    <div *ngIf="!chargement() && !erreur() && reservations().length === 0" class="vide card border-0 shadow-sm text-center p-5">
+      <i class="bi bi-calendar2-x" aria-hidden="true"></i>
+      <h2 class="h5 fw-bold text-dark">Aucune réservation pour le moment</h2>
+      <p class="text-secondary mb-4">Les réservations faites avec l’adresse {{ compte.utilisateur()?.email }} apparaîtront ici.</p>
+      <a routerLink="/home" fragment="produits" class="btn btn-primary rounded-pill px-4 align-self-center">Voir les matériels</a>
+    </div>
+
+    <div class="d-flex flex-column gap-3" *ngIf="!chargement() && reservations().length">
+      <article class="reservation card border-0 shadow-sm" *ngFor="let r of reservations()">
+        <div class="card-body p-4">
+          <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+            <div>
+              <h2 class="h6 fw-bold text-dark mb-1">Réservation n° {{ r.id }}</h2>
+              <div class="text-secondary font-sm">
+                <i class="bi bi-calendar-event me-1" aria-hidden="true"></i>
+                Du {{ r.date_debut | date:'d MMM yyyy':'':'fr' }} au {{ r.date_fin | date:'d MMM yyyy':'':'fr' }}
+                · {{ duree(r) }} jour(s)
+              </div>
+            </div>
+            <span class="badge rounded-pill px-3 py-2" [ngClass]="badge(r.statut)">{{ r.statut_label }}</span>
+          </div>
+
+          <ul class="list-unstyled mb-3">
+            <li class="ligne d-flex align-items-center gap-3 py-2" *ngFor="let l of r.lignes">
+              <img *ngIf="l.photo" [src]="l.photo" [alt]="l.nom">
+              <div *ngIf="!l.photo" class="ligne-placeholder" aria-hidden="true"><i class="bi bi-box-seam"></i></div>
+              <span class="flex-grow-1 text-dark">{{ l.nom }} <span class="text-secondary">× {{ l.quantite }}</span></span>
+              <span class="fw-semibold text-dark">{{ +l.prix_total | number:'1.0-0' }} Ar</span>
+            </li>
+          </ul>
+
+          <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 pt-3 border-top">
+            <span class="text-secondary font-sm">
+              <ng-container *ngIf="r.facture; else sansFacture">
+                <i class="bi bi-file-earmark-text me-1" aria-hidden="true"></i>Facture {{ r.facture.numero }}
+              </ng-container>
+              <ng-template #sansFacture>Demandée le {{ r.created_at | date:'d MMM yyyy':'':'fr' }}</ng-template>
+            </span>
+            <span class="fw-bold text-primary fs-5">{{ +r.prix_total | number:'1.0-0' }} Ar</span>
+          </div>
+        </div>
+      </article>
+    </div>
+  </div>
+</main>

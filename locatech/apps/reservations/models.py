@@ -1,6 +1,7 @@
 from django.db import models
 from datetime import datetime
 from apps.clients.models import Client
+from django.conf import settings
 from apps.materials.models import Materiel
 
 # Create your models here.
@@ -14,6 +15,9 @@ class Reservation(models.Model):
         ('annulee',           'Annulée'),
     ]
     client      = models.ForeignKey(Client, on_delete=models.CASCADE)
+    # Compte qui a passé la réservation (client connecté ou collaborateur d'une société)
+    cree_par    = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True,
+                                    related_name='reservations_creees')
     date_debut  = models.DateField()
     date_fin    = models.DateField()
     statut      = models.CharField(max_length=20, choices=STATUT_CHOICES, default='en_attente')

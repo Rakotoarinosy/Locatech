@@ -4,6 +4,7 @@ from datetime import date
 from rest_framework import viewsets, status, filters
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
+from apps.users.permissions import IsStaffUser
 from rest_framework.response import Response
 from django.http import FileResponse
 from django.conf import settings
@@ -241,7 +242,7 @@ def IntlFormat(value):
 class FactureViewSet(viewsets.ModelViewSet):
     queryset = Facture.objects.all().order_by('-created_at')
     serializer_class = FactureSerializer
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsStaffUser,)
     filter_backends = [filters.SearchFilter]
     search_fields = ['reservation__client__nom', 'reservation__materiel__nom']
     http_method_names = ['get', 'post', 'delete', 'head', 'options', "patch"]

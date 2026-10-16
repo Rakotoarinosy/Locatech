@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
+import os
 from pathlib import Path
 from datetime import timedelta
 from dotenv import load_dotenv
@@ -27,7 +28,8 @@ load_dotenv(PROJECT_ROOT.parent / ".env")
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-q+1suw!u5e1x7(86#u0)b40xpu+&^yz&b3d2j-hdyx6*p+v%f*'
+# Clé lue depuis le .env ; la valeur par défaut ne sert qu'en développement (prod.py l'exige)
+SECRET_KEY = os.getenv('SECRET_KEY') or 'django-insecure-dev-only-ne-pas-utiliser-en-production'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -72,7 +74,11 @@ MIDDLEWARE = [
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
-    )
+    ),
+    # Par défaut, l'API est réservée à l'équipe LocaTech ; les vues publiques déclarent AllowAny
+    'DEFAULT_PERMISSION_CLASSES': (
+        'apps.users.permissions.IsStaffUser',
+    ),
 }
 
 AUTH_USER_MODEL = 'users.User'
@@ -194,6 +200,9 @@ SIMPLE_JWT = {
 }
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+
+# Connexion « Continuer avec Google » (ID client OAuth Web)
+GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID", "")
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 

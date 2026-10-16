@@ -7,10 +7,13 @@ from decimal import Decimal
 from rest_framework import viewsets, filters, status
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated, AllowAny
+from apps.users.permissions import IsStaffUser
 from rest_framework.response import Response
 
 from .models import Reservation, LigneReservation
-from .serializers import ReservationSerializer
+from django.db.models import Q
+
+from .serializers import ReservationSerializer, MaReservationSerializer
 
 from apps.factures.models import Facture
 from apps.factures.views import _generate_pdf
@@ -22,7 +25,7 @@ logger = logging.getLogger(__name__)
 class ReservationViewSet(viewsets.ModelViewSet):
     queryset = Reservation.objects.all().order_by('-id')
     serializer_class = ReservationSerializer
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsStaffUser,)
     filter_backends = [filters.SearchFilter]
     search_fields = ['client__nom', 'lignes__materiel__nom', 'statut']
 
@@ -173,6 +176,22 @@ class ReservationViewSet(viewsets.ModelViewSet):
             par_statut[s] = Reservation.objects.filter(statut=s).count()
         return Response({'total': total, 'par_statut': par_statut})
 
+    @action(detail=False, methods=['get'], url_path='mes-reservations', permission_classes=[IsAuthenticated])
+    def mes_reservations(self, request):
+        """Espace client : réservations passées par ce compte ou au nom de son email (vérifié par Google)."""
+        user = request.user
+        filtre = Q(cree_par=user)
+        if user.email:
+            filtre |= Q(client__email__iexact=user.email)
+        reservations = (
+            Reservation.objects.filter(filtre)
+            .select_related('facture')
+            .prefetch_related('lignes__materiel')
+            .order_by('-created_at')
+            .distinct()
+        )
+        return Response(MaReservationSerializer(reservations, many=True, context={'request': request}).data)
+
     @action(detail=False, methods=['post'], url_path='b2c', permission_classes=[AllowAny])
     def creer_b2c(self, request):
         """Crée client + réservation multi-matériels publique."""
@@ -199,7 +218,8 @@ class ReservationViewSet(viewsets.ModelViewSet):
             date_debut=data['date_debut'],
             date_fin=data['date_fin'],
             statut='en_attente',
-            notes=data.get('notes', '')
+            notes=data.get('notes', ''),
+            cree_par=request.user if request.user.is_authenticated else None,
         )
         reservation.refresh_from_db()
         
@@ -232,7 +252,7 @@ class ReservationViewSet(viewsets.ModelViewSet):
 
         return Response(ReservationSerializer(reservation).data, status=status.HTTP_201_CREATED)
     
-    @action(detail=False, methods=['get'], url_path='calendar', permission_classes=[AllowAny])
+    @action(detail=False, methods=['get'], url_path='calendar')
     def calendrier(self, request):
         """Retourne les réservations pour un calendrier."""
         reservations = Reservation.objects.select_related('client').prefetch_related('lignes__materiel').exclude(statut='annulee')

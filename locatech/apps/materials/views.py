@@ -1,6 +1,7 @@
 from rest_framework import viewsets, filters, status
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAuthenticated
+from apps.users.permissions import IsStaffUser
 from rest_framework.response import Response
 from .models import Categorie, Materiel
 from .serializers import (
@@ -13,7 +14,7 @@ from .serializers import (
 class MaterielViewSet(viewsets.ModelViewSet):
     queryset = Materiel.objects.all().order_by('-created_at')
     serializer_class = MaterielSerializer
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsStaffUser,)
     filter_backends = [filters.SearchFilter]
     search_fields = ['nom', 'categorie']
 
@@ -67,4 +68,4 @@ class MaterielViewSet(viewsets.ModelViewSet):
 class CategorieViewSet(viewsets.ModelViewSet):
     queryset = Categorie.objects.all()
     serializer_class = CategorieSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsStaffUser]
