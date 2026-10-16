@@ -13,6 +13,7 @@ urlpatterns = [
     path('analytics/', include('apps.analytics.urls')),
     path('assistant/', include('apps.ai.urls')),
     path('notifications/', include('apps.notifications.urls')),
+    path('paiements/', include('apps.paiements.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 if settings.DEBUG:

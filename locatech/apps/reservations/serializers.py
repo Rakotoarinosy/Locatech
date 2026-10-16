@@ -69,13 +69,28 @@ class MaReservationSerializer(serializers.ModelSerializer):
     statut_label = serializers.CharField(source='get_statut_display', read_only=True)
     prix_total   = serializers.ReadOnlyField()
     facture      = serializers.SerializerMethodField()
+    payee        = serializers.SerializerMethodField()
+    jeton_paiement = serializers.SerializerMethodField()
 
     class Meta:
         model  = Reservation
         fields = [
             'id', 'date_debut', 'date_fin', 'statut', 'statut_label',
-            'prix_total', 'montant_recu', 'created_at', 'lignes', 'facture'
+            'prix_total', 'montant_recu', 'mode_paiement', 'created_at', 'lignes', 'facture',
+            'payee', 'jeton_paiement'
         ]
+
+    def get_payee(self, obj):
+        from apps.paiements.services import est_payee
+        return est_payee(obj)
+
+    def get_jeton_paiement(self, obj):
+        """Jeton de la page de paiement, seulement tant que la réservation peut être payée en ligne."""
+        from apps.paiements import gateway
+        from apps.paiements.services import est_payee, jeton_paiement
+        if obj.statut == 'en_attente' and not est_payee(obj) and gateway.est_configuree():
+            return jeton_paiement(obj)
+        return None
 
     def get_facture(self, obj):
         facture = getattr(obj, 'facture', None)

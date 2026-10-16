@@ -23,6 +23,13 @@ class PublicCatalogueTests(TestCase):
             statut='loue',
         )
         Materiel.objects.create(
+            nom='Chaise en maintenance',
+            categorie=self.category,
+            prix_journalier=3000,
+            quantite=10,
+            statut='maintenance',
+        )
+        Materiel.objects.create(
             nom='Chaise épuisée',
             categorie=self.category,
             prix_journalier=3000,
@@ -30,11 +37,12 @@ class PublicCatalogueTests(TestCase):
             statut='disponible',
         )
 
-    def test_catalogue_is_public_and_only_shows_available_stock(self):
+    def test_catalogue_is_public_and_only_shows_rentable_stock(self):
         response = self.client.get('/materiels/materiels/catalogue/')
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual([item['nom'] for item in response.data], ['Chaise disponible'])
+        # Loué sur d'autres dates = toujours réservable ; le stock est vérifié par période à la réservation
+        self.assertEqual(sorted(item['nom'] for item in response.data), ['Chaise disponible', 'Chaise louée'])
         self.assertNotIn('quantite', response.data[0])
 
     def test_management_endpoint_still_requires_authentication(self):

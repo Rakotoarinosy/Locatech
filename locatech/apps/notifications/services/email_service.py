@@ -106,8 +106,8 @@ class EmailService:
     # ── Emails métier ─────────────────────────────────────────────────
 
     @classmethod
-    def nouvelle_reservation(cls, reservation) -> bool:
-        """📧 Email au client quand une réservation est créée."""
+    def nouvelle_reservation(cls, reservation, lien_paiement: str = '') -> bool:
+        """📧 Email au client quand une réservation est créée (avec un lien de paiement par carte si choisi)."""
         lignes_html = ''.join([
             f"""<tr>
                   <td style="padding:8px 12px; border-bottom:1px solid #f1f5f9;">
@@ -166,6 +166,8 @@ class EmailService:
             </div>
 
             <p style="color:#64748b; font-size:13px;">
+              {"Si le paiement n’a pas abouti, utilisez le bouton ci-dessous : le lien reste valable 30 jours."
+               if lien_paiement else "Paiement en espèces au retrait ou à la livraison du matériel."}
               Vous recevrez une confirmation dès que le paiement sera validé.
             </p>
         """
@@ -174,7 +176,9 @@ class EmailService:
             to_email=reservation.client.email,
             html_content=cls._base_template(
                 title="Votre réservation a été reçue !",
-                body=body
+                body=body,
+                cta_url=lien_paiement,
+                cta_label="Payer par carte" if lien_paiement else '',
             )
         )
 

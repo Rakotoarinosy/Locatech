@@ -7,6 +7,7 @@ export const routes: Routes = [
   { path: "home", loadComponent: () => import("./components/pages/landing-page/landing-page.component").then(m => m.LandingPageComponent) },
   { path: "login", loadComponent: () => import("./components/pages/login/login.component").then(m => m.LoginComponent) },
   { path: "assistant-ia", loadComponent: () => import("./components/pages/assistant/assistant.component").then(m => m.AssistantComponent) },
+  { path: "paiement", loadComponent: () => import("./components/pages/paiement/paiement.component").then(m => m.PaiementComponent) },
   { path: "connexion", loadComponent: () => import("./components/pages/connexion/connexion.component").then(m => m.ConnexionComponent) },
   { path: "mes-reservations", canActivate: [compteGuard], loadComponent: () => import("./components/pages/mes-reservations/mes-reservations.component").then(m => m.MesReservationsComponent) },
   {

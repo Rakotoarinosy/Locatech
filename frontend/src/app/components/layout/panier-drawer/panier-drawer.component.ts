@@ -5,6 +5,7 @@ import { RouterModule } from '@angular/router';
 import { PanierService } from '../../../services/panier.service';
 import { LandingPageService } from '../../../services/landing-page.service';
 import { CompteService } from '../../../services/compte.service';
+import { ModePaiement, PaiementService } from '../../../services/paiement.service';
 
 type Etape = 'panier' | 'infos' | 'confirmation';
 
@@ -19,10 +20,17 @@ export class PanierDrawerComponent {
   readonly panier = inject(PanierService);
   readonly compte = inject(CompteService);
   private landingPageService = inject(LandingPageService);
+  private paiementService = inject(PaiementService);
 
   readonly etape = signal<Etape>('panier');
   readonly envoiEnCours = signal(false);
   readonly erreur = signal('');
+  /** Matériels refusés par le serveur faute de stock sur la période choisie. */
+  readonly indisponibles = signal<string[]>([]);
+  readonly modePaiement = signal<ModePaiement>('especes');
+  readonly carteDisponible = signal(false);
+  /** Réservation enregistrée mais paiement par carte non démarré (passerelle indisponible). */
+  readonly avertissementPaiement = signal('');
 
   readonly aujourdHui = this.formatDate(new Date());
   form = {
@@ -75,6 +83,13 @@ export class PanierDrawerComponent {
 
   continuer(): void {
     this.erreur.set('');
+    this.paiementService.config().subscribe({
+      next: (config) => {
+        this.carteDisponible.set(config.carte);
+        if (!config.carte) this.modePaiement.set('especes');
+      },
+      error: () => this.carteDisponible.set(false),
+    });
     const u = this.compte.utilisateur();
     if (u) {
       this.form.client_nom ||= this.compte.nomAffiche();
@@ -91,18 +106,28 @@ export class PanierDrawerComponent {
 
     this.envoiEnCours.set(true);
     this.erreur.set('');
+    this.indisponibles.set([]);
+    this.avertissementPaiement.set('');
     this.landingPageService.creerReservation({
       ...this.form,
+      mode_paiement: this.modePaiement(),
       lignes: this.panier.lignes().map((l) => ({ materiel_id: l.produit.id, quantite: l.quantite }))
     }, this.compte.enTetes()).subscribe({
-      next: () => {
+      next: (reponse) => {
         this.panier.vider();
+        if (reponse.paiement?.checkout_url) {
+          // Carte : on quitte le site pour la page de paiement sécurisée, le retour se fait sur /paiement
+          this.paiementService.redirigerVers(reponse.paiement.checkout_url);
+          return;
+        }
+        this.avertissementPaiement.set(reponse.paiement?.erreur ?? '');
         this.form = { date_debut: '', date_fin: '', client_nom: '', client_email: '', client_telephone: '', notes: '' };
         this.dates.set({ debut: '', fin: '' });
         this.etape.set('confirmation');
         this.envoiEnCours.set(false);
       },
       error: (err) => {
+        this.indisponibles.set(err.error?.indisponibles ?? []);
         this.erreur.set(err.error?.error ?? err.error?.detail ?? 'La réservation n’a pas pu être envoyée. Réessayez dans quelques instants.');
         this.envoiEnCours.set(false);
       }

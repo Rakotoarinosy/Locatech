@@ -1,0 +1,86 @@
+<app-navbar></app-navbar>
+
+<main class="paiement-page d-flex justify-content-center px-3">
+  <div class="paiement-card card border-0 shadow-sm p-4 p-sm-5">
+
+    <div *ngIf="chargement()" class="text-center text-secondary py-4" role="status">
+      <span class="spinner-border spinner-border-sm text-primary me-2" aria-hidden="true"></span>Chargement de votre réservation…
+    </div>
+
+    <ng-container *ngIf="!chargement() && statut() as s">
+      <!-- En-tête selon l'état du paiement -->
+      <div class="text-center mb-4">
+        <ng-container *ngIf="s.payee; else nonPayee">
+          <div class="etat etat-ok"><i class="bi bi-check-circle-fill" aria-hidden="true"></i></div>
+          <h1 class="h4 fw-bold text-dark mb-2">Paiement reçu, merci !</h1>
+          <p class="text-secondary mb-0">Votre réservation est confirmée. Un email de confirmation vous a été envoyé.</p>
+        </ng-container>
+
+        <ng-template #nonPayee>
+          <ng-container *ngIf="enVerification(s); else attente">
+            <div class="etat etat-info"><span class="spinner-border" aria-hidden="true"></span></div>
+            <h1 class="h4 fw-bold text-dark mb-2">Paiement en cours de vérification</h1>
+            <p class="text-secondary mb-0">La banque confirme votre paiement. Cela prend en général quelques secondes.</p>
+          </ng-container>
+        </ng-template>
+
+        <ng-template #attente>
+          <ng-container *ngIf="s.paiement_carte === 'failed' || s.paiement_carte === 'cancelled' || retour() === 'cancelled'; else aRegler">
+            <div class="etat etat-ko"><i class="bi bi-x-circle-fill" aria-hidden="true"></i></div>
+            <h1 class="h4 fw-bold text-dark mb-2">
+              {{ s.paiement_carte === 'failed' ? 'Paiement refusé' : 'Paiement annulé' }}
+            </h1>
+            <p class="text-secondary mb-0">Votre réservation est conservée. Vous pouvez réessayer ou régler en espèces.</p>
+          </ng-container>
+        </ng-template>
+
+        <ng-template #aRegler>
+          <div class="etat etat-info"><i class="bi bi-hourglass-split" aria-hidden="true"></i></div>
+          <h1 class="h4 fw-bold text-dark mb-2">Réservation en attente de paiement</h1>
+          <p class="text-secondary mb-0">
+            {{ s.mode_paiement === 'especes' ? 'Paiement prévu en espèces au retrait ou à la livraison.' : 'Réglez votre réservation par carte pour la confirmer.' }}
+          </p>
+        </ng-template>
+      </div>
+
+      <!-- Récapitulatif -->
+      <div class="recap rounded-4 p-3 mb-4">
+        <div class="d-flex justify-content-between font-sm text-secondary mb-2">
+          <span>Réservation n° {{ s.reservation }}</span>
+          <span>{{ s.date_debut | date:'d MMM':'':'fr' }} → {{ s.date_fin | date:'d MMM yyyy':'':'fr' }}</span>
+        </div>
+        <ul class="list-unstyled mb-2">
+          <li class="d-flex justify-content-between text-dark" *ngFor="let l of s.lignes">
+            <span>{{ l.nom }}</span><span class="text-secondary">× {{ l.quantite }}</span>
+          </li>
+        </ul>
+        <div class="d-flex justify-content-between align-items-baseline pt-2 border-top">
+          <span class="text-secondary">{{ s.payee ? 'Montant payé' : 'Montant à régler' }}</span>
+          <strong class="fs-5 text-primary">{{ s.montant | number:'1.0-0' }} Ar</strong>
+        </div>
+      </div>
+
+      <div *ngIf="erreur()" class="alert alert-warning font-sm" role="alert">{{ erreur() }}</div>
+
+      <!-- Actions -->
+      <div class="d-grid gap-2">
+        <button *ngIf="s.peut_payer_carte && !enVerification(s)" type="button" class="btn btn-primary rounded-pill py-2"
+                [disabled]="redirection()" (click)="payerCarte()">
+          <span *ngIf="redirection()" class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+          <i *ngIf="!redirection()" class="bi bi-credit-card me-1" aria-hidden="true"></i>
+          {{ s.paiement_carte ? 'Réessayer le paiement par carte' : 'Payer par carte' }}
+        </button>
+        <button *ngIf="enVerification(s)" type="button" class="btn btn-outline-primary rounded-pill py-2" (click)="verifierEncore()">
+          Vérifier à nouveau
+        </button>
+        <a routerLink="/home" class="btn btn-link">Retour à l’accueil</a>
+      </div>
+    </ng-container>
+
+    <div *ngIf="!chargement() && !statut() && erreur()" class="text-center py-3">
+      <div class="etat etat-ko"><i class="bi bi-link-45deg" aria-hidden="true"></i></div>
+      <p class="text-secondary">{{ erreur() }}</p>
+      <a routerLink="/home" class="btn btn-outline-primary rounded-pill px-4">Retour à l’accueil</a>
+    </div>
+  </div>
+</main>

@@ -58,6 +58,7 @@ INSTALLED_APPS = [
     'apps.reservations',
     'apps.ai',
     'apps.notifications',
+    'apps.paiements',
 ]
 
 MIDDLEWARE = [
@@ -203,6 +204,13 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
 # Connexion « Continuer avec Google » (ID client OAuth Web)
 GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID", "")
+
+# Passerelle de paiement par carte (ecommerce_monitoring, même passerelle que BazarStore)
+PAYMENT_GATEWAY_URL = os.getenv("PAYMENT_GATEWAY_URL", "")
+PAYMENT_GATEWAY_API_KEY = os.getenv("PAYMENT_GATEWAY_API_KEY", "")
+PAYMENT_GATEWAY_WEBHOOK_SECRET = os.getenv("PAYMENT_GATEWAY_WEBHOOK_SECRET", "")
+# Site public : pages de retour après paiement et liens envoyés par email
+PUBLIC_FRONTEND_URL = os.getenv("PUBLIC_FRONTEND_URL", "http://localhost:4200")
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 

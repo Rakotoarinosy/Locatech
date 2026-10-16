@@ -194,63 +194,97 @@ class ReservationViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['post'], url_path='b2c', permission_classes=[AllowAny])
     def creer_b2c(self, request):
-        """Crée client + réservation multi-matériels publique."""
-        data   = request.data
-        lignes = data.get('lignes', [])
+        """Crée client + réservation multi-matériels publique (panier du site)."""
+        from django.db import transaction
+        from django.utils.dateparse import parse_date
+        from apps.clients.models import Client
+        from apps.materials.models import Materiel
+        from apps.paiements import carte, gateway
+        from apps.paiements.services import lien_paiement, jeton_paiement, verifier_disponibilite
 
+        data = request.data
         required = ['client_nom', 'client_email', 'date_debut', 'date_fin']
         for field in required:
             if not data.get(field):
                 return Response({'error': f'{field} requis.'}, status=status.HTTP_400_BAD_REQUEST)
-        if not lignes:
+
+        debut, fin = parse_date(str(data['date_debut'])), parse_date(str(data['date_fin']))
+        if not debut or not fin or fin < debut:
+            return Response({'error': 'Période de location invalide.'}, status=status.HTTP_400_BAD_REQUEST)
+        if debut < date.today():
+            return Response({'error': 'La date de début est déjà passée.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Quantités regroupées par matériel
+        quantites = {}
+        try:
+            for ligne in data.get('lignes') or []:
+                materiel_id, quantite = int(ligne['materiel_id']), int(ligne.get('quantite', 1))
+                if quantite < 1:
+                    raise ValueError
+                quantites[materiel_id] = quantites.get(materiel_id, 0) + quantite
+        except (KeyError, TypeError, ValueError):
+            return Response({'error': 'Lignes de matériel invalides.'}, status=status.HTTP_400_BAD_REQUEST)
+        if not quantites:
             return Response({'error': 'Au moins une ligne de matériel requise.'}, status=status.HTTP_400_BAD_REQUEST)
 
-        from apps.clients.models import Client
-        from apps.materials.models import Materiel
+        mode = data.get('mode_paiement') or 'especes'
+        if mode not in ('especes', 'carte'):
+            return Response({'error': 'Mode de paiement invalide.'}, status=status.HTTP_400_BAD_REQUEST)
+        if mode == 'carte' and not gateway.est_configuree():
+            return Response({'error': 'Le paiement par carte n’est pas disponible pour le moment.'},
+                            status=status.HTTP_400_BAD_REQUEST)
 
-        client, _ = Client.objects.get_or_create(
-            email=data['client_email'],
-            defaults={'nom': data['client_nom'], 'telephone': data.get('client_telephone', '')}
-        )
+        with transaction.atomic():
+            # Verrou sur les matériels : deux paniers simultanés ne peuvent pas prendre la même dernière unité
+            materiels = {m.id: m for m in Materiel.objects.select_for_update().filter(pk__in=quantites)}
+            manquants = set(quantites) - set(materiels)
+            if manquants:
+                return Response({'error': f"Matériel {min(manquants)} introuvable."}, status=status.HTTP_404_NOT_FOUND)
 
-        reservation = Reservation.objects.create(
-            client     = client,
-            date_debut=data['date_debut'],
-            date_fin=data['date_fin'],
-            statut='en_attente',
-            notes=data.get('notes', ''),
-            cree_par=request.user if request.user.is_authenticated else None,
-        )
+            indisponibles = verifier_disponibilite({materiels[i]: q for i, q in quantites.items()}, debut, fin)
+            if indisponibles:
+                return Response({'error': 'Stock insuffisant sur cette période.', 'indisponibles': indisponibles},
+                                status=status.HTTP_409_CONFLICT)
+
+            client, _ = Client.objects.get_or_create(
+                email=data['client_email'],
+                defaults={'nom': data['client_nom'], 'telephone': data.get('client_telephone', '')}
+            )
+            reservation = Reservation.objects.create(
+                client=client,
+                date_debut=debut,
+                date_fin=fin,
+                statut='en_attente',
+                notes=data.get('notes', ''),
+                mode_paiement=mode,
+                cree_par=request.user if request.user.is_authenticated else None,
+            )
+            for materiel_id, quantite in quantites.items():
+                LigneReservation.objects.create(
+                    reservation=reservation, materiel=materiels[materiel_id],
+                    quantite=quantite, prix_unitaire=materiels[materiel_id].prix_journalier,
+                )
+
         reservation.refresh_from_db()
-        
-        for ligne in lignes:
+
+        paiement = {'mode': mode, 'jeton': jeton_paiement(reservation)}
+        if mode == 'carte':
             try:
-                materiel = Materiel.objects.get(pk=ligne['materiel_id'])
-            except Materiel.DoesNotExist:
-                reservation.delete()
-                return Response({'error': f"Matériel {ligne['materiel_id']} introuvable."}, status=status.HTTP_404_NOT_FOUND)
-            LigneReservation.objects.create(
-                reservation   = reservation,
-                materiel      = materiel,
-                quantite      = ligne.get('quantite', 1),
-                prix_unitaire = materiel.prix_journalier
-            )
-            
-        reservation.refresh_from_db()
-        
-        workflow_triggered = N8nService.reservation_created(reservation)
+                paiement['checkout_url'] = carte.demarrer(reservation).checkout_url
+            except (gateway.PasserelleIndisponible, carte.PaiementImpossible) as e:
+                logger.error(f"Paiement carte non démarré pour la réservation {reservation.id}: {e}")
+                paiement['erreur'] = ('Votre réservation est enregistrée, mais le paiement par carte est '
+                                      'momentanément indisponible. Utilisez le lien reçu par email pour réessayer.')
 
-        if not workflow_triggered:
-            logger.warning(
-                f"Workflow n8n non déclenché pour la réservation {reservation.id}"
-            )
+        if not N8nService.reservation_created(reservation):
+            logger.warning(f"Workflow n8n non déclenché pour la réservation {reservation.id}")
 
         try:
-            EmailService.nouvelle_reservation(reservation)
+            EmailService.nouvelle_reservation(reservation, lien_paiement=lien_paiement(reservation) if mode == 'carte' else '')
         except Exception as e:
             logger.error(f"Email B2C échoué: {e}")
 
-        return Response(ReservationSerializer(reservation).data, status=status.HTTP_201_CREATED)
+        return Response({**ReservationSerializer(reservation).data, 'paiement': paiement}, status=status.HTTP_201_CREATED)
     
     @action(detail=False, methods=['get'], url_path='calendar')
     def calendrier(self, request):

@@ -32,6 +32,10 @@ export interface MaReservation {
   created_at: string;
   lignes: MaLigneReservation[];
   facture: { numero: string; statut: string } | null;
+  mode_paiement: string | null;
+  payee: boolean;
+  /** Présent tant que la réservation peut être payée par carte (lien vers /paiement). */
+  jeton_paiement: string | null;
 }
 
 interface GoogleLoginResponse {

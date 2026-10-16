@@ -64,6 +64,22 @@
             </span>
             <span class="fw-bold text-primary fs-5">{{ +r.prix_total | number:'1.0-0' }} Ar</span>
           </div>
+
+          <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mt-3" *ngIf="r.payee || r.jeton_paiement || r.mode_paiement === 'especes'">
+            <span class="font-sm" [class.text-success]="r.payee" [class.text-secondary]="!r.payee">
+              <ng-container *ngIf="r.payee; else nonPayee">
+                <i class="bi bi-check-circle-fill me-1" aria-hidden="true"></i>Payée{{ r.mode_paiement === 'carte' ? ' par carte' : (r.mode_paiement === 'especes' ? ' en espèces' : '') }}
+              </ng-container>
+              <ng-template #nonPayee>
+                <i class="bi bi-cash-coin me-1" aria-hidden="true"></i>
+                {{ r.mode_paiement === 'especes' ? 'À régler en espèces au retrait' : 'En attente de paiement' }}
+              </ng-template>
+            </span>
+            <a *ngIf="r.jeton_paiement" routerLink="/paiement" [queryParams]="{ jeton: r.jeton_paiement }"
+               class="btn btn-sm btn-primary rounded-pill px-3">
+              <i class="bi bi-credit-card me-1" aria-hidden="true"></i>Payer par carte
+            </a>
+          </div>
         </div>
       </article>
     </div>

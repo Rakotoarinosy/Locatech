@@ -17,7 +17,13 @@ export interface ReservationB2CRequest {
   date_debut: string;
   date_fin: string;
   notes: string;
+  mode_paiement: 'especes' | 'carte';
   lignes: { materiel_id: number; quantite: number }[];
+}
+
+export interface ReservationB2CResponse {
+  id: number;
+  paiement?: { mode: string; jeton: string; checkout_url?: string; erreur?: string };
 }
 
 @Injectable({
@@ -36,7 +42,7 @@ export class LandingPageService {
   }
 
   /** `headers` : jeton de l'espace client, pour rattacher la réservation au compte connecté. */
-  creerReservation(request: ReservationB2CRequest, headers?: HttpHeaders): Observable<unknown> {
-    return this.http.post<unknown>(`${this.apiUrl}/reservations/reservations/b2c/`, request, { headers });
+  creerReservation(request: ReservationB2CRequest, headers?: HttpHeaders): Observable<ReservationB2CResponse> {
+    return this.http.post<ReservationB2CResponse>(`${this.apiUrl}/reservations/reservations/b2c/`, request, { headers });
   }
 }

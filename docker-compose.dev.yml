@@ -59,6 +59,10 @@ services:
     env_file:
       - .env.dev
 
+    # Joindre la passerelle de paiement locale (ecommerce_monitoring) lancée sur la machine hôte
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
     depends_on:
       db:
         condition: service_healthy

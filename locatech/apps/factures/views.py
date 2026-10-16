@@ -312,36 +312,13 @@ class FactureViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        facture.statut = 'payee'
-        facture.save()
-
-        reservation = facture.reservation
-        aujourd_hui = date.today()
-        
-        # ← Enregistrer les infos de paiement sur la réservation
-        reservation.montant_recu  = request.data.get('montant_recu') or facture.montant
-        reservation.mode_paiement = request.data.get('mode_paiement') or 'especes'
-        reservation.date_paiement = aujourd_hui
-
-        if aujourd_hui <= reservation.date_fin:
-            # Paiement dans les temps → confirmee, matériels loués
-            reservation.statut = 'confirmee'
-            for ligne in reservation.lignes.all():
-                ligne.materiel.statut = 'loue'
-                ligne.materiel.save()
-        else:
-            # Paiement après date_fin → directement en_attente_retour
-            reservation.statut = 'en_attente_retour'
-
-        reservation.save()
-        _generate_pdf(facture)
-        
-        try:
-            from apps.notifications.services.email_service import EmailService
-            EmailService.reservation_confirmee(reservation)
-        except Exception as e:
-            import logging
-            logging.getLogger(__name__).error(f"Email reservation_confirmee échoué: {e}")
+        # Même règle que le paiement par carte en ligne (apps.paiements.services)
+        from apps.paiements.services import enregistrer_paiement
+        enregistrer_paiement(
+            facture,
+            mode=request.data.get('mode_paiement') or 'especes',
+            montant=request.data.get('montant_recu') or facture.montant,
+        )
 
 
         return Response(FactureSerializer(facture).data)

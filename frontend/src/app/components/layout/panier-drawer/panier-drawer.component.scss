@@ -144,3 +144,24 @@
 }
 
 .font-xs { font-size: 0.75rem; }
+
+.mode-paiement {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  margin-bottom: 0.5rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.75rem;
+  cursor: pointer;
+
+  > i { font-size: 1.35rem; color: #475569; }
+
+  &.actif {
+    border-color: var(--bs-primary);
+    background: rgb(37 99 235 / 5%);
+    > i { color: var(--bs-primary); }
+  }
+
+  &.desactive { opacity: 0.55; cursor: not-allowed; }
+}

@@ -35,7 +35,9 @@ class MaterielViewSet(viewsets.ModelViewSet):
         permission_classes=[AllowAny],
     )
     def catalogue(self, request):
-        materiels = self.get_queryset().filter(statut='disponible', quantite__gt=0)
+        # Le stock est vérifié par période à la réservation : un matériel loué sur d'autres dates
+        # reste réservable. Seuls la maintenance et la casse le retirent du catalogue.
+        materiels = self.get_queryset().exclude(statut__in=('maintenance', 'casse')).filter(quantite__gt=0)
         serializer = PublicMaterielSerializer(
             materiels,
             many=True,
