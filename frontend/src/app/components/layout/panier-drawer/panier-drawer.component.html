@@ -36,8 +36,12 @@
               <div class="fw-semibold text-dark text-truncate">{{ l.produit.nom }}</div>
               <div class="text-muted font-sm">{{ l.produit.prix | number:'1.0-0' }} Ar / jour</div>
               <div class="quantite mt-2">
-                <button type="button" [attr.aria-label]="'Diminuer la quantité de ' + l.produit.nom" (click)="panier.changerQuantite(i, -1)"><i class="bi bi-dash"></i></button>
-                <span>{{ l.quantite }}</span>
+                <button type="button" [attr.aria-label]="'Diminuer la quantité de ' + l.produit.nom" [disabled]="l.quantite <= 1" (click)="panier.changerQuantite(i, -1)"><i class="bi bi-dash"></i></button>
+                <input type="number" inputmode="numeric" min="1" [attr.max]="l.produit.stock > 0 ? l.produit.stock : 999"
+                       [value]="l.quantite" [attr.aria-label]="'Quantité de ' + l.produit.nom"
+                       (focus)="$any($event.target).select()"
+                       (keydown.enter)="$any($event.target).blur()"
+                       (change)="saisirQuantite(i, $event)">
                 <button type="button" [attr.aria-label]="'Augmenter la quantité de ' + l.produit.nom" [disabled]="l.produit.stock > 0 && l.quantite >= l.produit.stock" (click)="panier.changerQuantite(i, 1)"><i class="bi bi-plus"></i></button>
               </div>
             </div>
@@ -55,7 +59,7 @@
             <span class="text-secondary">Total par jour</span>
             <strong class="fs-5 text-primary">{{ panier.totalJournalier() | number:'1.0-0' }} Ar</strong>
           </div>
-          <p class="text-muted font-sm mb-3">Choisissez vos dates à l’étape suivante. Aucun paiement n’est demandé en ligne.</p>
+          <p class="text-muted font-sm mb-3">Choisissez vos dates et votre mode de paiement (espèces ou carte) à l’étape suivante.</p>
           <button type="button" class="btn btn-primary w-100 rounded-pill py-2" (click)="continuer()">
             Choisir les dates <i class="bi bi-arrow-right ms-1"></i>
           </button>

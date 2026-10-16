@@ -303,7 +303,7 @@
 </section>
 
 <!-- ⚡ FLOATING ACTION BUTTON (FAB) DE L'ASSISTANT IA -->
-<div class="ai-floating-badge-box">
+<div class="ai-floating-badge-box" *ngIf="!panier.ouvert()">
   <a [routerLink]="['/assistant-ia']" class="ai-fab-btn shadow-lg" title="Discuter avec notre Assistant IA">
     <div class="ai-icon-pulse">
       <i class="bi bi-cpu-fill"></i>

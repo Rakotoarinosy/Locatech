@@ -8,6 +8,7 @@ from rest_framework import viewsets, filters, status
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from apps.users.permissions import IsStaffUser
+from apps.users.authentication import JWTOptionnel
 from rest_framework.response import Response
 
 from .models import Reservation, LigneReservation
@@ -192,7 +193,8 @@ class ReservationViewSet(viewsets.ModelViewSet):
         )
         return Response(MaReservationSerializer(reservations, many=True, context={'request': request}).data)
 
-    @action(detail=False, methods=['post'], url_path='b2c', permission_classes=[AllowAny])
+    @action(detail=False, methods=['post'], url_path='b2c', permission_classes=[AllowAny],
+            authentication_classes=[JWTOptionnel])
     def creer_b2c(self, request):
         """Crée client + réservation multi-matériels publique (panier du site)."""
         from django.db import transaction

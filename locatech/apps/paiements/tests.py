@@ -86,6 +86,7 @@ class StockParPeriodeTests(Base):
         self.assertNotIn('checkout_url', response.data['paiement'])
         self.assertEqual(Reservation.objects.get().mode_paiement, 'especes')
 
+    @override_settings(PAYMENT_GATEWAY_URL='', PAYMENT_GATEWAY_API_KEY='')
     def test_card_refused_when_gateway_not_configured(self):
         self.assertEqual(self.panier(mode='carte').status_code, 400)
 

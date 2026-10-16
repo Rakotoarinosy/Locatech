@@ -40,7 +40,7 @@ interface Testimonial {
 })
 export class LandingPageComponent implements OnInit {
   private landingPageService = inject(LandingPageService);
-  private panier = inject(PanierService);
+  readonly panier = inject(PanierService);
   products: Product[] = [];
   productsLoading = false;
   productsError = '';

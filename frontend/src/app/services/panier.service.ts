@@ -15,6 +15,8 @@ export interface PanierLigne {
 }
 
 const PANIER_STORAGE_KEY = 'locatech.panier';
+/** Plafond par ligne quand le stock n'est pas connu côté site (la passerelle refuse au-delà de 1000). */
+const QUANTITE_MAX = 999;
 
 @Injectable({
   providedIn: 'root'
@@ -60,9 +62,25 @@ export class PanierService {
     if (quantite <= 0) {
       lignes.splice(index, 1);
     } else {
-      lignes[index] = { ...ligne, quantite: Math.min(quantite, ligne.produit.stock || quantite) };
+      lignes[index] = { ...ligne, quantite: Math.min(quantite, ligne.produit.stock || QUANTITE_MAX) };
     }
     this.enregistrer(lignes);
+  }
+
+  /** Quantité saisie au clavier : bornée entre 1 et le stock (ou QUANTITE_MAX). Renvoie la valeur retenue. */
+  definirQuantite(index: number, valeur: number): number {
+    const lignes = [...this._lignes()];
+    const ligne = lignes[index];
+    if (!ligne) {
+      return 0;
+    }
+    const max = ligne.produit.stock > 0 ? ligne.produit.stock : QUANTITE_MAX;
+    const quantite = Number.isFinite(valeur) ? Math.min(Math.max(Math.trunc(valeur), 1), max) : ligne.quantite;
+    if (quantite !== ligne.quantite) {
+      lignes[index] = { ...ligne, quantite };
+      this.enregistrer(lignes);
+    }
+    return quantite;
   }
 
   retirer(index: number): void {

@@ -5,6 +5,7 @@ from rest_framework import viewsets, status, filters
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from apps.users.permissions import IsStaffUser
+from apps.users.authentication import JWTOptionnel
 from rest_framework.response import Response
 from django.http import FileResponse
 from django.conf import settings
@@ -342,7 +343,8 @@ class FactureViewSet(viewsets.ModelViewSet):
         )
 
     # apps/factures/views.py
-    @action(detail=False, methods=['post'], url_path='devis-ia', permission_classes=[AllowAny])
+    @action(detail=False, methods=['post'], url_path='devis-ia', permission_classes=[AllowAny],
+            authentication_classes=[JWTOptionnel])
     def devis_ia(self, request):
         """Génère un PDF de devis IA avec ReportLab et le retourne en téléchargement."""
         data = request.data

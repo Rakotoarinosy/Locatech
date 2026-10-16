@@ -7,9 +7,11 @@ from .services.gemini_service import ask_gemini
 from .models import MessageHistory
 import json
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from apps.users.authentication import JWTOptionnel
 
 class AssistantAPIView(APIView):
-    authentication_classes = [JWTAuthentication]
+    # Public : un jeton invalide est ignoré, un jeton valide garde l'historique de l'utilisateur
+    authentication_classes = [JWTOptionnel]
     permission_classes = [AllowAny]
 
     def post(self, request):

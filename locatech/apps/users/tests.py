@@ -37,6 +37,12 @@ class BackOfficeAccessTests(TestCase):
     def test_public_catalogue_stays_open(self):
         self.assertEqual(self.api.get('/materiels/materiels/catalogue/').status_code, 200)
 
+    def test_stale_token_does_not_break_public_pages(self):
+        # Vieux jeton resté dans le navigateur (expiré ou signé avec une ancienne SECRET_KEY)
+        self.api.credentials(HTTP_AUTHORIZATION='Bearer jeton.invalide.ou.expire')
+        self.assertEqual(self.api.get('/materiels/materiels/catalogue/').status_code, 200)
+        self.assertEqual(self.api.get('/reservations/reservations/').status_code, 401)
+
     def test_register_is_admin_only(self):
         payload = {'username': 'pirate', 'password': 'motdepasse', 'role': 'admin'}
         self.assertIn(self.api.post('/register/', payload).status_code, (401, 403))

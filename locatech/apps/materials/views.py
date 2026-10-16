@@ -2,6 +2,7 @@ from rest_framework import viewsets, filters, status
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from apps.users.permissions import IsStaffUser
+from apps.users.authentication import JWTOptionnel
 from rest_framework.response import Response
 from .models import Categorie, Materiel
 from .serializers import (
@@ -33,6 +34,7 @@ class MaterielViewSet(viewsets.ModelViewSet):
         methods=['get'],
         url_path='catalogue',
         permission_classes=[AllowAny],
+        authentication_classes=[JWTOptionnel],
     )
     def catalogue(self, request):
         # Le stock est vérifié par période à la réservation : un matériel loué sur d'autres dates

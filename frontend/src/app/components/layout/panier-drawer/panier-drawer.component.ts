@@ -60,6 +60,12 @@ export class PanierDrawerComponent {
     return ligne.produit.id;
   }
 
+  /** Saisie clavier de la quantité ; le champ est réaligné si la valeur a été bornée (ex. 0 → 1). */
+  saisirQuantite(index: number, event: Event): void {
+    const champ = event.target as HTMLInputElement;
+    champ.value = String(this.panier.definirQuantite(index, champ.valueAsNumber));
+  }
+
   majDates(): void {
     if (this.form.date_fin && this.form.date_debut && this.form.date_fin < this.form.date_debut) {
       this.form.date_fin = this.form.date_debut;
