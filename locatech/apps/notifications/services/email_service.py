@@ -88,7 +88,7 @@ class EmailService:
                   <td style="background:#f1f5f9; padding:24px 40px; text-align:center;">
                     <p style="margin:0; color:#94a3b8; font-size:12px;">
                       LocaTech Madagascar · Immeuble Cyber, Ankorondrano, Antananarivo<br>
-                      <a href="https://locatech-mada.rakotoarinosy.com"
+                      <a href="https://locatech-mada.online"
                          style="color:#1A56DB; text-decoration:none;">
                         locatech-mada.rakotoarinosy.com
                       </a>
