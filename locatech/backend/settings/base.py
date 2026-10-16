@@ -212,6 +212,10 @@ PAYMENT_GATEWAY_WEBHOOK_SECRET = os.getenv("PAYMENT_GATEWAY_WEBHOOK_SECRET", "")
 # Site public : pages de retour après paiement et liens envoyés par email
 PUBLIC_FRONTEND_URL = os.getenv("PUBLIC_FRONTEND_URL", "http://localhost:4200")
 
+# Derrière nginx (TLS terminé par le proxy) : les URL absolues générées (lien de facture) restent en https.
+# nginx écrase toujours cet en-tête (proxy_set_header X-Forwarded-Proto $scheme).
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
 EMAIL_HOST = os.getenv('EMAIL_HOST', default='mail31.lwspanel.com')

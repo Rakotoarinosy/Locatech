@@ -7,5 +7,6 @@ urlpatterns = [
     path('statut/', views.StatutView.as_view(), name='paiements-statut'),
     path('carte/', views.PayerCarteView.as_view(), name='paiements-carte'),
     path('especes/', views.PayerEspecesView.as_view(), name='paiements-especes'),
+    path('facture/', views.FactureView.as_view(), name='paiements-facture'),
     path('webhook/', views.WebhookView.as_view(), name='paiements-webhook'),
 ]

@@ -202,3 +202,44 @@ class PaiementBackOfficeTests(Base):
         reservation.refresh_from_db()
         self.assertEqual(reservation.statut, 'confirmee')
         self.assertEqual(reservation.mode_paiement, 'especes')
+
+
+class FactureClientTests(Base):
+    """Le client télécharge sa facture par lien signé (avec ou sans compte Google)."""
+
+    def setUp(self):
+        super().setUp()
+        import tempfile
+        self.media = override_settings(MEDIA_ROOT=tempfile.mkdtemp())
+        self.media.enable()
+        self.addCleanup(self.media.disable)
+        client = Client.objects.create(nom='Rasoa', email='rasoa@gmail.com', telephone='034', adresse='Tana')
+        self.reservation = Reservation.objects.create(client=client, date_debut=JOUR, date_fin=JOUR)
+        LigneReservation.objects.create(reservation=self.reservation, materiel=self.tente, quantite=1, prix_unitaire=30000)
+        self.facture = Facture.objects.create(reservation=self.reservation, montant=30000)
+
+    def test_signed_link_downloads_pdf(self):
+        from .services import jeton_facture
+        response = self.api.get('/paiements/facture/', {'jeton': jeton_facture(self.facture)})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response['Content-Type'], 'application/pdf')
+        self.assertIn(f'facture-{self.facture.numero}.pdf', response['Content-Disposition'])
+        self.assertTrue(b''.join(response.streaming_content).startswith(b'%PDF'))
+
+    def test_invalid_or_cancelled_link_refused(self):
+        from .services import jeton_facture
+        self.assertEqual(self.api.get('/paiements/facture/', {'jeton': 'faux'}).status_code, 404)
+        # un jeton de paiement ne doit pas ouvrir une facture (sels différents)
+        self.assertEqual(self.api.get('/paiements/facture/', {'jeton': jeton_paiement(self.reservation)}).status_code, 404)
+        self.facture.statut = 'annulee'
+        self.facture.save()
+        self.assertEqual(self.api.get('/paiements/facture/', {'jeton': jeton_facture(self.facture)}).status_code, 404)
+
+    def test_mes_reservations_exposes_pdf_link(self):
+        user = get_user_model().objects.create_user('rasoa', 'rasoa@gmail.com', role='client')
+        self.api.force_authenticate(user)
+        response = self.api.get('/reservations/reservations/mes-reservations/')
+        url = response.data[0]['facture']['url_pdf']
+        self.assertIn('/paiements/facture/?jeton=', url)
+        self.api.force_authenticate(None)
+        self.assertEqual(self.api.get(url).status_code, 200)

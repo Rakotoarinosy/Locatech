@@ -94,4 +94,12 @@ class MaReservationSerializer(serializers.ModelSerializer):
 
     def get_facture(self, obj):
         facture = getattr(obj, 'facture', None)
-        return {'numero': facture.numero, 'statut': facture.statut} if facture else None
+        if not facture:
+            return None
+        from apps.paiements.services import url_facture
+        request = self.context.get('request')
+        return {
+            'numero': facture.numero,
+            'statut': facture.statut,
+            'url_pdf': url_facture(request, facture) if request and facture.statut != 'annulee' else None,
+        }

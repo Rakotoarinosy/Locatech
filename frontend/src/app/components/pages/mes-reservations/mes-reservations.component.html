@@ -59,6 +59,10 @@
             <span class="text-secondary font-sm">
               <ng-container *ngIf="r.facture; else sansFacture">
                 <i class="bi bi-file-earmark-text me-1" aria-hidden="true"></i>Facture {{ r.facture.numero }}
+                <a *ngIf="r.facture.url_pdf" [href]="r.facture.url_pdf" class="ms-2 fw-semibold text-decoration-none"
+                   [attr.aria-label]="'Télécharger la facture ' + r.facture.numero">
+                  <i class="bi bi-download me-1" aria-hidden="true"></i>Télécharger
+                </a>
               </ng-container>
               <ng-template #sansFacture>Demandée le {{ r.created_at | date:'d MMM yyyy':'':'fr' }}</ng-template>
             </span>

@@ -80,6 +80,9 @@
         <button *ngIf="enVerification(s)" type="button" class="btn btn-outline-primary rounded-pill py-2" (click)="verifierEncore()">
           Vérifier à nouveau
         </button>
+        <a *ngIf="s.facture?.url_pdf" [href]="s.facture!.url_pdf" class="btn btn-outline-primary rounded-pill py-2">
+          <i class="bi bi-download me-1" aria-hidden="true"></i> Télécharger la facture {{ s.facture!.numero }}
+        </a>
         <a routerLink="/home" class="btn btn-link">Retour à l’accueil</a>
       </div>
     </ng-container>

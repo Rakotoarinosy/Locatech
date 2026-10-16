@@ -31,7 +31,7 @@ export interface MaReservation {
   montant_recu: string | null;
   created_at: string;
   lignes: MaLigneReservation[];
-  facture: { numero: string; statut: string } | null;
+  facture: { numero: string; statut: string; url_pdf: string | null } | null;
   mode_paiement: string | null;
   payee: boolean;
   /** Présent tant que la réservation peut être payée par carte (lien vers /paiement). */

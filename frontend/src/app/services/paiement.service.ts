@@ -23,6 +23,7 @@ export interface StatutPaiement {
   payee: boolean;
   paiement_carte: 'pending' | 'success' | 'failed' | 'cancelled' | null;
   peut_payer_carte: boolean;
+  facture: { numero: string; url_pdf: string } | null;
 }
 
 /** Paiement des réservations (espèces ou carte via la passerelle ecommerce_monitoring). */

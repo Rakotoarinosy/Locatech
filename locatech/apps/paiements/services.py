@@ -21,6 +21,8 @@ STATUTS_INDISPONIBLES = ('maintenance', 'casse')
 
 JETON_SALT = 'locatech.paiement'
 JETON_DUREE = 60 * 60 * 24 * 30  # 30 jours
+JETON_FACTURE_SALT = 'locatech.facture'
+JETON_FACTURE_DUREE = 60 * 60 * 24 * 365  # 1 an : le client garde l'accès à sa facture
 
 
 # ── Stock par période ─────────────────────────────────────────────────
@@ -69,6 +71,25 @@ def reservation_depuis_jeton(jeton: str):
 
 def lien_paiement(reservation) -> str:
     return f"{settings.PUBLIC_FRONTEND_URL.rstrip('/')}/paiement?jeton={jeton_paiement(reservation)}"
+
+
+# ── Lien de téléchargement de facture (sans compte) ──────────────────
+
+def jeton_facture(facture) -> str:
+    return signing.dumps({'f': facture.id}, salt=JETON_FACTURE_SALT)
+
+
+def facture_depuis_jeton(jeton: str):
+    try:
+        data = signing.loads(jeton, salt=JETON_FACTURE_SALT, max_age=JETON_FACTURE_DUREE)
+    except signing.BadSignature:
+        return None
+    return Facture.objects.select_related('reservation').filter(pk=data.get('f')).first()
+
+
+def url_facture(request, facture) -> str:
+    """URL absolue du PDF, téléchargeable par le client sans être connecté."""
+    return request.build_absolute_uri(f"/paiements/facture/?jeton={jeton_facture(facture)}")
 
 
 # ── Facture et encaissement ───────────────────────────────────────────
