@@ -46,6 +46,11 @@ export class PaiementService {
     return this.http.post<{ checkout_url: string }>(`${this.base}/carte/`, { jeton });
   }
 
+  /** Le client renonce à la carte : règlement en espèces au retrait ou à la livraison. */
+  payerEspeces(jeton: string): Observable<StatutPaiement> {
+    return this.http.post<StatutPaiement>(`${this.base}/especes/`, { jeton });
+  }
+
   /** Quitte le site pour la page de paiement sécurisée (Stripe ou simulateur de la passerelle). */
   redirigerVers(url: string): void {
     window.location.assign(url);

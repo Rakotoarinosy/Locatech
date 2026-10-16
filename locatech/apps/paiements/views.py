@@ -90,6 +90,22 @@ class PayerCarteView(_VuePublique):
         return Response({'checkout_url': paiement.checkout_url}, status=status.HTTP_201_CREATED)
 
 
+class PayerEspecesView(_VuePublique):
+    """Le client renonce à la carte : la réservation sera réglée en espèces au retrait ou à la livraison."""
+
+    def post(self, request):
+        reservation = reservation_depuis_jeton(request.data.get('jeton', ''))
+        if reservation is None:
+            return Response({'error': 'Lien de paiement invalide ou expiré.'}, status=status.HTTP_404_NOT_FOUND)
+        if reservation.statut != 'en_attente' or est_payee(reservation):
+            return Response({'error': 'Cette réservation ne peut plus changer de mode de paiement.'},
+                            status=status.HTTP_409_CONFLICT)
+        # Une tentative carte encore ouverte reste vérifiable : si elle aboutit quand même, le paiement est pris en compte
+        reservation.mode_paiement = 'especes'
+        reservation.save(update_fields=['mode_paiement'])
+        return Response(_resume(reservation, reservation.paiements_carte.first()))
+
+
 class WebhookView(APIView):
     """Notification signée envoyée par la passerelle quand un paiement aboutit (ou échoue)."""
     authentication_classes = ()

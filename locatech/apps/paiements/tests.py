@@ -174,6 +174,14 @@ class PaiementCarteTests(Base):
         self.assertTrue(response.data['payee'])
         self.assertEqual(response.data['statut'], 'confirmee')
 
+    def test_customer_can_switch_to_cash(self):
+        self.reserver_carte()
+        reservation = Reservation.objects.get()
+        response = self.api.post('/paiements/especes/', {'jeton': jeton_paiement(reservation)}, format='json')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['mode_paiement'], 'especes')
+        self.assertEqual(Reservation.objects.get().mode_paiement, 'especes')
+
     def test_invalid_token(self):
         self.assertEqual(self.api.get('/paiements/statut/', {'jeton': 'faux'}).status_code, 404)
         self.assertEqual(self.api.post('/paiements/carte/', {'jeton': 'faux'}, format='json').status_code, 404)

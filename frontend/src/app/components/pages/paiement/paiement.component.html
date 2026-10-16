@@ -25,7 +25,7 @@
         </ng-template>
 
         <ng-template #attente>
-          <ng-container *ngIf="s.paiement_carte === 'failed' || s.paiement_carte === 'cancelled' || retour() === 'cancelled'; else aRegler">
+          <ng-container *ngIf="s.mode_paiement !== 'especes' && (s.paiement_carte === 'failed' || s.paiement_carte === 'cancelled' || retour() === 'cancelled'); else aRegler">
             <div class="etat etat-ko"><i class="bi bi-x-circle-fill" aria-hidden="true"></i></div>
             <h1 class="h4 fw-bold text-dark mb-2">
               {{ s.paiement_carte === 'failed' ? 'Paiement refusé' : 'Paiement annulé' }}
@@ -36,9 +36,13 @@
 
         <ng-template #aRegler>
           <div class="etat etat-info"><i class="bi bi-hourglass-split" aria-hidden="true"></i></div>
-          <h1 class="h4 fw-bold text-dark mb-2">Réservation en attente de paiement</h1>
+          <h1 class="h4 fw-bold text-dark mb-2">
+            {{ s.mode_paiement === 'especes' ? 'Paiement en espèces' : 'Réservation en attente de paiement' }}
+          </h1>
           <p class="text-secondary mb-0">
-            {{ s.mode_paiement === 'especes' ? 'Paiement prévu en espèces au retrait ou à la livraison.' : 'Réglez votre réservation par carte pour la confirmer.' }}
+            {{ s.mode_paiement === 'especes'
+              ? 'Réglez le montant en espèces au retrait ou à la livraison du matériel. Notre équipe confirmera alors votre réservation.'
+              : 'Réglez votre réservation par carte pour la confirmer.' }}
           </p>
         </ng-template>
       </div>
@@ -69,6 +73,9 @@
           <span *ngIf="redirection()" class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
           <i *ngIf="!redirection()" class="bi bi-credit-card me-1" aria-hidden="true"></i>
           {{ s.paiement_carte ? 'Réessayer le paiement par carte' : 'Payer par carte' }}
+        </button>
+        <button *ngIf="peutPasserEnEspeces(s)" type="button" class="btn btn-outline-secondary rounded-pill py-2" (click)="payerEspeces()">
+          <i class="bi bi-cash-coin me-1" aria-hidden="true"></i> Je préfère payer en espèces
         </button>
         <button *ngIf="enVerification(s)" type="button" class="btn btn-outline-primary rounded-pill py-2" (click)="verifierEncore()">
           Vérifier à nouveau

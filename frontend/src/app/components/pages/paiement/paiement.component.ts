@@ -88,6 +88,22 @@ export class PaiementComponent implements OnInit, OnDestroy {
     });
   }
 
+  payerEspeces(): void {
+    this.erreur.set('');
+    this.paiementService.payerEspeces(this.jeton).subscribe({
+      next: (statut) => {
+        this.retour.set('');
+        this.statut.set(statut);
+      },
+      error: (err) => this.erreur.set(err.error?.error ?? 'Le changement de mode de paiement a échoué. Réessayez.'),
+    });
+  }
+
+  /** Le client peut encore choisir les espèces (réservation non payée, pas déjà en espèces). */
+  peutPasserEnEspeces(s: StatutPaiement): boolean {
+    return !s.payee && s.statut === 'en_attente' && s.mode_paiement !== 'especes' && !this.enVerification(s);
+  }
+
   enVerification(s: StatutPaiement): boolean {
     return !s.payee && s.paiement_carte === 'pending' && this.retour() === 'success';
   }
